@@ -1,0 +1,12 @@
+{
+  "name": "org.kruzhok.talent.logic",
+  "displayName": "Cyberiada Logic Package",
+  "version": "0.1.0",
+  "unity": "2021.3",
+  "description": "Cyberiada Logic Package",
+  "author": {
+    "name": "Talent",
+    "url": "https://talent.kruzhok.org"
+  },
+  "samples": []
+}
