@@ -7,5 +7,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!-- Headers should be listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security -->
 
 ## [0.x.x] - dev
+ 
+## [0.1.0] - 25.05.2024
 ### Added
- - Base
+ - GraphBase
+ - Cyberiada-GraphML Extension
+ - GraphEditorCore
+ - LogicBridge
+ - Graph based HSM interpretator
