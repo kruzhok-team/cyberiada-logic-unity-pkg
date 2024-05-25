@@ -1,0 +1,183 @@
+﻿using System;
+using System.Collections.Generic;
+
+namespace Talent.Logic.Bus
+{
+    /// <summary>
+    ///     Represents a event bus of commands, events and variables.
+    /// </summary>
+    public class LocalBus : IBus
+    {
+        private const string AnyName = "Any";
+
+        private readonly IDictionary<string, List<Listener>> _commands = new Dictionary<string, List<Listener>>();
+        private readonly IDictionary<string, List<Listener>> _events = new Dictionary<string, List<Listener>>();
+        private readonly IDictionary<string, Func<string>> _variables = new Dictionary<string, Func<string>>();
+
+        /// <summary>
+        ///     Initializes a new instance of the <see cref="LocalBus"/> class.
+        /// </summary>
+        public LocalBus()
+        {
+            _events.Add(AnyName, new List<Listener>());
+            _commands.Add(AnyName, new List<Listener>());
+        }
+
+        /// <summary>
+        ///     Adds a command listener of any command to the LocalBus.
+        /// </summary>
+        /// <param name="listener">The listener to add.</param>
+        public void AddCommandListener(Listener listener)
+        {
+            AddCommandListener(AnyName, listener);
+        }
+
+        /// <summary>
+        ///     Adds a command listener to the LocalBus.
+        /// </summary>
+        /// <param name="commandName">The name of the command to listen for.</param>
+        /// <param name="listener">The listener to add.</param>
+        public void AddCommandListener(string commandName, Listener listener)
+        {
+            AddListener(_commands, commandName, listener);
+        }
+
+        /// <summary>
+        ///     Adds a event listener of any event to the LocalBus.
+        /// </summary>
+        /// <param name="listener">The listener to add.</param>
+        public void AddEventListener(Listener listener)
+        {
+            AddEventListener(AnyName, listener);
+        }
+
+        /// <summary>
+        ///     Adds a event listener to the LocalBus.
+        /// </summary>
+        /// <param name="eventName">The name of the event to listen for.</param>
+        /// <param name="listener">The listener to add.</param>
+        public void AddEventListener(string eventName, Listener listener)
+        {
+            AddListener(_events, eventName, listener);
+        }
+
+        /// <summary>
+        ///     Removes a command listener from the LocalBus.
+        /// </summary>
+        /// <param name="commandName">The name of the command to remove the listener from.</param>
+        /// <param name="listener">The listener to remove.</param>
+        public void RemoveCommandListener(string commandName, Listener listener)
+        {
+            RemoveListener(_commands, commandName, listener);
+        }
+
+        /// <summary>
+        ///     Removes a event listener from the LocalBus.
+        /// </summary>
+        /// <param name="eventName">The name of the event to remove the listener from.</param>
+        /// <param name="listener">The listener to remove.</param>
+        public void RemoveEventListener(string eventName, Listener listener)
+        {
+            RemoveListener(_events, eventName, listener);
+        }
+
+        /// <summary>
+        ///     Invokes an event with the specified event name and optional value.
+        /// </summary>
+        /// <param name="eventName">The name of the event to invoke.</param>
+        /// <param name="value">The optional value to pass to the event listeners.</param>
+        public void InvokeEvent(string eventName, string value = "")
+        {
+            Invoke(_events, eventName, value);
+        }
+
+        /// <summary>
+        ///     Invokes a command with the specified command name and optional value.
+        /// </summary>
+        /// <param name="commandName">The name of the command to invoke.</param>
+        /// <param name="value">The optional value to pass to the command listeners.</param>
+        public void InvokeCommand(string commandName, string value = "")
+        {
+            Invoke(_commands, commandName, value);
+        }
+
+        /// <summary>
+        ///     Adds a variable getter function to the LocalBus.
+        /// </summary>
+        /// <param name="variableName">The name of the variable.</param>
+        /// <param name="getter">The function that returns the value of the variable.</param>
+        public void AddVariableGetter(string variableName, Func<string> getter)
+        {
+            if (_variables.TryAdd(variableName, getter) == false)
+            {
+                throw new ArgumentException($"Variable getter for {variableName} already exists");
+            }
+        }
+
+        /// <summary>
+        ///     Removes a variable getter function from the LocalBus.
+        /// </summary>
+        /// <param name="variableName">The name of the variable.</param>
+        /// <param name="getter">The function that returns the value of the variable.</param>
+        public void RemoveVariableGetter(string variableName, Func<string> getter)
+        {
+            _variables.Remove(variableName);
+        }
+
+        /// <summary>
+        /// Tries to get the value of a variable by its name.
+        /// </summary>
+        /// <param name="variableName">The name of the variable.</param>
+        /// <param name="value">The value of the variable if found, otherwise null.</param>
+        /// <returns>True if the variable is found and its value is returned, false otherwise.</returns>
+        public bool TryGetVariableValue(string variableName, out string value)
+        {
+            if (_variables.TryGetValue(variableName, out Func<string> getter))
+            {
+                value = getter();
+
+                return true;
+            }
+
+            value = null;
+
+            return false;
+        }
+
+        private void AddListener<T>(IDictionary<string, List<T>> container, string name, T listener)
+        {
+            if (container.ContainsKey(name) == false)
+            {
+                container.Add(name, new List<T>(1));
+            }
+
+            container[name].Insert(0, listener);
+        }
+
+        private void RemoveListener<T>(IDictionary<string, List<T>> container, string name, T listener)
+        {
+            if (container.ContainsKey(name) == false)
+            {
+                return;
+            }
+
+            container[name].Remove(listener);
+        }
+
+        private void Invoke(IDictionary<string, List<Listener>> container, string name, string value)
+        {
+            if (container.ContainsKey(name) == false)
+            {
+                return;
+            }
+
+            foreach (Listener listener in container[name])
+            {
+                if (listener.Invoke(value))
+                {
+                    break;
+                }
+            }
+        }
+    }
+}
