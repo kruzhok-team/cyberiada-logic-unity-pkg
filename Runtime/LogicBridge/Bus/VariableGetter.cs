@@ -1,7 +1,7 @@
+using System;
 #if UNITY_EDITOR || DEBUG
 using UnityEngine;
 #endif
-using System;
 
 namespace Talent.Logic.Bus
 {
@@ -31,13 +31,14 @@ namespace Talent.Logic.Bus
 
         public string GetStringVariable()
         {
-            if (typeof(T) == typeof(bool))
+            T value = _getter.Invoke();
+
+            if (value is bool variable)
             {
-                string result = _getter.Invoke().ToString();
-                return result == "True" ? "1" : "0";
+                return variable ? "1" : "0";
             }
 
-            return _getter.Invoke().ToString();
+            return $"{value}";
         }
     }
 }
