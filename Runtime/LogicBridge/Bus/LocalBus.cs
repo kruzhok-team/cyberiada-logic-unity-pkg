@@ -12,7 +12,7 @@ namespace Talent.Logic.Bus
 
         private readonly IDictionary<string, List<Listener>> _commands = new Dictionary<string, List<Listener>>();
         private readonly IDictionary<string, List<Listener>> _events = new Dictionary<string, List<Listener>>();
-        private readonly IDictionary<string, Func<string>> _variables = new Dictionary<string, Func<string>>();
+        private readonly IDictionary<string, IVariableGetter> _variables = new Dictionary<string, IVariableGetter>();
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="LocalBus"/> class.
@@ -104,53 +104,87 @@ namespace Talent.Logic.Bus
         /// <summary>
         ///     Adds a variable getter function to the LocalBus.
         /// </summary>
+        /// <typeparam name="T">The type of the variable.</typeparam>
         /// <param name="variableName">The name of the variable.</param>
         /// <param name="getter">The function that returns the value of the variable.</param>
-        public void AddVariableGetter(string variableName, Func<string> getter)
+        public void AddVariableGetter<T>(string variableName, Func<T> getter)
         {
-            if (_variables.TryAdd(variableName, getter) == false)
+            if (string.IsNullOrWhiteSpace(variableName))
             {
-                throw new ArgumentException($"Variable getter for {variableName} already exists");
+                throw new ArgumentException("Variable name cannot be null or whitespace.", nameof(variableName));
             }
+
+            if (_variables.ContainsKey(variableName))
+            {
+                throw new ArgumentException("Variable getter with same variable name already exists", nameof(variableName));
+            }
+
+            _variables[variableName] = new VariableGetter<T>(getter);
+        }
+
+        /// <summary>
+        ///     Tries to get the value of a variable with the given name and type.
+        /// </summary>
+        /// <typeparam name="T">The type of the variable.</typeparam>
+        /// <param name="variableName">The name of the variable.</param>
+        /// <param name="value">The output value of the variable.</param>
+        /// <param name="asTyped">Marker for special handling of typed variables.</param>
+        /// <returns>True if the variable exists and its value was successfully retrieved, false otherwise.</returns>
+        public bool TryGetVariableValue<T>(string variableName, out T value)
+        {
+            if (_variables.TryGetValue(variableName, out IVariableGetter getter))
+            {
+                if (getter.TryGetTypedVariable(out T variable))
+                {
+                    value = variable;
+                    return true;
+                }
+            }
+
+            value = default;
+            return false;
         }
 
         /// <summary>
         ///     Removes a variable getter function from the LocalBus.
         /// </summary>
         /// <param name="variableName">The name of the variable.</param>
-        /// <param name="getter">The function that returns the value of the variable.</param>
-        public void RemoveVariableGetter(string variableName, Func<string> getter)
+        public void RemoveVariableGetter(string variableName)
         {
             _variables.Remove(variableName);
         }
 
         /// <summary>
-        /// Tries to get the value of a variable by its name.
+        ///     Tries to get the value of a variable with the given name and type.
         /// </summary>
         /// <param name="variableName">The name of the variable.</param>
-        /// <param name="value">The value of the variable if found, otherwise null.</param>
-        /// <returns>True if the variable is found and its value is returned, false otherwise.</returns>
+        /// <param name="value">The output value of the variable.</param>
+        /// <returns>True if the variable exists and its value was successfully retrieved, false otherwise.</returns>
         public bool TryGetVariableValue(string variableName, out string value)
         {
-            if (_variables.TryGetValue(variableName, out Func<string> getter))
+            if (_variables.TryGetValue(variableName, out IVariableGetter getter))
             {
-                value = getter();
-
+                value = getter.GetStringVariable();
                 return true;
             }
 
-            value = null;
-
+            value = default;
             return false;
         }
 
         private void AddListener<T>(IDictionary<string, List<T>> container, string name, T listener)
         {
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new ArgumentException("Listener name cannot be null or whitespace.", nameof(name));
+            }
+
             if (container.ContainsKey(name) == false)
             {
                 container.Add(name, new List<T>(1));
             }
 
+            
             container[name].Insert(0, listener);
         }
 
