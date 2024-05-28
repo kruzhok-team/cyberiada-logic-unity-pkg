@@ -4,10 +4,12 @@ namespace Talent.Logic.Bus
 {
     public interface IVariableBus
     {
-        public void AddVariableGetter(string variableName, Func<string> getter);
+        void AddVariableGetter<T>(string variableName, Func<T> getter);
 
-        public void RemoveVariableGetter(string variableName, Func<string> getter);
+        void RemoveVariableGetter(string variableName);
 
-        public bool TryGetVariableValue(string variableName, out string value);
+        bool TryGetVariableValue<T>(string variableName, out T value);
+
+        bool TryGetVariableValue(string variableName, out string value);
     }
 }
