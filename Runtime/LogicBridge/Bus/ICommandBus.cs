@@ -2,12 +2,12 @@
 {
     public interface ICommandBus
     {
-        public void AddCommandListener(Listener listener);
+        void AddCommandListener(Listener listener);
 
-        public void AddCommandListener(string commandName, Listener listener);
+        void AddCommandListener(string commandName, Listener listener);
 
-        public void RemoveCommandListener(string commandName, Listener listener);
+        void RemoveCommandListener(string commandName, Listener listener);
 
-        public void InvokeEvent(string eventName, string value = "");
+        void InvokeEvent(string eventName, string value = "");
     }
 }
