@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 <!-- Headers should be listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security -->
 
 ## [0.x.x] - dev
+
+## [0.1.1] - 03.06.2024
+### Changed
+ - Variable getters are now generic
  
 ## [0.1.0] - 25.05.2024
 ### Added
