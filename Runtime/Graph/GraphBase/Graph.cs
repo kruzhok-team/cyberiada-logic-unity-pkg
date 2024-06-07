@@ -42,11 +42,11 @@ namespace Talent.Graph
         /// <summary>
         /// Creates a copy of the graph
         /// </summary>
-        /// <param name="id">The ID of graph copy, if id is null, the ID will be given from the original edge</param>
+        /// <param name="newID">The ID of graph copy, if id is null, the ID will be given from the original edge</param>
         /// <returns>A copy of the graph</returns>
-        public Graph<TGraphData, TNodeData, TEdgeData> GetCopy(string id = null)
+        public Graph<TGraphData, TNodeData, TEdgeData> GetCopy(string newID = null)
         {
-            Graph<TGraphData, TNodeData, TEdgeData> resultGraph = new Graph<TGraphData, TNodeData, TEdgeData>(id ?? ID, Data);
+            Graph<TGraphData, TNodeData, TEdgeData> resultGraph = new Graph<TGraphData, TNodeData, TEdgeData>(newID ?? ID, Data);
 
             foreach (Node<TGraphData, TNodeData, TEdgeData> node in Nodes)
             {
