@@ -39,6 +39,28 @@ namespace Talent.Graph
             Data = data;
         }
 
+        /// <summary>
+        /// Creates a copy of the graph
+        /// </summary>
+        /// <param name="id">The ID of graph copy, if id is null, the ID will be given from the original edge</param>
+        /// <returns>A copy of the graph</returns>
+        public Graph<TGraphData, TNodeData, TEdgeData> GetCopy(string id = null)
+        {
+            Graph<TGraphData, TNodeData, TEdgeData> resultGraph = new Graph<TGraphData, TNodeData, TEdgeData>(id ?? ID, Data);
+
+            foreach (Node<TGraphData, TNodeData, TEdgeData> node in Nodes)
+            {
+                resultGraph.AddNode(node.GetCopy());
+            }
+
+            foreach (Edge<TEdgeData> edge in Edges)
+            {
+                resultGraph.AddEdge(edge.GetCopy());
+            }
+
+            return resultGraph;
+        }
+
         #region Nodes API
 
         /// <summary>

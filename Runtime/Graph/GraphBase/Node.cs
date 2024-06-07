@@ -34,6 +34,28 @@ namespace Talent.Graph
         }
 
         /// <summary>
+        /// Creates a copy of the node
+        /// </summary>
+        /// <param name="id">The ID of node copy, if id is null, the ID will be given from the original edge</param>
+        /// <returns>A copy of the node</returns>
+        public Node<TGraphData, TNodeData, TEdgeData> GetCopy(string id = null)
+        {
+            Node<TGraphData, TNodeData, TEdgeData> resultNode = new Node<TGraphData, TNodeData, TEdgeData>(ID, Data);
+
+            if (ParentNode != null)
+            {
+                resultNode.ParentNode = ParentNode.GetCopy();
+            }
+
+            if (NestedGraph != null)
+            {
+                resultNode.NestedGraph = NestedGraph.GetCopy();
+            }
+
+            return resultNode;
+        }
+
+        /// <summary>
         /// Custom ToString realization for creating more representive string visualization of node data
         /// </summary>
         /// <returns></returns>

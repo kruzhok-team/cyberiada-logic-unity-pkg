@@ -36,6 +36,18 @@ namespace Talent.Graph
         }
 
         /// <summary>
+        /// Creates a copy of the edge
+        /// </summary>
+        /// <param name="id">The ID of edge copy, if id is null, the ID will be given from the original edge</param>
+        /// <returns>A copy of the edge</returns>
+        public Edge<TEdgeData> GetCopy(string id = null)
+        {
+            Edge<TEdgeData> resultEdge = new Edge<TEdgeData>(ID, SourceNode, TargetNode, Data);
+
+            return resultEdge;
+        }
+
+        /// <summary>
         /// Custom ToString realization for creating more representive string visualization of edge data
         /// </summary>
         /// <returns></returns>
