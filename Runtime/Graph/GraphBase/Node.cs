@@ -6,6 +6,9 @@ namespace Talent.Graph
     /// Class representing single node of graph
     /// </summary>
     public class Node<TGraphData, TNodeData, TEdgeData>
+        where TGraphData : IClonable<TGraphData>
+        where TNodeData : IClonable<TNodeData>
+        where TEdgeData : IClonable<TEdgeData>
     {
         /// <summary>
         /// Unique id of a node
@@ -41,17 +44,18 @@ namespace Talent.Graph
         /// <summary>
         /// Creates a copy of the node
         /// </summary>
+        /// <param name="data">Data for a copy of the node</param>
         /// <param name="parentNode">The parent node of this node</param>
         /// <param name="newID">The ID of node copy, if id is null, the ID will be given from the original edge</param>
         /// <returns>A copy of the node</returns>
-        public Node<TGraphData, TNodeData, TEdgeData> GetCopy(Node<TGraphData, TNodeData, TEdgeData> parentNode = null, string newID = null)
+        public Node<TGraphData, TNodeData, TEdgeData> GetCopy(TNodeData data, Node<TGraphData, TNodeData, TEdgeData> parentNode = null, string newID = null)
         {
             if (newID == "")
             {
                 throw new System.ArgumentNullException($"Can't copy Node with newID '{newID}'. ID can't be null or empty");
             }
 
-            Node<TGraphData, TNodeData, TEdgeData> resultNode = new Node<TGraphData, TNodeData, TEdgeData>(newID ?? ID, Data);
+            Node<TGraphData, TNodeData, TEdgeData> resultNode = new Node<TGraphData, TNodeData, TEdgeData>(newID ?? ID, data);
 
             if (ParentNode != null)
             {
@@ -60,7 +64,7 @@ namespace Talent.Graph
 
             if (NestedGraph != null)
             {
-                resultNode.NestedGraph = NestedGraph.GetCopy(resultNode);
+                resultNode.NestedGraph = NestedGraph.GetCopy(NestedGraph.Data.GetCopy(), resultNode);
             }
 
             return resultNode;

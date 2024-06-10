@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Talent.Graph.Cyberiada
 {
-    public class NodeData
+    public class NodeData : IClonable<NodeData>
     {
         public const string Vertex_Initial = "initial";
         public const string Vertex_Final = "final";
@@ -23,6 +23,24 @@ namespace Talent.Graph.Cyberiada
         public NodeData(string vertex = "")
         {
             Vertex = vertex;
+        }
+
+        /// <summary>
+        /// Creates a copy of the node data
+        /// </summary>
+        public NodeData GetCopy()
+        {
+            NodeData resultData = new NodeData(Vertex);
+
+            foreach (Event nodeEvent in _events.Values)
+            {
+                resultData.AddEvent(nodeEvent.GetCopy());
+            }
+
+            resultData.VisualData.Name = VisualData.Name;
+            resultData.VisualData.Position = VisualData.Position;
+
+            return resultData;
         }
 
         #region Events API

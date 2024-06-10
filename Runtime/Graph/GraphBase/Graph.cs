@@ -8,6 +8,9 @@ namespace Talent.Graph
     /// Main class for graph representation
     /// </summary>
     public class Graph<TGraphData, TNodeData, TEdgeData>
+        where TGraphData : IClonable<TGraphData>
+        where TNodeData : IClonable<TNodeData>
+        where TEdgeData : IClonable<TEdgeData>
     {
         /// <summary>
         /// Unique id of a graph
@@ -47,26 +50,27 @@ namespace Talent.Graph
         /// <summary>
         /// Creates a copy of the graph
         /// </summary>
+        /// <param name="data">Data for a copy of the graph</param>
         /// <param name="parentNode">The parent node of this graph, is needed to set the reference in the nodes of the graph</param>
         /// <param name="newID">The ID of graph copy, if id is null, the ID will be given from the original edge</param>
         /// <returns>A copy of the graph</returns>
-        public Graph<TGraphData, TNodeData, TEdgeData> GetCopy(Node<TGraphData, TNodeData, TEdgeData> parentNode = null, string newID = null)
+        public Graph<TGraphData, TNodeData, TEdgeData> GetCopy(TGraphData data, Node<TGraphData, TNodeData, TEdgeData> parentNode = null, string newID = null)
         {
             if (newID == "")
             {
                 throw new System.ArgumentNullException($"Can't copy Graph with newID '{newID}'. ID can't be null or empty");
             }
 
-            Graph<TGraphData, TNodeData, TEdgeData> resultGraph = new Graph<TGraphData, TNodeData, TEdgeData>(newID ?? ID, Data);
+            Graph<TGraphData, TNodeData, TEdgeData> resultGraph = new Graph<TGraphData, TNodeData, TEdgeData>(newID ?? ID, data);
 
             foreach (Node<TGraphData, TNodeData, TEdgeData> node in Nodes)
             {
-                resultGraph.AddNode(node.GetCopy(parentNode));
+                resultGraph.AddNode(node.GetCopy(node.Data.GetCopy(), parentNode));
             }
 
             foreach (Edge<TEdgeData> edge in Edges)
             {
-                resultGraph.AddEdge(edge.GetCopy());
+                resultGraph.AddEdge(edge.GetCopy(edge.Data.GetCopy()));
             }
 
             return resultGraph;

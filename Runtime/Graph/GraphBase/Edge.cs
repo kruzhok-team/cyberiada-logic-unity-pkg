@@ -53,16 +53,17 @@ namespace Talent.Graph
         /// <summary>
         /// Creates a copy of the edge
         /// </summary>
+        /// <param name="data">Data for a copy of the edge</param>
         /// <param name="newID">The ID of edge copy, if id is null, the ID will be given from the original edge</param>
         /// <returns>A copy of the edge</returns>
-        public Edge<TEdgeData> GetCopy(string newID = null)
+        public Edge<TEdgeData> GetCopy(TEdgeData data, string newID = null)
         {
             if (newID == "")
             {
                 throw new System.ArgumentNullException($"Can't copy Edge with newID '{newID}'. ID can't be null or empty");
             }
 
-            Edge<TEdgeData> resultEdge = new Edge<TEdgeData>(newID ?? ID, SourceNode, TargetNode, Data);
+            Edge<TEdgeData> resultEdge = new Edge<TEdgeData>(newID ?? ID, SourceNode, TargetNode, data);
 
             return resultEdge;
         }
