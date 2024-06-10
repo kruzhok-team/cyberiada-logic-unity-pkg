@@ -42,6 +42,7 @@ namespace Talent.Graph
         /// <summary>
         /// Creates a copy of the graph
         /// </summary>
+        /// <param name="parentNode">The parent node of this graph, is needed to set the reference in the nodes of the graph</param>
         /// <param name="newID">The ID of graph copy, if id is null, the ID will be given from the original edge</param>
         /// <returns>A copy of the graph</returns>
         public Graph<TGraphData, TNodeData, TEdgeData> GetCopy(Node<TGraphData, TNodeData, TEdgeData> parentNode = null, string newID = null)
