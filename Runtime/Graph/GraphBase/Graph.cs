@@ -35,6 +35,11 @@ namespace Talent.Graph
 
         public Graph(string id, TGraphData data)
         {
+            if (string.IsNullOrEmpty(id))
+            {
+                throw new System.ArgumentNullException($"Can't create Graph with id '{id}'. ID can't be null or empty");
+            }
+
             ID = id;
             Data = data;
         }
@@ -47,6 +52,11 @@ namespace Talent.Graph
         /// <returns>A copy of the graph</returns>
         public Graph<TGraphData, TNodeData, TEdgeData> GetCopy(Node<TGraphData, TNodeData, TEdgeData> parentNode = null, string newID = null)
         {
+            if (newID == "")
+            {
+                throw new System.ArgumentNullException($"Can't copy Graph with newID '{newID}'. ID can't be null or empty");
+            }
+
             Graph<TGraphData, TNodeData, TEdgeData> resultGraph = new Graph<TGraphData, TNodeData, TEdgeData>(newID ?? ID, Data);
 
             foreach (Node<TGraphData, TNodeData, TEdgeData> node in Nodes)

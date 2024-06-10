@@ -29,6 +29,21 @@ namespace Talent.Graph
 
         public Edge(string id, string sourceNode, string targetNode, TEdgeData data)
         {
+            if (string.IsNullOrEmpty(id))
+            {
+                throw new System.ArgumentNullException($"Can't create Edge with id '{id}'. ID can't be null or empty");
+            }
+
+            if (string.IsNullOrEmpty(sourceNode))
+            {
+                throw new System.ArgumentNullException($"Can't create Edge with source node id '{sourceNode}'. ID can't be null or empty");
+            }
+
+            if (string.IsNullOrEmpty(targetNode))
+            {
+                throw new System.ArgumentNullException($"Can't create Edge with target node id '{targetNode}'. ID can't be null or empty");
+            }
+
             ID = id;
             SourceNode = sourceNode;
             TargetNode = targetNode;
@@ -42,6 +57,11 @@ namespace Talent.Graph
         /// <returns>A copy of the edge</returns>
         public Edge<TEdgeData> GetCopy(string newID = null)
         {
+            if (newID == "")
+            {
+                throw new System.ArgumentNullException($"Can't copy Edge with newID '{newID}'. ID can't be null or empty");
+            }
+
             Edge<TEdgeData> resultEdge = new Edge<TEdgeData>(newID ?? ID, SourceNode, TargetNode, Data);
 
             return resultEdge;
