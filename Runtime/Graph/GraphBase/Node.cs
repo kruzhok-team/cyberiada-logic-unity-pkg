@@ -38,18 +38,18 @@ namespace Talent.Graph
         /// </summary>
         /// <param name="newID">The ID of node copy, if id is null, the ID will be given from the original edge</param>
         /// <returns>A copy of the node</returns>
-        public Node<TGraphData, TNodeData, TEdgeData> GetCopy(string newID = null)
+        public Node<TGraphData, TNodeData, TEdgeData> GetCopy(Node<TGraphData, TNodeData, TEdgeData> parentNode = null, string newID = null)
         {
             Node<TGraphData, TNodeData, TEdgeData> resultNode = new Node<TGraphData, TNodeData, TEdgeData>(newID ?? ID, Data);
 
             if (ParentNode != null)
             {
-                resultNode.ParentNode = ParentNode.GetCopy();
+                resultNode.ParentNode = parentNode;
             }
 
             if (NestedGraph != null)
             {
-                resultNode.NestedGraph = NestedGraph.GetCopy();
+                resultNode.NestedGraph = NestedGraph.GetCopy(resultNode);
             }
 
             return resultNode;

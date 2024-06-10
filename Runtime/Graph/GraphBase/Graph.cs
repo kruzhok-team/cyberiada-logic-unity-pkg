@@ -44,13 +44,13 @@ namespace Talent.Graph
         /// </summary>
         /// <param name="newID">The ID of graph copy, if id is null, the ID will be given from the original edge</param>
         /// <returns>A copy of the graph</returns>
-        public Graph<TGraphData, TNodeData, TEdgeData> GetCopy(string newID = null)
+        public Graph<TGraphData, TNodeData, TEdgeData> GetCopy(Node<TGraphData, TNodeData, TEdgeData> parentNode = null, string newID = null)
         {
             Graph<TGraphData, TNodeData, TEdgeData> resultGraph = new Graph<TGraphData, TNodeData, TEdgeData>(newID ?? ID, Data);
 
             foreach (Node<TGraphData, TNodeData, TEdgeData> node in Nodes)
             {
-                resultGraph.AddNode(node.GetCopy());
+                resultGraph.AddNode(node.GetCopy(parentNode));
             }
 
             foreach (Edge<TEdgeData> edge in Edges)
