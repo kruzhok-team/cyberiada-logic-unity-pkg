@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Talent.Graph.Cyberiada
 {
-    public class EdgeData
+    public class EdgeData : IClonable<EdgeData>
     {
         public string TriggerID { get; private set; }
         public string Condition { get; private set; }
@@ -19,6 +19,24 @@ namespace Talent.Graph.Cyberiada
         public EdgeData(string triggerID)
         {
             TriggerID = triggerID;
+        }
+
+        /// <summary>
+        /// Creates a copy of the edge data
+        /// </summary>
+        public EdgeData GetCopy()
+        {
+            EdgeData resultData = new EdgeData(TriggerID);
+            resultData.SetCondition(Condition);
+
+            foreach (var action in _actions)
+            {
+                resultData.AddAction(action.GetCopy());
+            }
+
+            resultData.VisualData.Position = VisualData.Position;
+
+            return resultData;
         }
 
         /// <summary>

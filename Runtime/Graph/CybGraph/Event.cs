@@ -25,6 +25,21 @@ namespace Talent.Graph.Cyberiada
         }
 
         /// <summary>
+        /// Creates a copy of the event
+        /// </summary>
+        public Event GetCopy()
+        {
+            Event resultEvent = new Event(TriggerID);
+
+            foreach (Action action in _actions)
+            {
+                resultEvent.AddAction(action.GetCopy());
+            }
+
+            return resultEvent;
+        }
+
+        /// <summary>
         /// Change trigger id for this event
         /// </summary>
         public void SetTrigger(string triggerID)
