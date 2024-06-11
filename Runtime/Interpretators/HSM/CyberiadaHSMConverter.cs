@@ -17,6 +17,8 @@ namespace Talent.Logic.HSM
         private const string EnterEventId = "entry";
         private const string ExitEventId = "exit";
 
+        private Graph<GraphData, NodeData, EdgeData> _sourceGraph;
+
         /// <summary>
         ///     Processes the graph source to build a hierarchical state machine.
         /// </summary>
@@ -26,10 +28,11 @@ namespace Talent.Logic.HSM
         public IBehavior Process(Graph<GraphData, NodeData, EdgeData> source, IBus bus)
         {
             StateBuilder builder = new StateBuilder(bus, source.ID);
+            _sourceGraph = source;
 
             foreach (Node<GraphData, NodeData, EdgeData> node in source.Nodes)
             {
-                IEnumerable<Edge<EdgeData>> edges = source.Edges.Where(edge => edge.SourceNode == node.ID);
+                IEnumerable<Edge<EdgeData>> edges = GetEdges(node.ID);
 
                 StateBuilder childBuilder = CreateChildBuilder(node, edges, bus);
                 builder.AddChildState(childBuilder);
@@ -61,7 +64,6 @@ namespace Talent.Logic.HSM
                 foreach (Action action in @event.Actions)
                 {
                     (string module, string command, string parameters) data = ParseActionData(action);
-
                     string commandName = GetFullCommandName(data);
 
                     switch (@event.TriggerID)
@@ -82,11 +84,6 @@ namespace Talent.Logic.HSM
                     }
                 }
             }
-        }
-
-        private string GetFullCommandName((string module, string command, string parameters) data)
-        {
-            return $"{data.module}.{data.command}";
         }
 
         private void AddTransitions(IEnumerable<Edge<EdgeData>> edges, StateBuilder builder)
@@ -119,9 +116,14 @@ namespace Talent.Logic.HSM
 
             foreach (Node<GraphData, NodeData, EdgeData> node in rootNode.NestedGraph.Nodes)
             {
-                StateBuilder childBuilder = CreateChildBuilder(node, rootNode.NestedGraph.Edges, bus);
+                StateBuilder childBuilder = CreateChildBuilder(node, GetEdges(node.ID), bus);
                 builder.AddChildState(childBuilder);
             }
+        }
+
+        private string GetFullCommandName((string module, string command, string parameters) data)
+        {
+            return $"{data.module}.{data.command}";
         }
 
         private (string module, string command, string parameters) ParseActionData(Action action)
@@ -132,6 +134,12 @@ namespace Talent.Logic.HSM
             string parameters = action.Parameter;
 
             return new ValueTuple<string, string, string>(module, command, parameters);
+        }
+
+        private IEnumerable<Edge<EdgeData>> GetEdges(string bySourceNodeId)
+        {
+            IEnumerable<Edge<EdgeData>> edges = _sourceGraph.Edges.Where(edge => edge.SourceNode == bySourceNodeId);
+            return edges;
         }
     }
 }

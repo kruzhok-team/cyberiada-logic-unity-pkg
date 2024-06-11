@@ -8,6 +8,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.x.x] - dev
 
+## [0.1.2] - 11.06.2024
+### Added
+ - Ability to copy graph via Graph.GetCopy method
+### Fixed
+ - HSM generation now properly treats edges in root graph connecting nested nodes
+
 ## [0.1.1] - 03.06.2024
 ### Changed
  - Variable getters are now generic

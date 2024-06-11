@@ -22,6 +22,16 @@ namespace Talent.Graph.Cyberiada
         }
 
         /// <summary>
+        /// Creates a copy of the action
+        /// </summary>
+        public Action GetCopy()
+        {
+            Action resultAction = new Action(ID, Parameter);
+
+            return resultAction;
+        }
+
+        /// <summary>
         /// Set parameter of action
         /// </summary>
         public void SetParameter(string parameter)
