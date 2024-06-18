@@ -109,11 +109,11 @@ namespace Talent.GraphEditor.Core
                 if (node.Data.Vertex == NodeData.Vertex_Initial)
                 {
                     _initialNode = node;
-                    _nodeViews.Set(_initialNode, GraphElementViewFactory.CreateNodeView(_initialNode.Data.VisualData, _initialNode.Data.Vertex));
+                    _nodeViews.Set(_initialNode, GraphElementViewFactory.CreateNodeView(_initialNode.Data.VisualData, _initialNode.Data.Vertex, true));
                 }
                 else
                 {
-                    CreateViewForNode(node);
+                    CreateViewForNode(node, false, true);
                 }
             }
 
@@ -151,7 +151,7 @@ namespace Talent.GraphEditor.Core
                 Graph.AddNode(_initialNode);
                 _initialNode.Data.VisualData.Name = "INIT";
 
-                _nodeViews.Set(_initialNode, GraphElementViewFactory.CreateNodeView(_initialNode.Data.VisualData, _initialNode.Data.Vertex));
+                _nodeViews.Set(_initialNode, GraphElementViewFactory.CreateNodeView(_initialNode.Data.VisualData, _initialNode.Data.Vertex, false));
 
                 CreateInitialEdge();
             }
@@ -192,7 +192,7 @@ namespace Talent.GraphEditor.Core
             Graph.AddNode(node);
             node.Data.VisualData.Name = name;
 
-            return CreateViewForNode(node, true);
+            return CreateViewForNode(node, true, false);
         }
 
         public IEdgeView CreateNewEdge(INodeView sourceView, INodeView targetView, string triggerID)
@@ -479,7 +479,7 @@ namespace Talent.GraphEditor.Core
 
         #endregion
 
-        public void SetParent(INodeView childView, INodeView parentView)
+        public void SetParent(INodeView childView, INodeView parentView, bool haveSavedData)
         {
             if (childView == null || !_nodeViews.TryGetValue(childView, out Node<GraphData, NodeData, EdgeData> child) || (_initialNode != null && child == _initialNode))
             {
@@ -499,7 +499,7 @@ namespace Talent.GraphEditor.Core
                 oldParent = child.ParentNode;
                 child.ParentNode = null;
 
-                _nodeViews.Get(child).SetParent(null);
+                _nodeViews.Get(child).SetParent(null, haveSavedData);
             }
             else if (_nodeViews.TryGetValue(parentView, out Node<GraphData, NodeData, EdgeData> parent) && child != parent && (_initialNode == null || parent != _initialNode))
             {
@@ -534,7 +534,7 @@ namespace Talent.GraphEditor.Core
                     parent.NestedGraph.AddNode(child);
                 }
 
-                _nodeViews.Get(child).SetParent(_graphViews.Get(parent.NestedGraph));
+                _nodeViews.Get(child).SetParent(_graphViews.Get(parent.NestedGraph), haveSavedData);
             }
 
             RemoveGraphFromNode(oldParent);
@@ -584,10 +584,10 @@ namespace Talent.GraphEditor.Core
 
         #region Internal Create Methods
 
-        private INodeView CreateViewForNode(Node<GraphData, NodeData, EdgeData> node, bool createInitialNode = false)
+        private INodeView CreateViewForNode(Node<GraphData, NodeData, EdgeData> node, bool createInitialNode, bool haveSavedData)
         {
             _nodes[node.ID] = node;
-            INodeView view = GraphElementViewFactory.CreateNodeView(node.Data.VisualData, node.Data.Vertex);
+            INodeView view = GraphElementViewFactory.CreateNodeView(node.Data.VisualData, node.Data.Vertex, haveSavedData);
             _nodeViews.Set(node, view);
 
             foreach (KeyValuePair<string, Event> nodeEvent in node.Data.Events)
@@ -616,8 +616,8 @@ namespace Talent.GraphEditor.Core
 
                 foreach (Node<GraphData, NodeData, EdgeData> nestedNode in node.NestedGraph.Nodes)
                 {
-                    INodeView nestedView = CreateViewForNode(nestedNode);
-                    SetParent(nestedView, view);
+                    INodeView nestedView = CreateViewForNode(nestedNode, false, haveSavedData);
+                    SetParent(nestedView, view, haveSavedData);
                 }
             }
 
@@ -661,7 +661,7 @@ namespace Talent.GraphEditor.Core
     public interface IGraphElementViewFactory
     {
         IGraphView CreateGraphView(string graphID, INodeView parentNodeView);
-        INodeView CreateNodeView(NodeVisualData visualData, string vertex);
+        INodeView CreateNodeView(NodeVisualData visualData, string vertex, bool haveSavedData);
         INodeEventView CreateNodeEventView(INodeView nodeView, string triggerID);
         INodeActionView CreateNodeActionView(INodeEventView eventView, string actionID);
         IEdgeView CreateEdgeView(INodeView sourceNode, INodeView targetNode, EdgeVisualData edgeVisualData, string triggerID, string condition);
@@ -675,7 +675,7 @@ namespace Talent.GraphEditor.Core
 
     public interface INodeView : IGraphElementView
     {
-        void SetParent(IGraphView parent);
+        void SetParent(IGraphView parent, bool haveSavedData);
     }
 
     public interface INodeEventView : IGraphElementView { }
