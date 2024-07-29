@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.x.x] - dev
 
+## [0.1.4] - 29.07.2024
+### Changed
+ - Removed unnecessary logs output
+
 ## [0.1.3] - 18.06.2024
 ### Added
  - Flag to element creation factories API to check if its implied to place new element automatically in layout or not

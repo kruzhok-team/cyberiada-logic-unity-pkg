@@ -9,10 +9,6 @@ using UnityEngine;
 
 namespace Talent.Graph.Cyberiada.Converter
 {
-    //Триггер - строка до слеша
-    //Кондишен - строка в квадратных скобках
-    //Экшен - строка после слеша
-
     public static class CyberiadaGraphMLConverter
     {
         public static Graph<GraphData, NodeData, EdgeData> Deserialize(XElement xElement)
@@ -22,13 +18,11 @@ namespace Talent.Graph.Cyberiada.Converter
 
             XElement graphElement = xElement.Element(FullName("graph"));
 
-            Debug.Log(graphElement);
-
             Graph<GraphData, NodeData, EdgeData> graph = CreateGraph(graphElement);
 
             CreateEdges(graphElement, graph);
 
-            Debug.Log(graph);
+            Debug.Log($"The graph with id \"{graph.ID}\" was deserialized.");
 
             return graph;
         }
@@ -36,8 +30,6 @@ namespace Talent.Graph.Cyberiada.Converter
         public static Graph<GraphData, NodeData, EdgeData> DeserializeFromFile(string filePath)
         {
             XDocument xml = XDocument.Load(filePath);
-
-            Debug.Log($"DeserializeFromFile: xml={xml}");
 
             return Deserialize(xml.Root);
         }
@@ -52,13 +44,13 @@ namespace Talent.Graph.Cyberiada.Converter
             XElement graphElement = CreateXmlGraph(graph, root);
             CreateXmlEdges(graph, graphElement);
 
+            Debug.Log($"The graph with id \"{graph.ID}\" was serialized.");
+
             return root;
         }
 
         public static void SerializeToFile(Graph<GraphData, NodeData, EdgeData> graph, string filePath)
         {
-            Debug.Log(graph);
-
             XElement xmlElement = Serialize(graph);
             var xmlDoc = new XDocument
             {
@@ -154,7 +146,6 @@ namespace Talent.Graph.Cyberiada.Converter
             if (string.IsNullOrEmpty(value))
                 return;
 
-            Debug.Log("AddDataToXmlElement: value=" + value);
             var dataElement = new XElement(FullName("data"), new XAttribute("key", "dData"), value);
             nodeElement.Add(dataElement);
         }
@@ -198,7 +189,6 @@ namespace Talent.Graph.Cyberiada.Converter
                 if (IsNote(nodeElement) || nodeElement.Attribute("id")?.Value == "")
                     continue;
 
-                Debug.Log($"Deserialize: nodeElement={nodeElement}");
                 Node<GraphData, NodeData, EdgeData> node = CreateNode(nodeElement);
                 node.ParentNode = parentNode;
 
@@ -239,7 +229,6 @@ namespace Talent.Graph.Cyberiada.Converter
                         foreach (string line in lines)
                         {
                             string trigger = line[..line.IndexOf('/')];
-                            Debug.Log("Deserialize: trigger=" + trigger);
 
                             var nodeEvent = new Event(trigger);
                             data.AddEvent(nodeEvent);
@@ -272,7 +261,6 @@ namespace Talent.Graph.Cyberiada.Converter
 
             foreach (XElement edgeElement in edges)
             {
-                Debug.Log($"Deserialize: edgeElement={edgeElement}");
                 Edge<EdgeData> edge = CreateEdge(edgeElement);
 
                 graph.AddEdge(edge);
@@ -404,7 +392,6 @@ namespace Talent.Graph.Cyberiada.Converter
                 string id = match.Groups[1].Value.Trim();
                 string @params = match.Groups[2].Value.Trim();
 
-                Debug.Log($"Action id={id}, @params={@params}");
                 result.Add((id, @params));
             }
 
