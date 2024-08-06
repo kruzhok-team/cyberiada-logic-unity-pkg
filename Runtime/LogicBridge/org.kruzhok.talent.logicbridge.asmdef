@@ -1,7 +1,9 @@
 {
     "name": "org.kruzhok.talent.logicbridge",
     "rootNamespace": "Talent.Logic",
-    "references": [],
+    "references": [
+        "GUID:6b8087584a35f8e43b76aad88a5c8878"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
