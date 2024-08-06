@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ## [0.x.x] - dev
 
+## [0.1.5] - 06.08.2024
+### Changed
+ - IEntity now implements IExecutionContextSource directly
+
 ## [0.1.4] - 29.07.2024
 ### Changed
  - Removed unnecessary logs output
