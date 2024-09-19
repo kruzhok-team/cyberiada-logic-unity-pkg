@@ -11,6 +11,7 @@ namespace Talent.Graph.Cyberiada
         /// Node that event is connected to
         /// </summary>
         public string TriggerID { get; private set; }
+        public string Condition { get; private set; }
 
         private readonly List<Action> _actions = new();
 
@@ -30,6 +31,7 @@ namespace Talent.Graph.Cyberiada
         public Event GetCopy()
         {
             Event resultEvent = new Event(TriggerID);
+            resultEvent.SetCondition(Condition);
 
             foreach (Action action in _actions)
             {
@@ -45,6 +47,14 @@ namespace Talent.Graph.Cyberiada
         public void SetTrigger(string triggerID)
         {
             TriggerID = triggerID;
+        }
+
+        /// <summary>
+        /// Change condition for this node event
+        /// </summary>
+        public void SetCondition(string condition)
+        {
+            Condition = condition;
         }
 
         #region EventAction API
