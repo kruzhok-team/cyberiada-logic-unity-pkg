@@ -277,7 +277,7 @@ namespace Talent.GraphEditor.Core
                     newNodeEventView = CreateNewNodeEvent(nodeView, triggerID);
                 }
 
-                foreach(Action action in nodeEvent.Actions)
+                foreach (Action action in nodeEvent.Actions)
                 {
                     var actionView = CreateNewNodeAction(newNodeEventView, action.ID);
                     ChangeNodeActionParameter(actionView, action.Parameter);
@@ -293,6 +293,15 @@ namespace Talent.GraphEditor.Core
             {
                 edge.Data.SetTrigger(triggerID);
                 edgeView.SetTrigger(triggerID);
+            }
+        }
+
+        public void ChangeNodeEventCondition(INodeView nodeView, INodeEventView nodeEventView, string condition)
+        {
+            if (_nodeViews.TryGetValue(nodeView, out Node<GraphData, NodeData, EdgeData> node) && _nodeEventViews.TryGetValue(nodeEventView, out Event nodeEvent) && nodeEvent.Condition != condition)
+            {
+                nodeEvent.SetCondition(condition);
+                nodeEventView.SetCondition(condition);
             }
         }
 
@@ -678,7 +687,10 @@ namespace Talent.GraphEditor.Core
         void SetParent(IGraphView parent, bool layoutAutomatically);
     }
 
-    public interface INodeEventView : IGraphElementView { }
+    public interface INodeEventView : IGraphElementView
+    {
+        void SetCondition(string condition);
+    }
 
     public interface INodeActionView : IGraphElementView
     {
