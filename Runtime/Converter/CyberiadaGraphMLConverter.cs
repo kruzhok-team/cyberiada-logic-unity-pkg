@@ -22,8 +22,6 @@ namespace Talent.Graph.Cyberiada.Converter
 
             CreateEdges(graphElement, graph);
 
-            Debug.Log($"The graph with id \"{graph.ID}\" was deserialized.");
-
             return graph;
         }
 
@@ -43,8 +41,6 @@ namespace Talent.Graph.Cyberiada.Converter
             var root = new XElement( nameSpace + "graphml");
             XElement graphElement = CreateXmlGraph(graph, root);
             CreateXmlEdges(graph, graphElement);
-
-            Debug.Log($"The graph with id \"{graph.ID}\" was serialized.");
 
             return root;
         }
