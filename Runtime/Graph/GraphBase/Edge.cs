@@ -1,11 +1,12 @@
 using System.Text;
+using Talent.Graph.Cyberiada;
 
 namespace Talent.Graph
 {
     /// <summary>
     /// Class representing single edge from one node to another
     /// </summary>
-    public class Edge<TEdgeData>
+    public class Edge
     {
         /// <summary>
         /// Unique id of a edge
@@ -25,9 +26,9 @@ namespace Talent.Graph
         /// <summary>
         /// Data of a concrete edge implementation
         /// </summary>
-        public TEdgeData Data { get; }
+        public EdgeData Data { get; }
 
-        public Edge(string id, string sourceNode, string targetNode, TEdgeData data)
+        public Edge(string id, string sourceNode, string targetNode, EdgeData data)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -56,14 +57,14 @@ namespace Talent.Graph
         /// <param name="data">Data for a copy of the edge</param>
         /// <param name="newID">The ID of edge copy, if id is null, the ID will be given from the original edge</param>
         /// <returns>A copy of the edge</returns>
-        public Edge<TEdgeData> GetCopy(TEdgeData data, string newID = null)
+        public Edge GetCopy(EdgeData data, string newID = null)
         {
             if (newID == "")
             {
                 throw new System.ArgumentNullException($"Can't copy Edge with newID '{newID}'. ID can't be null or empty");
             }
 
-            Edge<TEdgeData> resultEdge = new Edge<TEdgeData>(newID ?? ID, SourceNode, TargetNode, data);
+            Edge resultEdge = new Edge(newID ?? ID, SourceNode, TargetNode, data);
 
             return resultEdge;
         }
@@ -78,6 +79,7 @@ namespace Talent.Graph
             stringBuilder.AppendLine($"EDGE");
             stringBuilder.AppendLine($"{nameof(SourceNode)}={SourceNode}");
             stringBuilder.AppendLine($"{nameof(TargetNode)}={TargetNode}");
+            stringBuilder.AppendLine($"{nameof(Data)}={Data}");
             return stringBuilder.ToString();
         }
     }

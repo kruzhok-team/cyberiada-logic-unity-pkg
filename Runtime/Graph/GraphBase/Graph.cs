@@ -1,42 +1,40 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using Talent.Graph.Cyberiada;
 
 namespace Talent.Graph
 {
     /// <summary>
     /// Main class for graph representation
     /// </summary>
-    public class Graph<TGraphData, TNodeData, TEdgeData>
-        where TGraphData : IClonable<TGraphData>
-        where TNodeData : IClonable<TNodeData>
-        where TEdgeData : IClonable<TEdgeData>
+    public class CyberiadaGraph
     {
         /// <summary>
         /// Unique id of a graph
         /// </summary>
         public string ID { get; }
 
-        private readonly Dictionary<string, Node<TGraphData, TNodeData, TEdgeData>> _nodes = new();
+        private readonly Dictionary<string, Node> _nodes = new();
 
         /// <summary>
         /// Root nodes that the graph contains, without child nodes
         /// </summary>
-        public IReadOnlyCollection<Node<TGraphData, TNodeData, TEdgeData>> Nodes => _nodes.Values;
+        public IReadOnlyCollection<Node> Nodes => _nodes.Values;
 
-        private readonly HashSet<Edge<TEdgeData>> _edges = new();
+        private readonly HashSet<Edge> _edges = new();
 
         /// <summary>
         /// Root edges that the graph contains
         /// </summary>
-        public IReadOnlyCollection<Edge<TEdgeData>> Edges => _edges;
+        public IReadOnlyCollection<Edge> Edges => _edges;
 
         /// <summary>
         /// Data of a concrete graph implementation
         /// </summary>
-        public TGraphData Data { get; }
+        public GraphData Data { get; }
 
-        public Graph(string id, TGraphData data)
+        public CyberiadaGraph(string id, GraphData data)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -54,26 +52,33 @@ namespace Talent.Graph
         /// <param name="parentNode">The parent node of this graph, is needed to set the reference in the nodes of the graph</param>
         /// <param name="newID">The ID of graph copy, if id is null, the ID will be given from the original edge</param>
         /// <returns>A copy of the graph</returns>
-        public Graph<TGraphData, TNodeData, TEdgeData> GetCopy(TGraphData data, Node<TGraphData, TNodeData, TEdgeData> parentNode = null, string newID = null)
+        public CyberiadaGraph GetCopy(GraphData data, Node parentNode = null, string newID = null)
         {
             if (newID == "")
             {
                 throw new System.ArgumentNullException($"Can't copy Graph with newID '{newID}'. ID can't be null or empty");
             }
 
-            Graph<TGraphData, TNodeData, TEdgeData> resultGraph = new Graph<TGraphData, TNodeData, TEdgeData>(newID ?? ID, data);
+            CyberiadaGraph resultGraph = new CyberiadaGraph(newID ?? ID, data);
 
-            foreach (Node<TGraphData, TNodeData, TEdgeData> node in Nodes)
+            foreach (Node node in Nodes)
             {
                 resultGraph.AddNode(node.GetCopy(node.Data.GetCopy(), parentNode));
             }
 
-            foreach (Edge<TEdgeData> edge in Edges)
+            foreach (Edge edge in Edges)
             {
                 resultGraph.AddEdge(edge.GetCopy(edge.Data.GetCopy()));
             }
 
             return resultGraph;
+        }
+
+        public bool IsGraphEqual(CyberiadaGraph graph)
+        {
+            CyberiadaGraph graphCopy = GetCopy(Data, null, graph.ID);
+
+            return graphCopy.ToString() == graph.ToString();
         }
 
         #region Nodes API
@@ -94,7 +99,7 @@ namespace Talent.Graph
         /// <param name="id">Node id</param>
         /// <param name="node">Result node, null if graph doesn't have corresponding node</param>
         /// <returns>True if succesfully found node, false if not</returns>
-        public bool TryGetNode(string id, out Node<TGraphData, TNodeData, TEdgeData> node)
+        public bool TryGetNode(string id, out Node node)
         {
             return _nodes.TryGetValue(id, out node);
         }
@@ -103,7 +108,7 @@ namespace Talent.Graph
         /// Add node to graph
         /// </summary>
         /// <param name="node">Node to adding</param>
-        public void AddNode(Node<TGraphData, TNodeData, TEdgeData> node)
+        public void AddNode(Node node)
         {
             _nodes[node.ID] = node;
         }
@@ -112,7 +117,7 @@ namespace Talent.Graph
         /// Delete existing node
         /// </summary>
         /// <param name="node">Target node</param>
-        public void DeleteNode(Node<TGraphData, TNodeData, TEdgeData> node)
+        public void DeleteNode(Node node)
         {
             if (HasNode(node.ID))
             {
@@ -128,7 +133,7 @@ namespace Talent.Graph
         /// Add edge to graph
         /// </summary>
         /// <param name="edge">Edge to adding</param>
-        public void AddEdge(Edge<TEdgeData> edge)
+        public void AddEdge(Edge edge)
         {
             _edges.Add(edge);
         }
@@ -137,7 +142,7 @@ namespace Talent.Graph
         /// Deleting existing edge between nodes
         /// </summary>
         /// <param name="edge">Target edge</param>
-        public void DeleteEdge(Edge<TEdgeData> edge)
+        public void DeleteEdge(Edge edge)
         {
             _edges.Remove(edge);
         }
@@ -152,8 +157,22 @@ namespace Talent.Graph
         {
             StringBuilder stringBuilder = new();
             stringBuilder.AppendLine($"GRAPH({ID})");
-            stringBuilder.AppendLine($"{nameof(Nodes)}={string.Join(", ", Nodes.Select(node => node.ID))}");
-            stringBuilder.AppendLine($"{nameof(Edges)}=\n{string.Join("\n", Edges)}");
+
+            string nodes = "\n";
+            foreach (Node node in Nodes)
+            {
+                nodes += $"\n{node}";
+            }
+
+            stringBuilder.AppendLine(nodes);
+
+            string edges = "\n";
+            foreach (Edge edge in Edges)
+            {
+                edges += $"\n{edge}";
+            }
+
+            stringBuilder.AppendLine(edges);
 
             return stringBuilder.ToString();
         }

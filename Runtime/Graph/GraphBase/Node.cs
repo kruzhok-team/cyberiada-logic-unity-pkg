@@ -1,36 +1,34 @@
 using System.Text;
+using Talent.Graph.Cyberiada;
 
 namespace Talent.Graph
 {
     /// <summary>
     /// Class representing single node of graph
     /// </summary>
-    public class Node<TGraphData, TNodeData, TEdgeData>
-        where TGraphData : IClonable<TGraphData>
-        where TNodeData : IClonable<TNodeData>
-        where TEdgeData : IClonable<TEdgeData>
+    public class Node
     {
         /// <summary>
         /// Unique id of a node
         /// </summary>
         public string ID { get; }
-        
+
         /// <summary>
         /// Parent node of a node if it has one
         /// </summary>
-        public Node<TGraphData, TNodeData, TEdgeData> ParentNode { get; set; }
+        public Node ParentNode { get; set; }
 
         /// <summary>
         /// Nested graph of a node if it has one, this graph contains child nodes
         /// </summary>
-        public Graph<TGraphData, TNodeData, TEdgeData> NestedGraph { get; set; }
+        public CyberiadaGraph NestedGraph { get; set; }
 
         /// <summary>
         /// Data of a concrete node implementation
         /// </summary>
-        public TNodeData Data { get; }
+        public NodeData Data { get; }
 
-        public Node(string id, TNodeData data)
+        public Node(string id, NodeData data)
         {
             if (string.IsNullOrEmpty(id))
             {
@@ -48,14 +46,14 @@ namespace Talent.Graph
         /// <param name="parentNode">The parent node of this node</param>
         /// <param name="newID">The ID of node copy, if id is null, the ID will be given from the original edge</param>
         /// <returns>A copy of the node</returns>
-        public Node<TGraphData, TNodeData, TEdgeData> GetCopy(TNodeData data, Node<TGraphData, TNodeData, TEdgeData> parentNode = null, string newID = null)
+        public Node GetCopy(NodeData data, Node parentNode = null, string newID = null)
         {
             if (newID == "")
             {
                 throw new System.ArgumentNullException($"Can't copy Node with newID '{newID}'. ID can't be null or empty");
             }
 
-            Node<TGraphData, TNodeData, TEdgeData> resultNode = new Node<TGraphData, TNodeData, TEdgeData>(newID ?? ID, data);
+            Node resultNode = new Node(newID ?? ID, data);
 
             if (ParentNode != null)
             {
@@ -77,7 +75,7 @@ namespace Talent.Graph
         public override string ToString()
         {
             StringBuilder stringBuilder = new();
-            stringBuilder.AppendLine($"NODE({ID})");
+            stringBuilder.AppendLine($"NODE({ID})({Data})");
             stringBuilder.AppendLine($"{nameof(ParentNode)}={ParentNode?.ID}");
             return stringBuilder.ToString();
         }

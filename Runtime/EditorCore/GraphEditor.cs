@@ -9,21 +9,21 @@ namespace Talent.GraphEditor.Core
 {
     public class GraphEditor
     {
-        public Graph<GraphData, NodeData, EdgeData> Graph { get; private set; }
+        public CyberiadaGraph Graph { get; private set; }
 
         private IGraphElementViewFactory GraphElementViewFactory { get; }
-        private Dictionary<string, Node<GraphData, NodeData, EdgeData>> _nodes = new Dictionary<string, Node<GraphData, NodeData, EdgeData>>();
-        private Dictionary<string, Edge<EdgeData>> _edges = new Dictionary<string, Edge<EdgeData>>();
+        private Dictionary<string, Node> _nodes = new Dictionary<string, Node>();
+        private Dictionary<string, Edge> _edges = new Dictionary<string, Edge>();
 
-        private BidirectionalDictionary<Graph<GraphData, NodeData, EdgeData>, IGraphView> _graphViews = new BidirectionalDictionary<Graph<GraphData, NodeData, EdgeData>, IGraphView>();
-        private BidirectionalDictionary<Node<GraphData, NodeData, EdgeData>, INodeView> _nodeViews = new BidirectionalDictionary<Node<GraphData, NodeData, EdgeData>, INodeView>();
-        private BidirectionalDictionary<Edge<EdgeData>, IEdgeView> _edgeViews = new BidirectionalDictionary<Edge<EdgeData>, IEdgeView>();
+        private BidirectionalDictionary<CyberiadaGraph, IGraphView> _graphViews = new BidirectionalDictionary<CyberiadaGraph, IGraphView>();
+        private BidirectionalDictionary<Node, INodeView> _nodeViews = new BidirectionalDictionary<Node, INodeView>();
+        private BidirectionalDictionary<Edge, IEdgeView> _edgeViews = new BidirectionalDictionary<Edge, IEdgeView>();
         private BidirectionalDictionary<Event, INodeEventView> _nodeEventViews = new BidirectionalDictionary<Event, INodeEventView>();
         private BidirectionalDictionary<Action, INodeActionView> _nodeActionViews = new BidirectionalDictionary<Action, INodeActionView>();
         private BidirectionalDictionary<Action, IEdgeActionView> _edgeActionViews = new BidirectionalDictionary<Action, IEdgeActionView>();
 
-        private Node<GraphData, NodeData, EdgeData> _initialNode;
-        private Edge<EdgeData> _initialEdge;
+        private Node _initialNode;
+        private Edge _initialEdge;
 
         public GraphEditor(IGraphElementViewFactory factory)
         {
@@ -34,7 +34,7 @@ namespace Talent.GraphEditor.Core
         /// Set graph and rebuild views
         /// </summary>
         /// <param name="graph"></param>
-        public void SetGraph(Graph<GraphData, NodeData, EdgeData> graph)
+        public void SetGraph(CyberiadaGraph graph)
         {
             Graph = graph;
             RebuildView();
@@ -104,7 +104,7 @@ namespace Talent.GraphEditor.Core
                 return;
             }
 
-            foreach (Node<GraphData, NodeData, EdgeData> node in Graph.Nodes)
+            foreach (Node node in Graph.Nodes)
             {
                 if (node.Data.Vertex == NodeData.Vertex_Initial)
                 {
@@ -117,7 +117,7 @@ namespace Talent.GraphEditor.Core
                 }
             }
 
-            foreach (Edge<EdgeData> edge in Graph.Edges)
+            foreach (Edge edge in Graph.Edges)
             {
                 if (edge.SourceNode == _initialNode.ID || edge.TargetNode == _initialNode.ID)
                 {
@@ -146,7 +146,7 @@ namespace Talent.GraphEditor.Core
         {
             if (_initialNode == null)
             {
-                _initialNode = new Node<GraphData, NodeData, EdgeData>("initial", new NodeData(NodeData.Vertex_Initial));
+                _initialNode = new Node("initial", new NodeData(NodeData.Vertex_Initial));
 
                 Graph.AddNode(_initialNode);
                 _initialNode.Data.VisualData.Name = "INIT";
@@ -161,7 +161,7 @@ namespace Talent.GraphEditor.Core
         {
             if (_initialEdge == null && _initialNode != null && _nodes.Count > 0)
             {
-                _initialEdge = new Edge<EdgeData>(_initialNode.ID + _nodes.Values.First().ID, _initialNode.ID, _nodes.Values.First().ID, new EdgeData(""));
+                _initialEdge = new Edge(_initialNode.ID + _nodes.Values.First().ID, _initialNode.ID, _nodes.Values.First().ID, new EdgeData(""));
                 Graph.AddEdge(_initialEdge);
 
                 if (_nodeViews.TryGetValue(_initialNode, out INodeView sourceNodeView) && _nodeViews.TryGetValue(_nodes.Values.First(), out INodeView targetNodeView))
@@ -176,9 +176,9 @@ namespace Talent.GraphEditor.Core
 
         public IGraphView CreateNewGraph(string id, INodeView nodeView)
         {
-            if (_nodeViews.TryGetValue(nodeView, out Node<GraphData, NodeData, EdgeData> node) && node.NestedGraph == null)
+            if (_nodeViews.TryGetValue(nodeView, out Node node) && node.NestedGraph == null)
             {
-                node.NestedGraph = new Graph<GraphData, NodeData, EdgeData>(id, new GraphData());
+                node.NestedGraph = new CyberiadaGraph(id, new GraphData());
             }
 
             IGraphView graphView = GraphElementViewFactory.CreateGraphView(id, nodeView);
@@ -188,7 +188,7 @@ namespace Talent.GraphEditor.Core
 
         public INodeView CreateNewNode(string name)
         {
-            Node<GraphData, NodeData, EdgeData> node = new Node<GraphData, NodeData, EdgeData>(System.Guid.NewGuid().ToString(), new NodeData());
+            Node node = new Node(System.Guid.NewGuid().ToString(), new NodeData());
             Graph.AddNode(node);
             node.Data.VisualData.Name = name;
 
@@ -197,15 +197,15 @@ namespace Talent.GraphEditor.Core
 
         public IEdgeView CreateNewEdge(INodeView sourceView, INodeView targetView, string triggerID)
         {
-            Node<GraphData, NodeData, EdgeData> sourceNode = _nodeViews.Get(sourceView);
-            Node<GraphData, NodeData, EdgeData> targetNode = _nodeViews.Get(targetView);
+            Node sourceNode = _nodeViews.Get(sourceView);
+            Node targetNode = _nodeViews.Get(targetView);
 
             if ((sourceNode == _initialNode || targetNode == _initialNode) && _initialEdge != null)
             {
                 return null;
             }
 
-            Edge<EdgeData> edge = new Edge<EdgeData>(System.Guid.NewGuid().ToString(), sourceNode.ID, targetNode.ID, new EdgeData(triggerID));
+            Edge edge = new Edge(System.Guid.NewGuid().ToString(), sourceNode.ID, targetNode.ID, new EdgeData(triggerID));
             Graph.AddEdge(edge);
 
             return CreateViewForEdge(edge);
@@ -215,7 +215,7 @@ namespace Talent.GraphEditor.Core
         {
             INodeEventView result = default;
 
-            if (_nodeViews.TryGetValue(nodeView, out Node<GraphData, NodeData, EdgeData> node))
+            if (_nodeViews.TryGetValue(nodeView, out Node node))
             {
                 if (!node.Data.Events.TryGetValue(triggerID, out Event nodeEvent))
                 {
@@ -254,7 +254,7 @@ namespace Talent.GraphEditor.Core
         {
             IEdgeActionView result = default;
 
-            if (_edgeViews.TryGetValue(edgeView, out Edge<EdgeData> edge))
+            if (_edgeViews.TryGetValue(edgeView, out Edge edge))
             {
                 Action eventAction = new Action(actionID);
 
@@ -270,7 +270,7 @@ namespace Talent.GraphEditor.Core
 
         public void ChangeNodeEventTrigger(INodeView nodeView, INodeEventView nodeEventView, string triggerID)
         {
-            if (_nodeViews.TryGetValue(nodeView, out Node<GraphData, NodeData, EdgeData> node) && _nodeEventViews.TryGetValue(nodeEventView, out Event nodeEvent) && nodeEvent.TriggerID != triggerID)
+            if (_nodeViews.TryGetValue(nodeView, out Node node) && _nodeEventViews.TryGetValue(nodeEventView, out Event nodeEvent) && nodeEvent.TriggerID != triggerID)
             {
                 if (!node.Data.Events.TryGetValue(triggerID, out Event newNodeEvent) || !_nodeEventViews.TryGetValue(newNodeEvent, out INodeEventView newNodeEventView))
                 {
@@ -289,7 +289,7 @@ namespace Talent.GraphEditor.Core
 
         public void ChangeEdgeTrigger(IEdgeView edgeView, string triggerID)
         {
-            if (_edgeViews.TryGetValue(edgeView, out Edge<EdgeData> edge))
+            if (_edgeViews.TryGetValue(edgeView, out Edge edge))
             {
                 edge.Data.SetTrigger(triggerID);
                 edgeView.SetTrigger(triggerID);
@@ -298,7 +298,7 @@ namespace Talent.GraphEditor.Core
 
         public void ChangeNodeEventCondition(INodeView nodeView, INodeEventView nodeEventView, string condition)
         {
-            if (_nodeViews.TryGetValue(nodeView, out Node<GraphData, NodeData, EdgeData> node) && _nodeEventViews.TryGetValue(nodeEventView, out Event nodeEvent) && nodeEvent.Condition != condition)
+            if (_nodeViews.TryGetValue(nodeView, out Node node) && _nodeEventViews.TryGetValue(nodeEventView, out Event nodeEvent) && nodeEvent.Condition != condition)
             {
                 nodeEvent.SetCondition(condition);
                 nodeEventView.SetCondition(condition);
@@ -307,7 +307,7 @@ namespace Talent.GraphEditor.Core
 
         public void ChangeEdgeCondition(IEdgeView edgeView, string condition)
         {
-            if (_edgeViews.TryGetValue(edgeView, out Edge<EdgeData> edge))
+            if (_edgeViews.TryGetValue(edgeView, out Edge edge))
             {
                 edge.Data.SetCondition(condition);
                 edgeView.SetCondition(condition);
@@ -336,9 +336,9 @@ namespace Talent.GraphEditor.Core
 
         public void RemoveNode(INodeView nodeView, bool createInitialEdge = true)
         {
-            if (_nodeViews.TryGetValue(nodeView, out Node<GraphData, NodeData, EdgeData> node))
+            if (_nodeViews.TryGetValue(nodeView, out Node node))
             {
-                Node<GraphData, NodeData, EdgeData> oldParent = node.ParentNode;
+                Node oldParent = node.ParentNode;
 
                 foreach (KeyValuePair<string, Event> nodeEvent in node.Data.Events)
                 {
@@ -357,7 +357,7 @@ namespace Talent.GraphEditor.Core
                     }
                 }
 
-                foreach (Edge<EdgeData> edge in Graph.Edges.Where(edge => edge.SourceNode == node.ID || edge.TargetNode == node.ID).ToArray())
+                foreach (Edge edge in Graph.Edges.Where(edge => edge.SourceNode == node.ID || edge.TargetNode == node.ID).ToArray())
                 {
                     if (_edgeViews.TryGetValue(edge, out IEdgeView edgeView))
                     {
@@ -365,7 +365,7 @@ namespace Talent.GraphEditor.Core
                         {
                             IEdgeActionView edgeActionView = _edgeActionViews.Get(action);
 
-                            if (_edgeViews.TryGetValue(edgeView, out Edge<EdgeData> nodeEvent) && _edgeActionViews.TryGetValue(edgeActionView, out Action eventAction))
+                            if (_edgeViews.TryGetValue(edgeView, out Edge nodeEvent) && _edgeActionViews.TryGetValue(edgeActionView, out Action eventAction))
                             {
                                 _edgeActionViews.Remove(edgeActionView);
                                 GraphElementViewFactory.DestroyElementView(edgeActionView);
@@ -386,7 +386,7 @@ namespace Talent.GraphEditor.Core
 
                 if (node.NestedGraph != null)
                 {
-                    foreach (Node<GraphData, NodeData, EdgeData> child in node.NestedGraph.Nodes.ToArray())
+                    foreach (Node child in node.NestedGraph.Nodes.ToArray())
                     {
                         if (_nodeViews.TryGetValue(child, out INodeView childView))
                         {
@@ -426,7 +426,7 @@ namespace Talent.GraphEditor.Core
 
         public void RemoveEdge(IEdgeView edgeView)
         {
-            if (_edgeViews.TryGetValue(edgeView, out Edge<EdgeData> edge))
+            if (_edgeViews.TryGetValue(edgeView, out Edge edge))
             {
                 foreach (Action action in edge.Data.Actions)
                 {
@@ -445,7 +445,7 @@ namespace Talent.GraphEditor.Core
 
         public void RemoveNodeEvent(INodeView nodeView, INodeEventView nodeEventView)
         {
-            Node<GraphData, NodeData, EdgeData> node = _nodeViews.Get(nodeView);
+            Node node = _nodeViews.Get(nodeView);
             Event nodeEvent = _nodeEventViews.Get(nodeEventView);
 
             foreach (Action action in nodeEvent.Actions)
@@ -478,7 +478,7 @@ namespace Talent.GraphEditor.Core
 
         public void RemoveEdgeAction(IEdgeView edgeView, IEdgeActionView edgeActionView)
         {
-            if (_edgeViews.TryGetValue(edgeView, out Edge<EdgeData> nodeEvent) && _edgeActionViews.TryGetValue(edgeActionView, out Action eventAction))
+            if (_edgeViews.TryGetValue(edgeView, out Edge nodeEvent) && _edgeActionViews.TryGetValue(edgeActionView, out Action eventAction))
             {
                 nodeEvent.Data.RemoveAction(eventAction);
                 _edgeActionViews.Remove(edgeActionView);
@@ -490,12 +490,12 @@ namespace Talent.GraphEditor.Core
 
         public void SetParent(INodeView childView, INodeView parentView, bool layoutAutomatically)
         {
-            if (childView == null || !_nodeViews.TryGetValue(childView, out Node<GraphData, NodeData, EdgeData> child) || (_initialNode != null && child == _initialNode))
+            if (childView == null || !_nodeViews.TryGetValue(childView, out Node child) || (_initialNode != null && child == _initialNode))
             {
                 return;
             }
 
-            Node<GraphData, NodeData, EdgeData> oldParent = null;
+            Node oldParent = null;
 
             if (parentView == null)
             {
@@ -510,7 +510,7 @@ namespace Talent.GraphEditor.Core
 
                 _nodeViews.Get(child).SetParent(null, layoutAutomatically);
             }
-            else if (_nodeViews.TryGetValue(parentView, out Node<GraphData, NodeData, EdgeData> parent) && child != parent && (_initialNode == null || parent != _initialNode))
+            else if (_nodeViews.TryGetValue(parentView, out Node parent) && child != parent && (_initialNode == null || parent != _initialNode))
             {
                 if (child.ParentNode != parent)
                 {
@@ -549,7 +549,7 @@ namespace Talent.GraphEditor.Core
             RemoveGraphFromNode(oldParent);
         }
 
-        private bool NodeHasNodeRecursively(Node<GraphData, NodeData, EdgeData> node1, Node<GraphData, NodeData, EdgeData> node2)
+        private bool NodeHasNodeRecursively(Node node1, Node node2)
         {
             if (node1 == null || node1.NestedGraph == null || node2 == null)
             {
@@ -561,7 +561,7 @@ namespace Talent.GraphEditor.Core
                 return true;
             }
 
-            foreach (Node<GraphData, NodeData, EdgeData> nestedNode in node1.NestedGraph.Nodes)
+            foreach (Node nestedNode in node1.NestedGraph.Nodes)
             {
                 if (NodeHasNodeRecursively(nestedNode, node2))
                 {
@@ -572,7 +572,7 @@ namespace Talent.GraphEditor.Core
             return false;
         }
 
-        private void RemoveGraphFromNode(Node<GraphData, NodeData, EdgeData> node)
+        private void RemoveGraphFromNode(Node node)
         {
             if (node == null || node.NestedGraph == null)
             {
@@ -593,7 +593,7 @@ namespace Talent.GraphEditor.Core
 
         #region Internal Create Methods
 
-        private INodeView CreateViewForNode(Node<GraphData, NodeData, EdgeData> node, bool createInitialNode, bool layoutAutomatically)
+        private INodeView CreateViewForNode(Node node, bool createInitialNode, bool layoutAutomatically)
         {
             _nodes[node.ID] = node;
             INodeView view = GraphElementViewFactory.CreateNodeView(node.Data.VisualData, node.Data.Vertex, layoutAutomatically);
@@ -623,7 +623,7 @@ namespace Talent.GraphEditor.Core
             {
                 CreateNewGraph(node.NestedGraph.ID, view);
 
-                foreach (Node<GraphData, NodeData, EdgeData> nestedNode in node.NestedGraph.Nodes)
+                foreach (Node nestedNode in node.NestedGraph.Nodes)
                 {
                     INodeView nestedView = CreateViewForNode(nestedNode, false, layoutAutomatically);
                     SetParent(nestedView, view, layoutAutomatically);
@@ -641,7 +641,7 @@ namespace Talent.GraphEditor.Core
             return view;
         }
 
-        private IEdgeView CreateViewForEdge(Edge<EdgeData> edge)
+        private IEdgeView CreateViewForEdge(Edge edge)
         {
             IEdgeView edgeView = null;
 
