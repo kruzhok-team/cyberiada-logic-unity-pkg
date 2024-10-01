@@ -61,7 +61,7 @@ namespace Talent.Logic.HSM
             _bus.RemoveEventListener(EventName, Receive);
         }
 
-        private bool Receive(string parameters = "")
+        private bool Receive(List<Tuple<string, string>> parameters = null)
         {
             if (!_isActive || !_conditionChecker.Check())
             {

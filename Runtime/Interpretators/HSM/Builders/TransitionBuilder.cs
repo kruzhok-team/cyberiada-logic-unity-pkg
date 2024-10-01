@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Talent.Logic.Bus;
 
 namespace Talent.Logic.HSM.Builders
@@ -59,7 +60,7 @@ namespace Talent.Logic.HSM.Builders
         /// <param name="commandName">The name of the command to add.</param>
         /// <param name="parameters">Optional parameters for the command. Defaults to an empty string.</param>
         /// <returns>The TransitionBuilder instance for method chaining.</returns>
-        public TransitionBuilder AddCommand(string commandName, string parameters = "")
+        public TransitionBuilder AddCommand(string commandName, List<Tuple<string, string>> parameters = null)
         {
             _commandsData.AddCommandStorage(commandName, parameters);
 

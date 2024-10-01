@@ -91,8 +91,12 @@ namespace Talent.Graph.Cyberiada.Converter
                 sb.AppendLine("/");
 
                 foreach (Action action in edge.Data.Actions)
-                    sb.AppendLine($"{action.ID}({action.Parameter})");
-
+                {
+                    foreach (Tuple<string, string> parameter in action.Parameters)
+                    {
+                        sb.AppendLine($"{action.ID}({parameter.Item1}.{parameter.Item2})");
+                    }
+                }
 
                 AddDataToXmlElement(edgeElement, sb.ToString());
             }
@@ -124,7 +128,28 @@ namespace Talent.Graph.Cyberiada.Converter
                 sb.AppendLine("/");
 
                 foreach (Action action in value.Actions)
-                    sb.AppendLine($"{action.ID}({action.Parameter})");
+                {
+                    if (action.Parameters == null || action.Parameters.Count == 0)
+                    {
+                        sb.AppendLine($"{action.ID}()");
+                    }
+
+                    string multipleParameters = "";
+                    foreach (Tuple<string, string> parameter in action.Parameters)
+                    {
+                        if (!string.IsNullOrEmpty(multipleParameters))
+                        {
+                            multipleParameters += ".";
+                        }
+
+                        multipleParameters += $"({parameter.Item1}.{parameter.Item2})";
+                    }
+
+                    if (!string.IsNullOrEmpty(multipleParameters))
+                    {
+                        sb.AppendLine($"{action.ID}.{multipleParameters}");
+                    }
+                }
 
                 sb.AppendLine();
             }
@@ -229,8 +254,13 @@ namespace Talent.Graph.Cyberiada.Converter
                             var nodeEvent = new Event(trigger);
                             data.AddEvent(nodeEvent);
 
-                            foreach ((string id, string @params) actionData in ParseActions(line))
-                                nodeEvent.AddAction(new Action(actionData.id, actionData.@params));
+                            foreach (string actionLine in line.Split("\n"))
+                            {
+                                foreach ((string id, List<Tuple<string, string>> @params) actionData in ParseActions(actionLine))
+                                {
+                                    nodeEvent.AddAction(new Action(actionData.id, actionData.@params));
+                                }
+                            }
                         }
 
                         break;
@@ -317,8 +347,10 @@ namespace Talent.Graph.Cyberiada.Converter
             edgeData.SetTrigger(trigger);
             edgeData.SetCondition(condition);
 
-            foreach ((string id, string @params) actionData in ParseActions(dataString))
+            foreach ((string id, List<Tuple<string, string>> @params) actionData in ParseActions(dataString))
+            {
                 edgeData.AddAction(new Action(actionData.id, actionData.@params));
+            }
 
             return edgeData;
         }
@@ -373,21 +405,45 @@ namespace Talent.Graph.Cyberiada.Converter
             return isNote;
         }
 
-        private static IEnumerable<(string, string)> ParseActions(string source)
+        private static IEnumerable<(string, List<Tuple<string, string>>)> ParseActions(string source)
         {
+            var result = new List<(string, List<Tuple<string, string>>)>();
+
             const string pattern = @"(?:^|\n)([^()\n]+)\((.*?)\)";
+            const string paramsPattern = @"\((.*?)\)";
             MatchCollection matches = Regex.Matches(source, pattern);
 
-            var result = new List<(string, string)>();
+            string id = "";
+            List<Tuple<string, string>> @params = new();
 
             foreach (Match match in matches)
             {
                 if (match.Groups.Count != 3)
                     continue;
 
-                string id = match.Groups[1].Value.Trim();
-                string @params = match.Groups[2].Value.Trim();
+                id = match.Groups[1].Value.Trim();
 
+                MatchCollection paramsMatches = Regex.Matches(source, paramsPattern);
+                
+                foreach (Match param in paramsMatches)
+                {
+                    string[] split = param.Groups[1].Value.Split('.');
+
+                    if (split.Length >= 2)
+                    {
+                        string parameterName = split[0];
+                        for (int i = 1; i < split.Length - 1; i++)
+                        {
+                            parameterName += $".{parameterName}";
+                        }
+
+                        @params.Add(new Tuple<string, string>(parameterName, split[split.Length - 1]));
+                    }
+                }
+            }
+
+            if (!string.IsNullOrEmpty(id))
+            {
                 result.Add((id, @params));
             }
 

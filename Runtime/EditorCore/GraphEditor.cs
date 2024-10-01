@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Talent.Graph;
@@ -280,7 +281,7 @@ namespace Talent.GraphEditor.Core
                 foreach (Action action in nodeEvent.Actions)
                 {
                     var actionView = CreateNewNodeAction(newNodeEventView, action.ID);
-                    ChangeNodeActionParameter(actionView, action.Parameter);
+                    ChangeNodeActionParameter(actionView, action.Parameters);
                 }
 
                 RemoveNodeEvent(nodeView, nodeEventView);
@@ -314,21 +315,21 @@ namespace Talent.GraphEditor.Core
             }
         }
 
-        public void ChangeNodeActionParameter(INodeActionView actionView, string parameter)
+        public void ChangeNodeActionParameter(INodeActionView actionView, List<Tuple<string, string>> parameters)
         {
             if (_nodeActionViews.TryGetValue(actionView, out Action action))
             {
-                action.SetParameter(parameter);
-                actionView.SetParameter(parameter);
+                action.SetParameters(parameters);
+                actionView.SetParameters(parameters);
             }
         }
 
-        public void ChangeEdgeActionParameter(IEdgeActionView actionView, string parameter)
+        public void ChangeEdgeActionParameter(IEdgeActionView actionView, List<Tuple<string, string>> parameters)
         {
             if (_edgeActionViews.TryGetValue(actionView, out Action action))
             {
-                action.SetParameter(parameter);
-                actionView.SetParameter(parameter);
+                action.SetParameters(parameters);
+                actionView.SetParameters(parameters);
             }
         }
 
@@ -615,7 +616,7 @@ namespace Talent.GraphEditor.Core
                 {
                     var actionView = GraphElementViewFactory.CreateNodeActionView(eventView, action.ID);
                     _nodeActionViews.Add(action, actionView);
-                    ChangeNodeActionParameter(actionView, action.Parameter);
+                    ChangeNodeActionParameter(actionView, action.Parameters);
                 }
             }
 
@@ -655,7 +656,7 @@ namespace Talent.GraphEditor.Core
                 {
                     var actionView = GraphElementViewFactory.CreateEdgeActionView(edgeView, action.ID);
                     _edgeActionViews.Add(action, actionView);
-                    ChangeEdgeActionParameter(actionView, action.Parameter);
+                    ChangeEdgeActionParameter(actionView, action.Parameters);
                 }
             }
 
@@ -694,7 +695,7 @@ namespace Talent.GraphEditor.Core
 
     public interface INodeActionView : IGraphElementView
     {
-        void SetParameter(string parameter);
+        void SetParameters(List<Tuple<string, string>> parameters);
     }
 
     public interface IEdgeView : IGraphElementView
@@ -705,7 +706,7 @@ namespace Talent.GraphEditor.Core
 
     public interface IEdgeActionView : IGraphElementView
     {
-        void SetParameter(string parameter);
+        void SetParameters(List<Tuple<string, string>> parameters);
     }
 
     #endregion
