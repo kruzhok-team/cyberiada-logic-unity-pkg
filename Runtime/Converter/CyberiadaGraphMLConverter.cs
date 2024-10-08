@@ -5,7 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using Unity.VisualScripting.YamlDotNet.Core.Events;
 using UnityEngine;
+using static UnityEngine.UI.Dropdown;
 
 namespace Talent.Graph.Cyberiada.Converter
 {
@@ -38,7 +40,7 @@ namespace Talent.Graph.Cyberiada.Converter
                 throw new ArgumentNullException(nameof(graph));
 
             XNamespace nameSpace = "http://graphml.graphdrawing.org/xmlns";
-            var root = new XElement( nameSpace + "graphml");
+            var root = new XElement(nameSpace + "graphml");
             XElement graphElement = CreateXmlGraph(graph, root);
             CreateXmlEdges(graph, graphElement);
 
@@ -92,11 +94,10 @@ namespace Talent.Graph.Cyberiada.Converter
 
                 foreach (Action action in edge.Data.Actions)
                 {
-                    foreach (Tuple<string, string> parameter in action.Parameters)
-                    {
-                        sb.AppendLine($"{action.ID}({parameter.Item1}.{parameter.Item2})");
-                    }
+                    AppendActionLine(action, sb);
                 }
+
+                sb.AppendLine();
 
                 AddDataToXmlElement(edgeElement, sb.ToString());
             }
@@ -125,30 +126,12 @@ namespace Talent.Graph.Cyberiada.Converter
             foreach ((string _, Event value) in node.Data.Events)
             {
                 sb.Append(value.TriggerID);
+                sb.Append(string.IsNullOrEmpty(value.Condition) ? "" : $"[{value.Condition}]"); // copied
                 sb.AppendLine("/");
 
                 foreach (Action action in value.Actions)
                 {
-                    if (action.Parameters == null || action.Parameters.Count == 0)
-                    {
-                        sb.AppendLine($"{action.ID}()");
-                    }
-
-                    string multipleParameters = "";
-                    foreach (Tuple<string, string> parameter in action.Parameters)
-                    {
-                        if (!string.IsNullOrEmpty(multipleParameters))
-                        {
-                            multipleParameters += ".";
-                        }
-
-                        multipleParameters += $"({parameter.Item1}.{parameter.Item2})";
-                    }
-
-                    if (!string.IsNullOrEmpty(multipleParameters))
-                    {
-                        sb.AppendLine($"{action.ID}.{multipleParameters}");
-                    }
+                    AppendActionLine(action, sb);
                 }
 
                 sb.AppendLine();
@@ -194,6 +177,22 @@ namespace Talent.Graph.Cyberiada.Converter
 
         private static bool HasSubGraph(Node<GraphData, NodeData, EdgeData> node) =>
             node.NestedGraph != null;
+
+        private static void AppendActionLine(Action action, StringBuilder target)
+        {
+            target.Append($"{action.ID}(");
+
+            if (action.Parameters != null)
+            {
+                for (int n = 0; n < action.Parameters.Count; n++)
+                {
+                    if (n > 0) target.Append(", ");
+                    target.Append($"{action.Parameters[n].Item2}");
+                }
+            }
+
+            target.AppendLine(")");
+        }
 
         #endregion
 
@@ -251,15 +250,22 @@ namespace Talent.Graph.Cyberiada.Converter
                         {
                             string trigger = line[..line.IndexOf('/')];
 
+                            int conditionStart = trigger.IndexOf('[');
+
+                            string condition = null;
+                            if (conditionStart > 0)
+                            {
+                                condition = trigger[(conditionStart + 1)..^1];
+                                trigger = trigger[..conditionStart];
+                            }
+
                             var nodeEvent = new Event(trigger);
+                            nodeEvent.SetCondition(condition);
                             data.AddEvent(nodeEvent);
 
-                            foreach (string actionLine in line.Split("\n"))
+                            foreach (Action a in ParseActions2(line))
                             {
-                                foreach ((string id, List<Tuple<string, string>> @params) actionData in ParseActions(actionLine))
-                                {
-                                    nodeEvent.AddAction(new Action(actionData.id, actionData.@params));
-                                }
+                                nodeEvent.AddAction(a);
                             }
                         }
 
@@ -347,9 +353,9 @@ namespace Talent.Graph.Cyberiada.Converter
             edgeData.SetTrigger(trigger);
             edgeData.SetCondition(condition);
 
-            foreach ((string id, List<Tuple<string, string>> @params) actionData in ParseActions(dataString))
+            foreach (Action a in ParseActions2(dataString))
             {
-                edgeData.AddAction(new Action(actionData.id, actionData.@params));
+                edgeData.AddAction(a);
             }
 
             return edgeData;
@@ -405,51 +411,41 @@ namespace Talent.Graph.Cyberiada.Converter
             return isNote;
         }
 
-        private static IEnumerable<(string, List<Tuple<string, string>>)> ParseActions(string source)
+        private static IEnumerable<Action> ParseActions2(string source)
         {
-            var result = new List<(string, List<Tuple<string, string>>)>();
+            const string actionsPattern = @"(?<action>.*?)\((?<args>.*?)\)";
+            const string argsPattern = @"(.+?)(?:,\s*|$)"; // TODO combine, together with trigger and condition?
+            MatchCollection actionMatches = Regex.Matches(source, actionsPattern);
 
-            const string pattern = @"(?:^|\n)([^()\n]+)\((.*?)\)";
-            const string paramsPattern = @"\((.*?)\)";
-            MatchCollection matches = Regex.Matches(source, pattern);
+            List<Action> actions = new List<Action>(); // TODO remove lists
 
-            string id = "";
-            List<Tuple<string, string>> @params = new();
-
-            foreach (Match match in matches)
+            foreach (Match actionMatch in actionMatches)
             {
-                if (match.Groups.Count != 3)
-                    continue;
+                if (!actionMatch.Success) continue;
 
-                id = match.Groups[1].Value.Trim();
+                Group argsGroup = actionMatch.Groups["args"];
 
-                MatchCollection paramsMatches = Regex.Matches(source, paramsPattern);
-                
-                foreach (Match param in paramsMatches)
+                List<Tuple<string, string>> args = new List<Tuple<string, string>>();
+
+                if (argsGroup != null && argsGroup.Success && argsGroup.Length > 0)
                 {
-                    string[] split = param.Groups[1].Value.Split('.');
+                    MatchCollection argsMatches = Regex.Matches(argsGroup.Value, argsPattern);
 
-                    if (split.Length >= 2)
+                    foreach (Match argMatch in argsMatches)
                     {
-                        string parameterName = split[0];
-                        for (int i = 1; i < split.Length - 1; i++)
-                        {
-                            parameterName += $".{parameterName}";
-                        }
+                        if (!argMatch.Success) continue;
 
-                        @params.Add(new Tuple<string, string>(parameterName, split[split.Length - 1]));
+                        string parameterName = ""; // TODO get from config data
+
+                        args.Add(new(parameterName, argMatch.Groups[1].Value));
                     }
                 }
+
+                actions.Add(new Action(actionMatch.Groups["action"].Value, args));
             }
 
-            if (!string.IsNullOrEmpty(id))
-            {
-                result.Add((id, @params));
-            }
-
-            return result;
+            return actions;
         }
-
         #endregion
 
         private static XName FullName(string localName) =>
