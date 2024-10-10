@@ -611,6 +611,7 @@ namespace Talent.GraphEditor.Core
 
                 INodeEventView eventView = GraphElementViewFactory.CreateNodeEventView(view, nodeEvent.Key);
                 _nodeEventViews.Add(nodeEvent.Value, eventView);
+                eventView.SetCondition(nodeEvent.Value.Condition);
 
                 foreach (Action action in nodeEvent.Value.Actions)
                 {
