@@ -67,10 +67,29 @@ namespace Talent.Graphs
 
         #endregion
 
+        public string LogicalString()
+        {
+            StringBuilder stringBuilder = new();
+
+            foreach (KeyValuePair<string, Event> @event in _events)
+            {
+                stringBuilder.AppendLine($"{@event}\n");
+            }
+
+            return stringBuilder.ToString();
+        }
+
         public override string ToString()
         {
             StringBuilder stringBuilder = new();
+
             stringBuilder.AppendLine($"NodeData({VisualData.Name})({VisualData.Position})");
+
+            foreach (KeyValuePair<string, Event> @event in _events)
+            {
+                stringBuilder.AppendLine($"{@event}\n");
+            }
+
             return stringBuilder.ToString();
         }
     }

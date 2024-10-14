@@ -72,11 +72,16 @@ namespace Talent.Graphs
             return resultGraph;
         }
 
-        public bool IsGraphEqual(CyberiadaGraph graph)
+        public bool IsGraphEqual(CyberiadaGraph graph, bool verbose)
         {
-            CyberiadaGraph graphCopy = GetCopy(Data, null, graph.ID);
-
-            return graphCopy.ToString() == graph.ToString();
+            if (verbose)
+            {
+                return this.VerboseString() == graph.VerboseString();
+            }
+            else
+            {
+                return this.LogicalString() == graph.LogicalString();
+            }
         }
 
         #region Nodes API
@@ -147,6 +152,40 @@ namespace Talent.Graphs
 
         #endregion
 
+        public string VerboseString()
+        {
+            StringBuilder stringBuilder = new();
+
+            foreach (Node node in Nodes)
+            {
+                stringBuilder.AppendLine($"{node}\n");
+            }
+
+            foreach (Edge edge in Edges)
+            {
+                stringBuilder.AppendLine($"{edge}\n");
+            }
+
+            return stringBuilder.ToString();
+        }
+
+        public string LogicalString()
+        {
+            StringBuilder stringBuilder = new();
+
+            foreach (Node node in Nodes)
+            {
+                stringBuilder.AppendLine($"{node.LogicalString()}\n");
+            }
+
+            foreach (Edge edge in Edges)
+            {
+                stringBuilder.AppendLine($"{edge.LogicalString()}\n");
+            }
+            
+            return stringBuilder.ToString();
+        }
+
         /// <summary>
         /// Custom ToString realization for creating more representive string visualization of graph data
         /// </summary>
@@ -154,23 +193,17 @@ namespace Talent.Graphs
         public override string ToString()
         {
             StringBuilder stringBuilder = new();
-            stringBuilder.AppendLine($"GRAPH({ID})");
+            stringBuilder.AppendLine($"GRAPH({ID})\n");
 
-            string nodes = "\n";
             foreach (Node node in Nodes)
             {
-                nodes += $"\n{node}";
+                stringBuilder.AppendLine($"{node}\n");
             }
 
-            stringBuilder.AppendLine(nodes);
-
-            string edges = "\n";
             foreach (Edge edge in Edges)
             {
-                edges += $"\n{edge}";
+                stringBuilder.AppendLine($"{edge}\n");
             }
-
-            stringBuilder.AppendLine(edges);
 
             return stringBuilder.ToString();
         }

@@ -68,6 +68,18 @@ namespace Talent.Graphs
             return resultEdge;
         }
 
+        public string LogicalString()
+        {
+            StringBuilder stringBuilder = new();
+
+            stringBuilder.AppendLine($"EDGE");
+            stringBuilder.AppendLine($"{nameof(SourceNode)}={SourceNode}");
+            stringBuilder.AppendLine($"{nameof(TargetNode)}={TargetNode}");
+            stringBuilder.AppendLine($"{nameof(Data)}={Data.LogicalString()}");
+
+            return stringBuilder.ToString();
+        }
+
         /// <summary>
         /// Custom ToString realization for creating more representive string visualization of edge data
         /// </summary>
@@ -75,10 +87,12 @@ namespace Talent.Graphs
         public override string ToString()
         {
             StringBuilder stringBuilder = new();
+
             stringBuilder.AppendLine($"EDGE");
             stringBuilder.AppendLine($"{nameof(SourceNode)}={SourceNode}");
             stringBuilder.AppendLine($"{nameof(TargetNode)}={TargetNode}");
             stringBuilder.AppendLine($"{nameof(Data)}={Data}");
+
             return stringBuilder.ToString();
         }
     }
