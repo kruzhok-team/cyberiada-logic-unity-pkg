@@ -1,9 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using Talent.Graph;
-using Talent.Graph.Cyberiada;
-using Action = Talent.Graph.Cyberiada.Action;
-using Event = Talent.Graph.Cyberiada.Event;
+using Talent.Graphs;
 
 namespace Talent.GraphEditor.Core
 {

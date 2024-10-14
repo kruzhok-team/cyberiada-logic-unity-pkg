@@ -1,4 +1,4 @@
-namespace Talent.Graph
+namespace Talent.Graphs
 {
     public interface IClonable<T>
     {

@@ -1,4 +1,4 @@
-namespace Talent.Graph.Cyberiada
+namespace Talent.Graphs
 {
     public class GraphData : IClonable<GraphData>
     {

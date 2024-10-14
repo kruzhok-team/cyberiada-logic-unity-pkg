@@ -1,4 +1,4 @@
-using Talent.Graph.Cyberiada;
+using Talent.Graphs;
 using Talent.Logic.Bus;
 
 namespace Talent.Logic

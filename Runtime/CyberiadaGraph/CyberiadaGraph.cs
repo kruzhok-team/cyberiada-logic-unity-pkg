@@ -1,9 +1,7 @@
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using Talent.Graph.Cyberiada;
 
-namespace Talent.Graph
+namespace Talent.Graphs
 {
     /// <summary>
     /// Main class for graph representation

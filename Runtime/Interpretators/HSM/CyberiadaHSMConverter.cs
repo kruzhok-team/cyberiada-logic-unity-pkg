@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Talent.Graph;
-using Talent.Graph.Cyberiada;
+using Talent.Graphs;
 using Talent.Logic.Bus;
 using Talent.Logic.HSM.Builders;
-using Action = Talent.Graph.Cyberiada.Action;
+using Action = Talent.Graphs.Action;
 
 namespace Talent.Logic.HSM
 {
@@ -59,7 +58,7 @@ namespace Talent.Logic.HSM
 
         private void AddEventToCommands(Node node, StateBuilder builder)
         {
-            foreach (Graph.Cyberiada.Event @event in node.Data.Events.Values)
+            foreach (Graphs.Event @event in node.Data.Events.Values)
             {
                 foreach (Action action in @event.Actions)
                 {

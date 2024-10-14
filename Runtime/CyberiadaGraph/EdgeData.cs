@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Text;
 using UnityEngine;
 
-namespace Talent.Graph.Cyberiada
+namespace Talent.Graphs
 {
     public class EdgeData : IClonable<EdgeData>
     {

@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Talent.Graph.Cyberiada
+namespace Talent.Graphs
 {
     public interface IExecutionContextSource
     {

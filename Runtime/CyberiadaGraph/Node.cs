@@ -1,7 +1,6 @@
 using System.Text;
-using Talent.Graph.Cyberiada;
 
-namespace Talent.Graph
+namespace Talent.Graphs
 {
     /// <summary>
     /// Class representing single node of graph

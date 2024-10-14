@@ -1,5 +1,5 @@
 {
-    "name": "org.kruzhok.talent.graph",
+    "name": "org.kruzhok.talent.graphs",
     "rootNamespace": "Talent.Graph",
     "references": [],
     "includePlatforms": [],
