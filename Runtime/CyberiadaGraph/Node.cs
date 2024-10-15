@@ -67,21 +67,6 @@ namespace Talent.Graphs
             return resultNode;
         }
 
-        public string LogicalString()
-        {
-            StringBuilder stringBuilder = new();
-
-            stringBuilder.AppendLine($"NODE({ID})({Data.LogicalString()})");
-            stringBuilder.AppendLine($"{nameof(ParentNode)}={ParentNode?.ID}");
-
-            if (NestedGraph != null)
-            {
-                stringBuilder.AppendLine($"{NestedGraph.LogicalString()}");
-            }
-            
-            return stringBuilder.ToString();
-        }
-
         /// <summary>
         /// Custom ToString realization for creating more representive string visualization of node data
         /// </summary>

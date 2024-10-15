@@ -79,19 +79,6 @@ namespace Talent.Graphs
 
         #endregion
 
-        public string LogicalString()
-        {
-            StringBuilder stringBuilder = new();
-            stringBuilder.AppendLine($"EdgeData({TriggerID})({Condition})");
-
-            foreach (Action action in Actions)
-            {
-                stringBuilder.AppendLine($"\n{action}");
-            }
-
-            return stringBuilder.ToString();
-        }
-
         public override string ToString()
         {
             StringBuilder stringBuilder = new();

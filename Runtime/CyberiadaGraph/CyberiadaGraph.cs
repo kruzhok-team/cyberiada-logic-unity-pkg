@@ -72,16 +72,9 @@ namespace Talent.Graphs
             return resultGraph;
         }
 
-        public bool IsGraphEqual(CyberiadaGraph graph, bool verbose)
+        public bool IsGraphEqual(CyberiadaGraph graph, IGraphComparator comparator)
         {
-            if (verbose)
-            {
-                return this.VerboseString() == graph.VerboseString();
-            }
-            else
-            {
-                return this.LogicalString() == graph.LogicalString();
-            }
+            return comparator.IsGraphEqual(this, graph);
         }
 
         #region Nodes API
@@ -151,40 +144,6 @@ namespace Talent.Graphs
         }
 
         #endregion
-
-        public string VerboseString()
-        {
-            StringBuilder stringBuilder = new();
-
-            foreach (Node node in Nodes)
-            {
-                stringBuilder.AppendLine($"{node}\n");
-            }
-
-            foreach (Edge edge in Edges)
-            {
-                stringBuilder.AppendLine($"{edge}\n");
-            }
-
-            return stringBuilder.ToString();
-        }
-
-        public string LogicalString()
-        {
-            StringBuilder stringBuilder = new();
-
-            foreach (Node node in Nodes)
-            {
-                stringBuilder.AppendLine($"{node.LogicalString()}\n");
-            }
-
-            foreach (Edge edge in Edges)
-            {
-                stringBuilder.AppendLine($"{edge.LogicalString()}\n");
-            }
-            
-            return stringBuilder.ToString();
-        }
 
         /// <summary>
         /// Custom ToString realization for creating more representive string visualization of graph data
