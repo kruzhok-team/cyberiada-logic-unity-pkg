@@ -5,12 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using Talent.Graphs;
 using UnityEngine;
-using Action = Talent.Graphs.Action;
-using Event = Talent.Graphs.Event;
 
-namespace Talent.Graph.Cyberiada.Converter
+namespace Talent.Graphs.Cyberiada.Converter
 {
     public static class CyberiadaGraphMLConverter
     {

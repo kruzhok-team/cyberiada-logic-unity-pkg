@@ -7,78 +7,63 @@ namespace Talent.Graphs
     {
         public bool Equals(CyberiadaGraph graph, CyberiadaGraph otherGraph)
         {
-            return LogicalString(graph) == LogicalString(otherGraph);
+            return ConvertToString(graph) == ConvertToString(otherGraph);
         }
 
         public int GetHashCode(CyberiadaGraph graph) => graph.GetHashCode();
 
-        private string LogicalString(CyberiadaGraph graph)
+        private static string ConvertToString(CyberiadaGraph graph, StringBuilder stringBuilder = null)
         {
-            StringBuilder stringBuilder = new();
+            stringBuilder ??= new StringBuilder();
+            stringBuilder.AppendLine($"GRAPH({graph.ID})\n");
 
             foreach (Node node in graph.Nodes)
             {
-                stringBuilder.AppendLine($"{LogicalNodeString(node)}\n");
+                AddNode(node, stringBuilder);
             }
 
             foreach (Edge edge in graph.Edges)
             {
-                stringBuilder.AppendLine($"{LogicalEdgeString(edge)}\n");
+                AddEdge(edge, stringBuilder);
             }
 
             return stringBuilder.ToString();
         }
 
-        private string LogicalNodeString(Node node)
+        private static void AddNode(Node node, StringBuilder stringBuilder)
         {
-            StringBuilder stringBuilder = new();
-
-            stringBuilder.AppendLine($"NODE({node.ID})({LogicalNodeDataString(node.Data)})");
-            stringBuilder.AppendLine($"{nameof(node.ParentNode)}={node.ParentNode?.ID}");
-
-            if (node.NestedGraph != null)
-            {
-                stringBuilder.AppendLine($"{LogicalString(node.NestedGraph)}");
-            }
-
-            return stringBuilder.ToString();
-        }
-
-        public string LogicalNodeDataString(NodeData nodeData)
-        {
-            StringBuilder stringBuilder = new();
-
-            foreach (KeyValuePair<string, Event> @event in nodeData.Events)
+            stringBuilder.AppendLine($"NODE({node.ID})(");
+            
+            foreach (KeyValuePair<string, Event> @event in node.Data.Events)
             {
                 stringBuilder.AppendLine($"{@event}\n");
             }
 
-            return stringBuilder.ToString();
+            stringBuilder.Append(")");
+            stringBuilder.AppendLine($"{nameof(node.ParentNode)}={node.ParentNode?.ID}");
+
+            if (node.NestedGraph != null)
+            {
+                stringBuilder.AppendLine($"{ConvertToString(node.NestedGraph, stringBuilder)}");
+            }
+            
+            stringBuilder.Append('\n');
         }
 
-        private string LogicalEdgeString(Edge edge)
+        private static void AddEdge(Edge edge, StringBuilder stringBuilder)
         {
-            StringBuilder stringBuilder = new();
-
             stringBuilder.AppendLine($"EDGE");
             stringBuilder.AppendLine($"{nameof(edge.SourceNode)}={edge.SourceNode}");
             stringBuilder.AppendLine($"{nameof(edge.TargetNode)}={edge.TargetNode}");
-            stringBuilder.AppendLine($"{nameof(edge.Data)}={LogicalEdgeDataString(edge.Data)}");
+            stringBuilder.AppendLine($"{nameof(edge.Data)}=");
+            stringBuilder.AppendLine($"EdgeData({edge.Data.TriggerID})({edge.Data.Condition})");
 
-            return stringBuilder.ToString();
-        }
-
-        public string LogicalEdgeDataString(EdgeData edgeData)
-        {
-            StringBuilder stringBuilder = new();
-            stringBuilder.AppendLine($"EdgeData({edgeData.TriggerID})({edgeData.Condition})");
-
-            foreach (Action action in edgeData.Actions)
+            foreach (Action action in edge.Data.Actions)
             {
                 stringBuilder.AppendLine($"\n{action}");
             }
-
-            return stringBuilder.ToString();
+            
+            stringBuilder.Append('\n');
         }
     }
 }
