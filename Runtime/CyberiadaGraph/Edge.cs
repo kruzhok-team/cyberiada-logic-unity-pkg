@@ -1,5 +1,3 @@
-using System.Text;
-
 namespace Talent.Graphs
 {
     /// <summary>
@@ -66,22 +64,6 @@ namespace Talent.Graphs
             Edge resultEdge = new Edge(newID ?? ID, SourceNode, TargetNode, data);
 
             return resultEdge;
-        }
-
-        /// <summary>
-        /// Custom ToString realization for creating more representive string visualization of edge data
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            StringBuilder stringBuilder = new();
-
-            stringBuilder.AppendLine($"EDGE");
-            stringBuilder.AppendLine($"{nameof(SourceNode)}={SourceNode}");
-            stringBuilder.AppendLine($"{nameof(TargetNode)}={TargetNode}");
-            stringBuilder.AppendLine($"{nameof(Data)}={Data}");
-
-            return stringBuilder.ToString();
         }
     }
 }

@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 
 namespace Talent.Graphs
@@ -66,20 +65,6 @@ namespace Talent.Graphs
         }
 
         #endregion
-
-        public override string ToString()
-        {
-            StringBuilder stringBuilder = new();
-
-            stringBuilder.AppendLine($"NodeData({VisualData.Name})({VisualData.Position})");
-
-            foreach (KeyValuePair<string, Event> @event in _events)
-            {
-                stringBuilder.AppendLine($"{@event}\n");
-            }
-
-            return stringBuilder.ToString();
-        }
     }
 
     public class NodeVisualData
