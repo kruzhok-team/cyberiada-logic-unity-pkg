@@ -81,7 +81,7 @@ namespace Talent.Graph.Cyberiada.Converter
                 throw new ArgumentNullException(nameof(graphData));
             
             var graphName = new XElement(FullName("data"), new XAttribute("key", "dName"), graphData.Name);
-            var referenceId = new XElement(FullName("data"), new XAttribute("key", "referenceId"), graphData.ReferenceGraphID);
+            var referenceId = new XElement(FullName("data"), new XAttribute("key", "referenceGraphID"), graphData.ReferenceGraphID);
             graphElement.Add(graphName);
             graphElement.Add(referenceId);
         }
@@ -346,8 +346,8 @@ namespace Talent.Graph.Cyberiada.Converter
             XElement graphElement, Node parentNode = null)
         {
             string graphId = graphElement.Attribute("id")?.Value ?? "";
-            string graphName = graphElement.Attribute("name")?.Value ?? "";
-            string referenceGraphID = graphElement.Attribute("referenceGraphID")?.Value ?? "";
+            string graphName = graphElement.Elements().FirstOrDefault(element => element.Attribute("key")?.Value == "dName")?.Value ?? "";
+            string referenceGraphID = graphElement.Elements().FirstOrDefault(element => element.Attribute("key")?.Value == "referenceGraphID")?.Value ?? "";
             var graphData = new GraphData();
             var graph = new CyberiadaGraph(graphId, graphData);
 
