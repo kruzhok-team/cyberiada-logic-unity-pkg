@@ -5,67 +5,67 @@ namespace Talent.Graphs
 {
     public class VerboseGraphComparator : IEqualityComparer<CyberiadaGraph>
     {
+        private readonly StringBuilder _stringBuilder = new StringBuilder();
         public bool Equals(CyberiadaGraph graph, CyberiadaGraph otherGraph)
         {
-            return VerboseString(graph) == VerboseString(otherGraph);
+            return ConvertToString(graph) == ConvertToString(otherGraph);
         }
 
         public int GetHashCode(CyberiadaGraph graph) => graph.GetHashCode();
 
-        private string VerboseString(CyberiadaGraph graph, StringBuilder stringBuilder = null)
+        private string ConvertToString(CyberiadaGraph graph)
         {
-            stringBuilder ??= new StringBuilder();
-            stringBuilder.AppendLine($"GRAPH({graph.ID})\n");
+            _stringBuilder.Clear();
+            _stringBuilder.AppendLine($"GRAPH({graph.ID})\n");
 
             foreach (Node node in graph.Nodes)
             {
-                AddNode(node, stringBuilder);
+                AddNode(node);
             }
 
             foreach (Edge edge in graph.Edges)
             {
-                AddEdge(edge, stringBuilder);
+                AddEdge(edge);
             }
 
-            return stringBuilder.ToString();
+            return _stringBuilder.ToString();
         }
         
-        private static void AddNode(Node node, StringBuilder stringBuilder)
+        private void AddNode(Node node)
         {
-            stringBuilder.AppendLine($"NODE({node.ID})(");
-            stringBuilder.AppendLine($"NodeData({node.Data.VisualData.Name})({node.Data.VisualData.Position})");
+            _stringBuilder.AppendLine($"NODE({node.ID})(");
+            _stringBuilder.AppendLine($"NodeData({node.Data.VisualData.Name})({node.Data.VisualData.Position})");
 
             foreach (KeyValuePair<string, Event> @event in node.Data.Events)
             {
-                stringBuilder.AppendLine($"{@event}\n");
+                _stringBuilder.AppendLine($"{@event}\n");
             }
             
-            stringBuilder.AppendLine(")");
-            stringBuilder.AppendLine($"{nameof(node.ParentNode)}={node.ParentNode?.ID}");
+            _stringBuilder.Append(")");
+            _stringBuilder.AppendLine($"{nameof(node.ParentNode)}={node.ParentNode?.ID}");
 
             if (node.NestedGraph != null)
             {
-                stringBuilder.AppendLine($"{node.NestedGraph}");
+                _stringBuilder.AppendLine(ConvertToString(node.NestedGraph));
             }
             
-            stringBuilder.Append('\n');
+            _stringBuilder.Append('\n');
         }
 
-        private static void AddEdge(Edge edge, StringBuilder stringBuilder)
+        private void AddEdge(Edge edge)
         {
-            stringBuilder.AppendLine($"EDGE");
-            stringBuilder.AppendLine($"{nameof(edge.SourceNode)}={edge.SourceNode}");
-            stringBuilder.AppendLine($"{nameof(edge.TargetNode)}={edge.TargetNode}");
-            stringBuilder.AppendLine($"{nameof(edge.Data)}=");
-            stringBuilder.AppendLine($"EdgeData({edge.Data.TriggerID})({edge.Data.Condition})({edge.Data.VisualData.Position})");
-
-            stringBuilder.AppendLine();
+            _stringBuilder.AppendLine("EDGE");
+            _stringBuilder.AppendLine($"{nameof(edge.SourceNode)}={edge.SourceNode}");
+            _stringBuilder.AppendLine($"{nameof(edge.TargetNode)}={edge.TargetNode}");
+            _stringBuilder.AppendLine($"{nameof(edge.Data)}=");
+            _stringBuilder.AppendLine($"EdgeData({edge.Data.TriggerID})({edge.Data.Condition})({edge.Data.VisualData.Position})");
+            
             foreach (Action action in edge.Data.Actions)
             {
-                stringBuilder.Append($"\n{action}");
+                _stringBuilder.Append($"\n{action}");
             }
             
-            stringBuilder.Append('\n');
+            _stringBuilder.Append('\n');
         }
     }
 }
