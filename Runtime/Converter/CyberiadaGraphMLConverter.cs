@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 using System.Xml.Linq;
 using UnityEngine;
 
-namespace Talent.Graphs.Cyberiada.Converter
+namespace Talent.Graphs
 {
     public static class CyberiadaGraphMLConverter
     {
