@@ -41,7 +41,9 @@ namespace Talent.Graph.Cyberiada.Converter
                 throw new ArgumentNullException(nameof(graph));
 
             XNamespace nameSpace = "http://graphml.graphdrawing.org/xmlns";
-            var root = new XElement( nameSpace + "graphml");
+            var root = new XElement(nameSpace + "graphml");
+            var label = new XElement(FullName("data"), new XAttribute("key", "gFormat"), "Cyberiada-GraphML-1.0");
+            root.Add(label);
             XElement graphElement = CreateXmlGraph(graph, root);
             CreateXmlEdges(graph, graphElement);
 
@@ -63,7 +65,9 @@ namespace Talent.Graph.Cyberiada.Converter
 
         private static XElement CreateXmlGraph(CyberiadaGraph graph, XContainer parentElement)
         {
-            var graphElement = new XElement(FullName("graph"), new XAttribute("id", graph.ID), new XAttribute("name", graph.Data.Name), new XAttribute("referenceGraphID", string.IsNullOrEmpty(graph.Data.ReferenceGraphID) ? "" : graph.Data.ReferenceGraphID));
+            var graphElement = new XElement(FullName("graph"), new XAttribute("id", graph.ID), new XAttribute("name", graph.Data.Name), new XAttribute("referenceGraphID", string.IsNullOrEmpty(graph.Data.ReferenceGraphID) ? "" : graph.Data.ReferenceGraphID), new XAttribute("edgedefault", "directed"));
+            var stateMachineDefinition = new XElement(FullName("data"), new XAttribute("key", "dStateMachine"));
+            graphElement.Add(stateMachineDefinition);
             parentElement.Add(graphElement);
             CreateXmlNodes(graph, graphElement);
 
