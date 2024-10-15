@@ -3,12 +3,14 @@ using System.Text;
 
 namespace Talent.Graphs
 {
-    public class LogicalGraphComparator : IGraphComparator
+    public class LogicalGraphComparator : IEqualityComparer<CyberiadaGraph>
     {
-        public bool IsGraphEqual(CyberiadaGraph graph, CyberiadaGraph otherGraph)
+        public bool Equals(CyberiadaGraph graph, CyberiadaGraph otherGraph)
         {
             return LogicalString(graph) == LogicalString(otherGraph);
         }
+
+        public int GetHashCode(CyberiadaGraph graph) => graph.GetHashCode();
 
         private string LogicalString(CyberiadaGraph graph)
         {

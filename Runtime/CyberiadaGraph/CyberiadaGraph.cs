@@ -72,9 +72,9 @@ namespace Talent.Graphs
             return resultGraph;
         }
 
-        public bool IsGraphEqual(CyberiadaGraph graph, IGraphComparator comparator)
+        public bool IsGraphEqual(CyberiadaGraph graph, IEqualityComparer<CyberiadaGraph> comparer)
         {
-            return comparator.IsGraphEqual(this, graph);
+            return comparer.Equals(this, graph);
         }
 
         #region Nodes API

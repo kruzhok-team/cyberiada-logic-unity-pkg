@@ -1,13 +1,16 @@
+using System.Collections.Generic;
 using System.Text;
 
 namespace Talent.Graphs
 {
-    public class VerboseGraphComparator : IGraphComparator
+    public class VerboseGraphComparator : IEqualityComparer<CyberiadaGraph>
     {
-        public bool IsGraphEqual(CyberiadaGraph graph, CyberiadaGraph otherGraph)
+        public bool Equals(CyberiadaGraph graph, CyberiadaGraph otherGraph)
         {
             return VerboseString(graph) == VerboseString(otherGraph);
         }
+
+        public int GetHashCode(CyberiadaGraph graph) => graph.GetHashCode();
 
         private string VerboseString(CyberiadaGraph graph)
         {
