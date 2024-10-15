@@ -65,13 +65,25 @@ namespace Talent.Graph.Cyberiada.Converter
 
         private static XElement CreateXmlGraph(CyberiadaGraph graph, XContainer parentElement)
         {
-            var graphElement = new XElement(FullName("graph"), new XAttribute("id", graph.ID), new XAttribute("name", graph.Data.Name), new XAttribute("referenceGraphID", string.IsNullOrEmpty(graph.Data.ReferenceGraphID) ? "" : graph.Data.ReferenceGraphID), new XAttribute("edgedefault", "directed"));
+            var graphElement = new XElement(FullName("graph"), new XAttribute("id", graph.ID), new XAttribute("edgedefault", "directed"));
             var stateMachineDefinition = new XElement(FullName("data"), new XAttribute("key", "dStateMachine"));
             graphElement.Add(stateMachineDefinition);
+            AddGraphData(graphElement, graph.Data);
             parentElement.Add(graphElement);
             CreateXmlNodes(graph, graphElement);
 
             return graphElement;
+        }
+
+        private static void AddGraphData(XElement graphElement, GraphData graphData)
+        {
+            if (graphData == null)
+                throw new ArgumentNullException(nameof(graphData));
+            
+            var graphName = new XElement(FullName("data"), new XAttribute("key", "dName"), graphData.Name);
+            var referenceId = new XElement(FullName("data"), new XAttribute("key", "referenceId"), graphData.ReferenceGraphID);
+            graphElement.Add(graphName);
+            graphElement.Add(referenceId);
         }
 
         private static void CreateXmlEdges(CyberiadaGraph graph, XElement parentElement)
