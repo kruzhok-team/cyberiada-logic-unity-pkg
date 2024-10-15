@@ -6,7 +6,6 @@ namespace Talent.Graphs
 {
     public class VerboseGraphComparator : IEqualityComparer<CyberiadaGraph>
     {
-        private readonly StringBuilder _stringBuilder = new StringBuilder();
         public bool Equals(CyberiadaGraph graph, CyberiadaGraph otherGraph)
         {
             return ConvertToString(graph) == ConvertToString(otherGraph);
@@ -25,7 +24,7 @@ namespace Talent.Graphs
             {
                 LinkedListNode<Node> item = nodes.First;
                 stringBuilder.Append($"NODE({item.Value.ID})({item.Value.Data.Vertex}(");
-                _stringBuilder.AppendLine($"NodeData({item.Value.Data.VisualData.Name})({item.Value.Data.VisualData.Position})");
+                stringBuilder.AppendLine($"NodeData({item.Value.Data.VisualData.Name})({item.Value.Data.VisualData.Position})");
 
                 foreach (KeyValuePair<string, Event> @event in item.Value.Data.Events)
                 {
