@@ -198,17 +198,47 @@ namespace Talent.Graphs
 
             foreach (XElement nodeElement in nodes)
             {
-                if (IsNote(nodeElement) || nodeElement.Attribute("id")?.Value == "")
+                if (nodeElement.Attribute("id")?.Value == "")
+                {
                     continue;
+                }
 
-                Node node = CreateNode(nodeElement);
-                node.ParentNode = parentNode;
+                if (!IsNote(nodeElement))
+                {
+                    Node node = CreateNode(nodeElement);
+                    node.ParentNode = parentNode;
 
-                foreach (XElement subGraph in nodeElement.Elements(FullName("graph")))
-                    node.NestedGraph = CreateGraph(subGraph, node);
+                    foreach (XElement subGraph in nodeElement.Elements(FullName("graph")))
+                        node.NestedGraph = CreateGraph(subGraph, node);
 
-                graph.AddNode(node);
+                    graph.AddNode(node);
+                }
+                else
+                {
+                    Note note = CreateNote(nodeElement);
+                    if (note.VisualData.Name == "CGML_META")
+                    {
+                        graph.Data.MetaData = CreateMetadata(note);
+                    }
+                    
+                    graph.Data.AddNote(note);
+                }
             }
+        }
+
+        private static Dictionary<string, string> CreateMetadata(Note note)
+        {
+            var metaData = new Dictionary<string, string>();
+            var entries = note.Data.Trim().Split("\n\n").ToList();
+            foreach (var entry in entries)
+            {
+                var delimiterPosition = entry.IndexOf('/');
+                var key = entry[..delimiterPosition];
+                var value = entry[(delimiterPosition + 1)..];
+                metaData.Add(key, value);
+            }
+            
+            return metaData;
         }
 
         private static Node CreateNode(XElement nodeElement)
@@ -219,7 +249,6 @@ namespace Talent.Graphs
             foreach (XElement dataElement in nodeElement.Elements(FullName("data")))
             {
                 string name = dataElement.Attribute("key")?.Value ?? "";
-
                 switch (name)
                 {
                     case "dName":
@@ -265,6 +294,43 @@ namespace Talent.Graphs
                 return new NodeData(dataElement.Value);
 
             return new NodeData();
+        }
+
+        private static Note CreateNote(XElement nodeElement)
+        {
+            string noteId = nodeElement.Attribute("id")?.Value ?? "";
+            Note note = new Note(noteId);
+            note.VisualData = new NodeVisualData();
+            foreach (XElement dataElement in nodeElement.Elements(FullName("data")))
+            {
+                string name = dataElement.Attribute("key")?.Value ?? "";
+                if (name == "dName")
+                {
+                    note.VisualData.Name = dataElement.Value;
+                }
+                else if (name == "dGeometry")
+                {
+                    note.VisualData.Position = GetGeometryData(dataElement).position;
+                }
+                else if (name == "dData")
+                {
+                    note.Data = dataElement.Value;
+                }
+                else if (name == "dNote")
+                {
+                    note.Type = dataElement.Value;
+                }
+                else if (name == "dChunk")
+                {
+                    note.Chunk = dataElement.Value;
+                }
+                else if (name == "dPivot")
+                {
+                    note.Pivot = dataElement.Value;
+                }
+            }
+
+            return note;
         }
 
         private static void CreateEdges(XElement xElement, CyberiadaGraph graph)
@@ -343,8 +409,10 @@ namespace Talent.Graphs
             XElement graphElement, Node parentNode = null)
         {
             string graphId = graphElement.Attribute("id")?.Value ?? "";
-            string graphName = graphElement.Elements().FirstOrDefault(element => element.Attribute("key")?.Value == "dName")?.Value ?? "";
-            string referenceGraphID = graphElement.Elements().FirstOrDefault(element => element.Attribute("key")?.Value == "referenceGraphID")?.Value ?? "";
+            string graphName = graphElement.Elements()
+                .FirstOrDefault(element => element.Attribute("key")?.Value == "dName")?.Value ?? "";
+            string referenceGraphID = graphElement.Elements()
+                .FirstOrDefault(element => element.Attribute("key")?.Value == "referenceGraphID")?.Value ?? "";
             var graphData = new GraphData();
             var graph = new CyberiadaGraph(graphId, graphData);
 

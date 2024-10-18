@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Talent.Graphs
 {
@@ -7,47 +7,13 @@ namespace Talent.Graphs
     {
         public string Name { get; set; }
         public string ReferenceGraphID { get; set; }
+        public Dictionary<string, string> MetaData { get; set; }
 
-        private Dictionary<string, string> DocumentMetaData { get; set; } = new Dictionary<string, string>();
+        private List<Note> Notes { get; set; } = new();
 
-        public void AddMetaData(string key, string value)
+        public void AddNote(Note note)
         {
-            if (key is null)
-            {
-                throw new NullReferenceException(nameof(key));
-            }
-
-            if (value is null)
-            {
-                throw new NullReferenceException(nameof(value));
-            }
-            
-            DocumentMetaData[key] = value;
-        }
-
-        public bool TryGetMetadata(string key, out string value)
-        {
-            if (key is null)
-            {
-                throw new NullReferenceException(nameof(key));
-            }
-            
-            return DocumentMetaData.TryGetValue(key, out value);
-        }
-
-        public void AddMetadata(string key, string value)
-        {
-            if (key is null)
-            {
-                throw new NullReferenceException(nameof(key));
-            }
-
-            if (value is null)
-            {
-                throw new NullReferenceException(nameof(value));
-            }
-            
-            DocumentMetaData.Add(key, value);
+            Notes.Add(note);
         }
 
         /// <summary>
@@ -55,7 +21,13 @@ namespace Talent.Graphs
         /// </summary>
         public GraphData GetCopy()
         {
-            GraphData resultData = new GraphData { Name = Name };
+            GraphData resultData = new GraphData
+            {
+                Name = Name,
+                ReferenceGraphID = ReferenceGraphID,
+                Notes = Notes.Select(note => note.GetCopy()).ToList(),
+                MetaData = new Dictionary<string, string>(MetaData)
+            };
 
             return resultData;
         }
