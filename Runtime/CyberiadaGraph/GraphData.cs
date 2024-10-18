@@ -8,8 +8,8 @@ namespace Talent.Graphs
         public string Name { get; set; }
         public string ReferenceGraphID { get; set; }
         public Metadata DocumentMeta { get; set; }
-        public IReadOnlyList<Note> Notes { get; private set; }
-        private readonly List<Note> _notes = new();
+        public IReadOnlyCollection<Note> Notes => _notes;
+        private List<Note> _notes = new();
 
         public void AddNote(Note note)
         {
@@ -25,7 +25,7 @@ namespace Talent.Graphs
             {
                 Name = Name,
                 ReferenceGraphID = ReferenceGraphID,
-                Notes = Notes.Select(note => note.GetCopy()).ToList(),
+                _notes = _notes.Select(note => note.GetCopy()).ToList(),
                 DocumentMeta = DocumentMeta.GetCopy()
             };
 

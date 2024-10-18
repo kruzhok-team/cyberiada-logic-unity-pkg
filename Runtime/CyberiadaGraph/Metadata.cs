@@ -4,6 +4,8 @@ namespace Talent.Graphs
 {
     public class Metadata : Note, IClonable<Metadata>
     {
+        public new const string Name = "CGML_META";
+        public new const string Type = "formal";
         public IReadOnlyDictionary<string, string> Data => _data;
         private readonly Dictionary<string, string> _data;
         
@@ -14,8 +16,7 @@ namespace Talent.Graphs
 
         public new Metadata GetCopy()
         {
-            Note note = base.GetCopy();
-            Metadata resultData = new Metadata(note.ID, _data);
+            Metadata resultData = new Metadata(ID, new Dictionary<string, string>(_data));
             return resultData;
         }
     }

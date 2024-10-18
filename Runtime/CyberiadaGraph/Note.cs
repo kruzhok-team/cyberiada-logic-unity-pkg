@@ -1,9 +1,12 @@
-﻿namespace Talent.Graphs
+﻿using UnityEngine;
+
+namespace Talent.Graphs
 {
     public class Note : IClonable<Note>
     {
         public string ID { get; }
-        public NodeVisualData VisualData { get; set; } = new();
+        public string Name { get; set; }
+        public Vector2 Position { get; set; }
         public string Type { get; set; }
         public string Text { get; set; }
         public string Pivot { get; set; }
@@ -13,23 +16,12 @@
         public Note(string id)
         {
             ID = id;
+            Type = "informal";
         }
 
         public virtual Note GetCopy()
         {
-            var resultData = new Note(ID)
-            {
-                VisualData =
-                {
-                    Position = VisualData.Position,
-                    Name = VisualData.Name
-                },
-                Type = Type,
-                Text = Text,
-                Pivot = Pivot,
-                Chunk = Chunk
-            };
-            return resultData;
+            return (Note)MemberwiseClone();
         }
     }
 }

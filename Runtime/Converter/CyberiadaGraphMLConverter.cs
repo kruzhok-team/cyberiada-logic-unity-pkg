@@ -68,6 +68,7 @@ namespace Talent.Graphs
             AddGraphData(graphElement, graph.Data);
             parentElement.Add(graphElement);
             CreateXmlNodes(graph, graphElement);
+            CreateXmlNotes(graph, graphElement);
 
             return graphElement;
         }
@@ -98,24 +99,23 @@ namespace Talent.Graphs
         private static void AddXmlMetaData(XElement graphElement, GraphData graphData)
         {
             var nodeElement = new XElement(FullName("node"), new XAttribute("id", graphData.DocumentMeta.ID));
-            var noteElement = new XElement(FullName("data"), new XAttribute("key", "dNote"), graphData.DocumentMeta.Type);
-            var nameElement = new XElement(FullName("data"), new XAttribute("key", "dName"), graphData.DocumentMeta.VisualData.Name);
+            AddNoteTypeToXmlElement(nodeElement, Metadata.Type);
+            AddNameToXmlElement(nodeElement, Metadata.Name);
             
-            StringBuilder stringBuilder = new StringBuilder();
+            var sb = new StringBuilder();
             var i = 0;
             foreach (var (key, value) in graphData.DocumentMeta.Data)
             {
-                stringBuilder.AppendLine($"{key}/ {value}");
+                sb.AppendLine($"{key}/ {value}");
                 if (i != graphData.DocumentMeta.Data.Count - 1)
                 {
-                    stringBuilder.Append('\n');
+                    sb.Append('\n');
                 }
 
                 i++;
             }
             
-            var dataElement = new XElement(FullName("data"), new XAttribute("key", "dData"), stringBuilder.ToString());
-            nodeElement.Add(noteElement, nameElement, dataElement);
+            AddDataToXmlElement(nodeElement, sb.ToString());
             graphElement.Add(nodeElement);
         }
 
@@ -189,12 +189,30 @@ namespace Talent.Graphs
             parentElement.Add(nodeElement);
         }
 
-        private static void AddDataToXmlElement(XElement nodeElement, string value)
+        private static void CreateXmlNotes(CyberiadaGraph graph, XElement parentElement)
         {
-            if (string.IsNullOrEmpty(value))
+            foreach (Note note in graph.Data.Notes)
+            {
+                CreateXmlNote(note, parentElement);
+            }
+        }
+
+        private static void CreateXmlNote(Note note, XElement parentElement)
+        {
+            var nodeElement = new XElement(FullName("node"), new XAttribute("id", note.ID));
+            AddNoteTypeToXmlElement(nodeElement, note.Type);
+            AddNameToXmlElement(nodeElement, note.Name);
+            AddGeometryToXmlElement(nodeElement, "dGeometry", note.Position);
+            AddDataToXmlElement(nodeElement, note.Text);
+            parentElement.Add(nodeElement);
+        }
+
+        private static void AddDataToXmlElement(XElement nodeElement, string data)
+        {
+            if (string.IsNullOrEmpty(data))
                 return;
 
-            var dataElement = new XElement(FullName("data"), new XAttribute("key", "dData"), value);
+            var dataElement = new XElement(FullName("data"), new XAttribute("key", "dData"), data);
             nodeElement.Add(dataElement);
         }
 
@@ -208,8 +226,16 @@ namespace Talent.Graphs
             nodeElement.Add(geometryElement);
         }
 
-        private static void AddNameToXmlElement(XElement nodeElement, string name) =>
+        private static void AddNameToXmlElement(XElement nodeElement, string name)
+        {
+            if (string.IsNullOrEmpty(name))
+                return;
+            
             nodeElement.Add(new XElement(FullName("data"), new XAttribute("key", "dName"), name));
+        }
+
+        private static void AddNoteTypeToXmlElement(XElement noteElement, string noteType) =>
+            noteElement.Add(new XElement(FullName("data"), new XAttribute("key", "dNote"), noteType));
 
         private static bool IsInitialNode(Node node) =>
             node.Data.Vertex == "initial";
@@ -252,7 +278,7 @@ namespace Talent.Graphs
                 else
                 {
                     Note note = CreateNote(nodeElement);
-                    if (note.VisualData.Name == "CGML_META")
+                    if (note.Name == Metadata.Name)
                     {
                         graph.Data.DocumentMeta = CreateMetadata(note);
                     }
@@ -340,17 +366,17 @@ namespace Talent.Graphs
         {
             string noteId = nodeElement.Attribute("id")?.Value ?? "";
             Note note = new Note(noteId);
-            note.VisualData = new NodeVisualData();
+            
             foreach (XElement dataElement in nodeElement.Elements(FullName("data")))
             {
                 string name = dataElement.Attribute("key")?.Value ?? "";
                 if (name == "dName")
                 {
-                    note.VisualData.Name = dataElement.Value;
+                    note.Name = dataElement.Value;
                 }
                 else if (name == "dGeometry")
                 {
-                    note.VisualData.Position = GetGeometryData(dataElement).position;
+                    note.Position = GetGeometryData(dataElement).position;
                 }
                 else if (name == "dData")
                 {
