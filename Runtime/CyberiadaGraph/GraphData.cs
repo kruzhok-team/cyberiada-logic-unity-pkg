@@ -7,13 +7,13 @@ namespace Talent.Graphs
     {
         public string Name { get; set; }
         public string ReferenceGraphID { get; set; }
-        public Dictionary<string, string> MetaData { get; set; }
-
-        private List<Note> Notes { get; set; } = new();
+        public Metadata DocumentMeta { get; set; }
+        public IReadOnlyList<Note> Notes { get; private set; }
+        private readonly List<Note> _notes = new();
 
         public void AddNote(Note note)
         {
-            Notes.Add(note);
+            _notes.Add(note);
         }
 
         /// <summary>
@@ -26,7 +26,7 @@ namespace Talent.Graphs
                 Name = Name,
                 ReferenceGraphID = ReferenceGraphID,
                 Notes = Notes.Select(note => note.GetCopy()).ToList(),
-                MetaData = new Dictionary<string, string>(MetaData)
+                DocumentMeta = DocumentMeta.GetCopy()
             };
 
             return resultData;

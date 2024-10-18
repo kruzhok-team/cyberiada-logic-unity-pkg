@@ -76,11 +76,47 @@ namespace Talent.Graphs
         {
             if (graphData == null)
                 throw new ArgumentNullException(nameof(graphData));
+
+            if (!string.IsNullOrEmpty(graphData.Name))
+            {
+                var graphName = new XElement(FullName("data"), new XAttribute("key", "dName"), graphData.Name);
+                graphElement.Add(graphName);
+            }
+
+            if (!string.IsNullOrEmpty(graphData.ReferenceGraphID))
+            {
+                var referenceId = new XElement(FullName("data"), new XAttribute("key", "referenceGraphID"), graphData.ReferenceGraphID);
+                graphElement.Add(referenceId);
+            }
             
-            var graphName = new XElement(FullName("data"), new XAttribute("key", "dName"), graphData.Name);
-            var referenceId = new XElement(FullName("data"), new XAttribute("key", "referenceGraphID"), graphData.ReferenceGraphID);
-            graphElement.Add(graphName);
-            graphElement.Add(referenceId);
+            if (graphData.DocumentMeta != null)
+            {
+                AddXmlMetaData(graphElement, graphData);
+            }
+        }
+
+        private static void AddXmlMetaData(XElement graphElement, GraphData graphData)
+        {
+            var nodeElement = new XElement(FullName("node"), new XAttribute("id", graphData.DocumentMeta.ID));
+            var noteElement = new XElement(FullName("data"), new XAttribute("key", "dNote"), graphData.DocumentMeta.Type);
+            var nameElement = new XElement(FullName("data"), new XAttribute("key", "dName"), graphData.DocumentMeta.VisualData.Name);
+            
+            StringBuilder stringBuilder = new StringBuilder();
+            var i = 0;
+            foreach (var (key, value) in graphData.DocumentMeta.Data)
+            {
+                stringBuilder.AppendLine($"{key}/ {value}");
+                if (i != graphData.DocumentMeta.Data.Count - 1)
+                {
+                    stringBuilder.Append('\n');
+                }
+
+                i++;
+            }
+            
+            var dataElement = new XElement(FullName("data"), new XAttribute("key", "dData"), stringBuilder.ToString());
+            nodeElement.Add(noteElement, nameElement, dataElement);
+            graphElement.Add(nodeElement);
         }
 
         private static void CreateXmlEdges(CyberiadaGraph graph, XElement parentElement)
@@ -218,26 +254,30 @@ namespace Talent.Graphs
                     Note note = CreateNote(nodeElement);
                     if (note.VisualData.Name == "CGML_META")
                     {
-                        graph.Data.MetaData = CreateMetadata(note);
+                        graph.Data.DocumentMeta = CreateMetadata(note);
                     }
-                    
-                    graph.Data.AddNote(note);
+                    else
+                    {
+                        graph.Data.AddNote(note);
+                    }
                 }
             }
         }
 
-        private static Dictionary<string, string> CreateMetadata(Note note)
+        private static Metadata CreateMetadata(Note note)
         {
-            var metaData = new Dictionary<string, string>();
-            var entries = note.Data.Trim().Split("\n\n").ToList();
+            var data = new Dictionary<string, string>();
+            var entries = note.Text.Trim().Split("\n\n").ToList();
             foreach (var entry in entries)
             {
-                var delimiterPosition = entry.IndexOf('/');
+                const string delimiter = "/ ";
+                var delimiterPosition = entry.IndexOf(delimiter, StringComparison.Ordinal);
                 var key = entry[..delimiterPosition];
-                var value = entry[(delimiterPosition + 1)..];
-                metaData.Add(key, value);
+                var value = entry[(delimiterPosition + delimiter.Length)..];
+                data.Add(key, value);
             }
-            
+
+            var metaData = new Metadata(note.ID, data);
             return metaData;
         }
 
@@ -314,7 +354,7 @@ namespace Talent.Graphs
                 }
                 else if (name == "dData")
                 {
-                    note.Data = dataElement.Value;
+                    note.Text = dataElement.Value;
                 }
                 else if (name == "dNote")
                 {

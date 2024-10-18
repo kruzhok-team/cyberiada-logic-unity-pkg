@@ -5,7 +5,7 @@
         public string ID { get; }
         public NodeVisualData VisualData { get; set; } = new();
         public string Type { get; set; }
-        public string Data { get; set; }
+        public string Text { get; set; }
         public string Pivot { get; set; }
         public string Chunk { get; set; }
 
@@ -15,7 +15,7 @@
             ID = id;
         }
 
-        public Note GetCopy()
+        public virtual Note GetCopy()
         {
             var resultData = new Note(ID)
             {
@@ -25,7 +25,7 @@
                     Name = VisualData.Name
                 },
                 Type = Type,
-                Data = Data,
+                Text = Text,
                 Pivot = Pivot,
                 Chunk = Chunk
             };
