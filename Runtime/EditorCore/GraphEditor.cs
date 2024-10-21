@@ -24,6 +24,7 @@ namespace Talent.GraphEditor.Core
         private BidirectionalDictionary<Action, IEdgeActionView> _edgeActionViews = new BidirectionalDictionary<Action, IEdgeActionView>();
 
         private Node<GraphData, NodeData, EdgeData> _initialNode;
+        private Node<GraphData, NodeData, EdgeData> _initialNodeTarget;
         private Edge<EdgeData> _initialEdge;
 
         public GraphEditor(IGraphElementViewFactory factory)
@@ -143,6 +144,27 @@ namespace Talent.GraphEditor.Core
             }
         }
 
+        public void SetInitialNode(INodeView nodeView)
+        {
+            if (!_nodeViews.TryGetValue(nodeView, out Node<GraphData, NodeData, EdgeData> node))
+            {
+                return;
+            }
+
+            if (!_edgeViews.TryGetValue(_initialEdge, out IEdgeView edge))
+            {
+                return;
+            }
+
+            _initialNodeTarget = node;
+
+            RemoveEdge(edge);
+            _initialEdge = null;
+
+            CreateInitialEdge();
+            RebuildView();
+        }
+
         private void CreateInitialNode()
         {
             if (_initialNode == null)
@@ -160,12 +182,17 @@ namespace Talent.GraphEditor.Core
 
         private void CreateInitialEdge()
         {
+            if (_initialNodeTarget == null)
+            {
+                _initialNodeTarget = _nodes.Values.First();
+            }
+
             if (_initialEdge == null && _initialNode != null && _nodes.Count > 0)
             {
-                _initialEdge = new Edge<EdgeData>(_initialNode.ID + _nodes.Values.First().ID, _initialNode.ID, _nodes.Values.First().ID, new EdgeData(""));
+                _initialEdge = new Edge<EdgeData>(_initialNode.ID + _initialNodeTarget.ID, _initialNode.ID, _initialNodeTarget.ID, new EdgeData(""));
                 Graph.AddEdge(_initialEdge);
 
-                if (_nodeViews.TryGetValue(_initialNode, out INodeView sourceNodeView) && _nodeViews.TryGetValue(_nodes.Values.First(), out INodeView targetNodeView))
+                if (_nodeViews.TryGetValue(_initialNode, out INodeView sourceNodeView) && _nodeViews.TryGetValue(_initialNodeTarget, out INodeView targetNodeView))
                 {
                     IEdgeView edgeView = GraphElementViewFactory.CreateEdgeView(sourceNodeView, targetNodeView, _initialEdge.Data.VisualData, _initialEdge.Data.TriggerID, _initialEdge.Data.Condition);
                     _edgeViews.Add(_initialEdge, edgeView);
