@@ -169,7 +169,7 @@ namespace Talent.GraphEditor.Core
         {
             if (_initialNode == null)
             {
-                _initialNode = new Node<GraphData, NodeData, EdgeData>("initial", new NodeData(NodeData.Vertex_Initial));
+                _initialNode = new Node<GraphData, NodeData, EdgeData>(NodeData.Vertex_Initial, new NodeData(NodeData.Vertex_Initial));
 
                 Graph.AddNode(_initialNode);
                 _initialNode.Data.VisualData.Name = "INIT";
@@ -182,9 +182,13 @@ namespace Talent.GraphEditor.Core
 
         private void CreateInitialEdge()
         {
-            if (_initialNodeTarget == null)
+            foreach (Edge<EdgeData> edge in _edges.Values)
             {
-                _initialNodeTarget = _nodes.Values.First();
+                if (edge.SourceNode == NodeData.Vertex_Initial)
+                {
+                    _initialNodeTarget = _nodes[edge.TargetNode];
+                    break;
+                }
             }
 
             if (_initialEdge == null && _initialNode != null && _nodes.Count > 0)
@@ -437,6 +441,8 @@ namespace Talent.GraphEditor.Core
                 {
                     if (createInitialEdge)
                     {
+                        _initialNodeTarget = _nodes.Values.First();
+
                         CreateInitialEdge();
                     }
                 }
@@ -661,10 +667,9 @@ namespace Talent.GraphEditor.Core
 
             if (createInitialNode)
             {
-                if (_initialNode == null && _nodes.Count > 0)
-                {
-                    CreateInitialNode();
-                }
+                _initialNodeTarget = node;
+
+                CreateInitialNode();
             }
 
             return view;
