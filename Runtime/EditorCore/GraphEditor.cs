@@ -143,6 +143,18 @@ namespace Talent.GraphEditor.Core
             }
         }
 
+        public void DublicateNode(INodeView nodeView)
+        {
+            if (!_nodeViews.TryGetValue(nodeView, out Node<GraphData, NodeData, EdgeData> node))
+            {
+                return;
+            }
+
+            Node<GraphData, NodeData, EdgeData> newNode = node.GetCopy(node.Data.GetCopy(), parentNode: node.ParentNode, newID: Guid.NewGuid().ToString());
+
+            Graph.AddNode(newNode);
+        }
+
         private void CreateInitialNode()
         {
             if (_initialNode == null)
