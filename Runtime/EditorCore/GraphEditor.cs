@@ -143,14 +143,17 @@ namespace Talent.GraphEditor.Core
             }
         }
 
-        public void DublicateNode(INodeView nodeView)
+        public void DublicateNode(INodeView nodeView, UnityEngine.Vector2 offset)
         {
             if (!_nodeViews.TryGetValue(nodeView, out Node<GraphData, NodeData, EdgeData> node))
             {
                 return;
             }
 
-            Node<GraphData, NodeData, EdgeData> newNode = node.GetCopy(node.Data.GetCopy(), parentNode: node.ParentNode, newID: Guid.NewGuid().ToString());
+            NodeData newData = node.Data.GetCopy();
+            newData.VisualData.Position += offset;
+
+            Node<GraphData, NodeData, EdgeData> newNode = node.GetCopy(newData, parentNode: node.ParentNode, newID: Guid.NewGuid().ToString());
 
             Graph.AddNode(newNode);
         }
