@@ -23,6 +23,7 @@ namespace Talent.GraphEditor.Core
         private BidirectionalDictionary<Action, INodeActionView> _nodeActionViews = new BidirectionalDictionary<Action, INodeActionView>();
         private BidirectionalDictionary<Action, IEdgeActionView> _edgeActionViews = new BidirectionalDictionary<Action, IEdgeActionView>();
 
+        // TODOAAA: нужны ли тут node/edge или может лучше nodeView/edgeView?
         private Node<GraphData, NodeData, EdgeData> _initialNode;
         private Node<GraphData, NodeData, EdgeData> _initialNodeTarget;
         private Edge<EdgeData> _initialEdge;
@@ -106,6 +107,8 @@ namespace Talent.GraphEditor.Core
                 return;
             }
 
+            // TODOAAA: посмотреть нужно ли разное создание вьюхи тут 
+            // но если добавить initial нод в список нод то все проверки на базе _nodes.Count сломаются
             foreach (Node<GraphData, NodeData, EdgeData> node in Graph.Nodes)
             {
                 if (node.Data.Vertex == NodeData.Vertex_Initial)
@@ -119,8 +122,16 @@ namespace Talent.GraphEditor.Core
                 }
             }
 
+
+            // TODOAAA: это нужно сделать после создания вьюх нод, что бы перед созданием еджей уже была initial нода
+            if (_nodes.Count > 0)
+            {
+                CreateInitialNode();
+            }
+
             foreach (Edge<EdgeData> edge in Graph.Edges)
             {
+                // TODOAAA: посмотреть нужно ли разное создание вьюхи тут 
                 if (edge.SourceNode == _initialNode.ID || edge.TargetNode == _initialNode.ID)
                 {
                     _initialEdge = edge;
@@ -137,11 +148,6 @@ namespace Talent.GraphEditor.Core
                     CreateViewForEdge(edge);
                 }
             }
-
-            if (_nodes.Count > 0)
-            {
-                CreateInitialNode();
-            }
         }
 
         public void SetInitialNode(INodeView nodeView)
@@ -153,18 +159,24 @@ namespace Talent.GraphEditor.Core
 
             if (!_edgeViews.TryGetValue(_initialEdge, out IEdgeView edge))
             {
+                // TODOAAA: wut?
                 return;
             }
 
             _initialNodeTarget = node;
 
+            // TODOAAA: тут не нужно удалять вьюху если ребилдишь, тут нужно только удалить едж в самом графе и добавить новый едж в граф
+            // но круто было бы сделать чисто на RemoveEdge и CreateNewEdge без ребилда
+
             RemoveEdge(edge);
             _initialEdge = null;
 
-            CreateInitialEdge();
+            
+            CreateRandomInitialEdge();
             RebuildView();
         }
 
+        // TODOAAA: это должно быть только создание initial ноды если ее нет
         private void CreateInitialNode()
         {
             if (_initialNode == null)
@@ -176,11 +188,12 @@ namespace Talent.GraphEditor.Core
 
                 _nodeViews.Set(_initialNode, GraphElementViewFactory.CreateNodeView(_initialNode.Data.VisualData, _initialNode.Data.Vertex, true));
 
-                CreateInitialEdge();
+                CreateRandomInitialEdge();
             }
         }
-
-        private void CreateInitialEdge()
+        
+        // TODOAAA: причесать, таргет не нужен, нужно выбрать новый любой нод, first бы сканал, но он может выдать initial node если он будет в nodes
+        private void CreateRandomInitialEdge()
         {
             foreach (Edge<EdgeData> edge in _edges.Values)
             {
@@ -441,9 +454,10 @@ namespace Talent.GraphEditor.Core
                 {
                     if (createInitialEdge)
                     {
+                        // TODOAAA: а зачем тут смена таргета?
                         _initialNodeTarget = _nodes.Values.First();
 
-                        CreateInitialEdge();
+                        CreateRandomInitialEdge();
                     }
                 }
                 else
@@ -583,6 +597,7 @@ namespace Talent.GraphEditor.Core
             RemoveGraphFromNode(oldParent);
         }
 
+        // TODO: remove recursion
         private bool NodeHasNodeRecursively(Node<GraphData, NodeData, EdgeData> node1, Node<GraphData, NodeData, EdgeData> node2)
         {
             if (node1 == null || node1.NestedGraph == null || node2 == null)
@@ -627,6 +642,7 @@ namespace Talent.GraphEditor.Core
 
         #region Internal Create Methods
 
+        // TODOAAA: разделение createInitialNode должно быть не на уровне создания вьюхи ноды а выше, в CreateNewNode создавать initial ноду
         private INodeView CreateViewForNode(Node<GraphData, NodeData, EdgeData> node, bool createInitialNode, bool layoutAutomatically)
         {
             _nodes[node.ID] = node;
