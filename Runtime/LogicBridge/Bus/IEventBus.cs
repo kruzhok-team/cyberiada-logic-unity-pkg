@@ -11,6 +11,6 @@ namespace Talent.Logic.Bus
 
         void RemoveEventListener(string eventName, Listener listener);
 
-        void InvokeCommand(string commandName, List<Tuple<string, string>> value = null);
+        void InvokeCommand(string commandName, List<Tuple<string, string>> parameters = null);
     }
 }
