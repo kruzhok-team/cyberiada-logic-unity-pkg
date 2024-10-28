@@ -143,7 +143,7 @@ namespace Talent.GraphEditor.Core
             }
         }
 
-        public void DublicateNode(INodeView nodeView, UnityEngine.Vector2 offset)
+        public void DuplicateNode(INodeView nodeView, UnityEngine.Vector2 offset)
         {
             if (!_nodeViews.TryGetValue(nodeView, out Node<GraphData, NodeData, EdgeData> node))
             {
