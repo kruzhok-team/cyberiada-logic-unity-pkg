@@ -86,7 +86,7 @@ namespace Talent.Logic.Bus
         /// </summary>
         /// <param name="eventName">The name of the event to invoke.</param>
         /// <param name="value">The optional value to pass to the event listeners.</param>
-        public void InvokeEvent(string eventName, string value = "")
+        public void InvokeEvent(string eventName, List<Tuple<string, string>> value = null)
         {
             Invoke(_events, eventName, value);
         }
@@ -96,7 +96,7 @@ namespace Talent.Logic.Bus
         /// </summary>
         /// <param name="commandName">The name of the command to invoke.</param>
         /// <param name="value">The optional value to pass to the command listeners.</param>
-        public void InvokeCommand(string commandName, string value = "")
+        public void InvokeCommand(string commandName, List<Tuple<string, string>> value = null)
         {
             Invoke(_commands, commandName, value);
         }
@@ -198,7 +198,7 @@ namespace Talent.Logic.Bus
             container[name].Remove(listener);
         }
 
-        private void Invoke(IDictionary<string, List<Listener>> container, string name, string value)
+        private void Invoke(IDictionary<string, List<Listener>> container, string name, List<Tuple<string, string>> value)
         {
             if (container.ContainsKey(name) == false)
             {

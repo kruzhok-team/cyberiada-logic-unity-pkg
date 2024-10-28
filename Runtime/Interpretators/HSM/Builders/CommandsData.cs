@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Talent.Logic.Bus;
 
@@ -8,15 +9,15 @@ namespace Talent.Logic.HSM.Builders
     /// </summary>
     public class CommandsData
     {
-        private readonly List<(string commandName, string parameters)> _commandsData =
-            new List<(string commandName, string parameters)>();
+        private readonly List<(string commandName, List<Tuple<string, string>> parameters)> _commandsData =
+            new List<(string commandName, List<Tuple<string, string>> parameters)>();
 
         /// <summary>
         ///     Adds a command to the storage.
         /// </summary>
         /// <param name="commandName">The name of the command.</param>
         /// <param name="parameters">The parameters of the command.</param>
-        public void AddCommandStorage(string commandName, string parameters)
+        public void AddCommandStorage(string commandName, List<Tuple<string, string>> parameters)
         {
             _commandsData.Add((commandName, parameters));
         }
