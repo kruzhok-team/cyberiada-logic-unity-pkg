@@ -23,8 +23,8 @@ namespace Talent.GraphEditor.Core
         private BidirectionalDictionary<Action, INodeActionView> _nodeActionViews = new BidirectionalDictionary<Action, INodeActionView>();
         private BidirectionalDictionary<Action, IEdgeActionView> _edgeActionViews = new BidirectionalDictionary<Action, IEdgeActionView>();
 
-        private Node<GraphData, NodeData, EdgeData> _initialNode;
-        private Edge<EdgeData> _initialEdge;
+        private INodeView _initialNodeView;
+        private IEdgeView _initialEdgeView;
 
         public GraphEditor(IGraphElementViewFactory factory)
         {
@@ -97,8 +97,8 @@ namespace Talent.GraphEditor.Core
             _nodes.Clear();
             _edges.Clear();
 
-            _initialNode = null;
-            _initialEdge = null;
+            _initialNodeView = null;
+            _initialEdgeView = null;
 
             if (Graph == null)
             {
@@ -109,31 +109,11 @@ namespace Talent.GraphEditor.Core
             {
                 if (node.Data.Vertex == NodeData.Vertex_Initial)
                 {
-                    _initialNode = node;
-                    _nodeViews.Set(_initialNode, GraphElementViewFactory.CreateNodeView(_initialNode.Data.VisualData, _initialNode.Data.Vertex, false));
+                    _initialNodeView = CreateViewForNode(node, false);
                 }
                 else
                 {
-                    CreateViewForNode(node, false, false);
-                }
-            }
-
-            foreach (Edge<EdgeData> edge in Graph.Edges)
-            {
-                if (edge.SourceNode == _initialNode.ID || edge.TargetNode == _initialNode.ID)
-                {
-                    _initialEdge = edge;
-
-                    if (_nodeViews.TryGetValue(_initialEdge.SourceNode == _initialNode.ID ? _initialNode : _nodes[_initialEdge.SourceNode], out INodeView sourceNodeView)
-                        && _nodeViews.TryGetValue(_initialEdge.TargetNode == _initialNode.ID ? _initialNode : _nodes[_initialEdge.TargetNode], out INodeView targetNodeView))
-                    {
-                        IEdgeView edgeView = GraphElementViewFactory.CreateEdgeView(sourceNodeView, targetNodeView, _initialEdge.Data.VisualData, _initialEdge.Data.TriggerID, _initialEdge.Data.Condition);
-                        _edgeViews.Add(_initialEdge, edgeView);
-                    }
-                }
-                else
-                {
-                    CreateViewForEdge(edge);
+                    CreateViewForNode(node, false);
                 }
             }
 
@@ -141,6 +121,33 @@ namespace Talent.GraphEditor.Core
             {
                 CreateInitialNode();
             }
+
+            foreach (Edge<EdgeData> edge in Graph.Edges)
+            {
+                if (edge.SourceNode == NodeData.Vertex_Initial)
+                {
+                    _initialEdgeView = CreateViewForEdge(edge);
+                }
+                else
+                {
+                    CreateViewForEdge(edge);
+                }
+            }
+        }
+
+        public void ConnectToInitialNode(INodeView nodeView)
+        {
+            if (_initialNodeView == null)
+            {
+                return;
+            }
+
+            if (_initialEdgeView != null)
+            {
+                RemoveEdge(_initialEdgeView);
+            }
+
+            _initialEdgeView = CreateNewEdge(_initialNodeView, nodeView, "");
         }
 
         public bool TryDuplicateNode(INodeView nodeView, out INodeView duplicatedNode)
@@ -155,36 +162,42 @@ namespace Talent.GraphEditor.Core
 
             Graph.AddNode(newNode);
 
-            duplicatedNode = CreateViewForNode(newNode, false, true);
+            duplicatedNode = CreateViewForNode(newNode, true);
             return true;
         }
 
         private void CreateInitialNode()
         {
-            if (_initialNode == null)
+            if (_initialNodeView == null)
             {
-                _initialNode = new Node<GraphData, NodeData, EdgeData>("initial", new NodeData(NodeData.Vertex_Initial));
+                Node<GraphData, NodeData, EdgeData> nodeData = new(NodeData.Vertex_Initial, new NodeData(NodeData.Vertex_Initial));
 
-                Graph.AddNode(_initialNode);
-                _initialNode.Data.VisualData.Name = "INIT";
+                Graph.AddNode(nodeData);
+                nodeData.Data.VisualData.Name = "INIT";
 
-                _nodeViews.Set(_initialNode, GraphElementViewFactory.CreateNodeView(_initialNode.Data.VisualData, _initialNode.Data.Vertex, true));
-
-                CreateInitialEdge();
+                _initialNodeView = CreateViewForNode(nodeData, true);
+                _nodeViews.Set(nodeData, _initialNodeView);
             }
         }
 
-        private void CreateInitialEdge()
+        private void CreateRandomInitialEdge()
         {
-            if (_initialEdge == null && _initialNode != null && _nodes.Count > 0)
+            if (_initialEdgeView == null && _initialNodeView != null)
             {
-                _initialEdge = new Edge<EdgeData>(_initialNode.ID + _nodes.Values.First().ID, _initialNode.ID, _nodes.Values.First().ID, new EdgeData(""));
-                Graph.AddEdge(_initialEdge);
+                Node<GraphData, NodeData, EdgeData> targetNode = _nodes.Values.Where((Node<GraphData, NodeData, EdgeData> node) => node.Data.Vertex != NodeData.Vertex_Initial).FirstOrDefault();
 
-                if (_nodeViews.TryGetValue(_initialNode, out INodeView sourceNodeView) && _nodeViews.TryGetValue(_nodes.Values.First(), out INodeView targetNodeView))
+                if (targetNode == null)
                 {
-                    IEdgeView edgeView = GraphElementViewFactory.CreateEdgeView(sourceNodeView, targetNodeView, _initialEdge.Data.VisualData, _initialEdge.Data.TriggerID, _initialEdge.Data.Condition);
-                    _edgeViews.Add(_initialEdge, edgeView);
+                    return;
+                }
+
+                Edge<EdgeData> edge = new Edge<EdgeData>(NodeData.Vertex_Initial + targetNode.ID, NodeData.Vertex_Initial, targetNode.ID, new EdgeData(""));
+                Graph.AddEdge(edge);
+
+                if (_nodeViews.TryGetValue(targetNode, out INodeView targetNodeView))
+                {
+                    _initialEdgeView = GraphElementViewFactory.CreateEdgeView(_initialNodeView, targetNodeView, edge.Data.VisualData, edge.Data.TriggerID, edge.Data.Condition);
+                    _edgeViews.Add(edge, _initialEdgeView);
                 }
             }
         }
@@ -209,7 +222,15 @@ namespace Talent.GraphEditor.Core
             Graph.AddNode(node);
             node.Data.VisualData.Name = name;
 
-            return CreateViewForNode(node, true, true);
+            INodeView newNode = CreateViewForNode(node, true);
+
+            if (_initialNodeView == null)
+            {
+                CreateInitialNode();
+                ConnectToInitialNode(newNode);
+            }
+
+            return newNode;
         }
 
         public IEdgeView CreateNewEdge(INodeView sourceView, INodeView targetView, string triggerID)
@@ -217,7 +238,7 @@ namespace Talent.GraphEditor.Core
             Node<GraphData, NodeData, EdgeData> sourceNode = _nodeViews.Get(sourceView);
             Node<GraphData, NodeData, EdgeData> targetNode = _nodeViews.Get(targetView);
 
-            if ((sourceNode == _initialNode || targetNode == _initialNode) && _initialEdge != null)
+            if ((sourceNode == _initialNodeView || targetNode == _initialNodeView) && _initialEdgeView != null)
             {
                 return null;
             }
@@ -394,9 +415,9 @@ namespace Talent.GraphEditor.Core
                         Graph.DeleteEdge(edge);
                         GraphElementViewFactory.DestroyElementView(edgeView);
 
-                        if (edge.SourceNode == _initialNode.ID || edge.TargetNode == _initialNode.ID)
+                        if (edge.SourceNode == NodeData.Vertex_Initial || edge.TargetNode == NodeData.Vertex_Initial)
                         {
-                            _initialEdge = null;
+                            _initialEdgeView = null;
                         }
                     }
                 }
@@ -422,19 +443,19 @@ namespace Talent.GraphEditor.Core
                 _nodeViews.Remove(node);
                 GraphElementViewFactory.DestroyElementView(nodeView);
 
-                if (_nodes.Count > 0)
+                if (_nodes.Count > 1)
                 {
                     if (createInitialEdge)
                     {
-                        CreateInitialEdge();
+                        CreateRandomInitialEdge();
                     }
                 }
                 else
                 {
-                    Graph.DeleteNode(_initialNode);
-                    GraphElementViewFactory.DestroyElementView(_nodeViews.Get(_initialNode));
-                    _nodeViews.Remove(_initialNode);
-                    _initialNode = null;
+                    Graph.DeleteNode(_nodes[NodeData.Vertex_Initial]);
+                    GraphElementViewFactory.DestroyElementView(_initialNodeView);
+                    _nodeViews.Remove(_initialNodeView);
+                    _initialNodeView = null;
                 }
 
                 RemoveGraphFromNode(oldParent);
@@ -507,7 +528,7 @@ namespace Talent.GraphEditor.Core
 
         public void SetParent(INodeView childView, INodeView parentView, bool layoutAutomatically)
         {
-            if (childView == null || !_nodeViews.TryGetValue(childView, out Node<GraphData, NodeData, EdgeData> child) || (_initialNode != null && child == _initialNode))
+            if (childView == null || !_nodeViews.TryGetValue(childView, out Node<GraphData, NodeData, EdgeData> child) || (_initialNodeView != null && child == _initialNodeView))
             {
                 return;
             }
@@ -527,7 +548,7 @@ namespace Talent.GraphEditor.Core
 
                 _nodeViews.Get(child).SetParent(null, layoutAutomatically);
             }
-            else if (_nodeViews.TryGetValue(parentView, out Node<GraphData, NodeData, EdgeData> parent) && child != parent && (_initialNode == null || parent != _initialNode))
+            else if (_nodeViews.TryGetValue(parentView, out Node<GraphData, NodeData, EdgeData> parent) && child != parent && (_initialNodeView == null || parent != _initialNodeView))
             {
                 if (child.ParentNode != parent)
                 {
@@ -566,6 +587,7 @@ namespace Talent.GraphEditor.Core
             RemoveGraphFromNode(oldParent);
         }
 
+        // TODO: remove recursion
         private bool NodeHasNodeRecursively(Node<GraphData, NodeData, EdgeData> node1, Node<GraphData, NodeData, EdgeData> node2)
         {
             if (node1 == null || node1.NestedGraph == null || node2 == null)
@@ -610,7 +632,7 @@ namespace Talent.GraphEditor.Core
 
         #region Internal Create Methods
 
-        private INodeView CreateViewForNode(Node<GraphData, NodeData, EdgeData> node, bool createInitialNode, bool layoutAutomatically)
+        private INodeView CreateViewForNode(Node<GraphData, NodeData, EdgeData> node, bool layoutAutomatically)
         {
             _nodes[node.ID] = node;
             INodeView view = GraphElementViewFactory.CreateNodeView(node.Data.VisualData, node.Data.Vertex, layoutAutomatically);
@@ -643,16 +665,8 @@ namespace Talent.GraphEditor.Core
 
                 foreach (Node<GraphData, NodeData, EdgeData> nestedNode in node.NestedGraph.Nodes)
                 {
-                    INodeView nestedView = CreateViewForNode(nestedNode, false, layoutAutomatically);
+                    INodeView nestedView = CreateViewForNode(nestedNode, layoutAutomatically);
                     SetParent(nestedView, view, layoutAutomatically);
-                }
-            }
-
-            if (createInitialNode)
-            {
-                if (_initialNode == null && _nodes.Count > 0)
-                {
-                    CreateInitialNode();
                 }
             }
 
