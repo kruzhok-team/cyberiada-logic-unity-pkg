@@ -162,7 +162,7 @@ namespace Talent.GraphEditor.Core
 
             Graph.AddNode(newNode);
 
-            duplicatedNode = CreateViewForNode(newNode, false, true);
+            duplicatedNode = CreateViewForNode(newNode, true);
             return true;
         }
 
