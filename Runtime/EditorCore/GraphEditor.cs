@@ -150,6 +150,22 @@ namespace Talent.GraphEditor.Core
             _initialEdge = CreateNewEdge(_initialNode, nodeView, "");
         }
 
+        public bool TryDuplicateNode(INodeView nodeView, out INodeView duplicatedNode)
+        {
+            if (!_nodeViews.TryGetValue(nodeView, out Node<GraphData, NodeData, EdgeData> node))
+            {
+                duplicatedNode = null;
+                return false;
+            }
+
+            Node<GraphData, NodeData, EdgeData> newNode = node.GetCopy(node.Data.GetCopy(), parentNode: node.ParentNode, newID: Guid.NewGuid().ToString());
+
+            Graph.AddNode(newNode);
+
+            duplicatedNode = CreateViewForNode(newNode, false, true);
+            return true;
+        }
+
         private void CreateInitialNode()
         {
             if (_initialNode == null)

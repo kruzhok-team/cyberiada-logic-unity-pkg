@@ -262,7 +262,7 @@ namespace Talent.Graph.Cyberiada.Converter
                             nodeEvent.SetCondition(condition);
                             data.AddEvent(nodeEvent);
 
-                            foreach (Action a in ParseActions2(line))
+                            foreach (Action a in ParseActions(line))
                             {
                                 nodeEvent.AddAction(a);
                             }
@@ -352,7 +352,7 @@ namespace Talent.Graph.Cyberiada.Converter
             edgeData.SetTrigger(trigger);
             edgeData.SetCondition(condition);
 
-            foreach (Action a in ParseActions2(dataString))
+            foreach (Action a in ParseActions(dataString))
             {
                 edgeData.AddAction(a);
             }
@@ -410,7 +410,7 @@ namespace Talent.Graph.Cyberiada.Converter
             return isNote;
         }
 
-        private static IEnumerable<Action> ParseActions2(string source)
+        private static IEnumerable<Action> ParseActions(string source)
         {
             const string actionsPattern = @"(?<action>.*?)\((?<args>.*?)\)";
             const string argsPattern = @"(.+?)(?:,\s*|$)"; // TODO combine, together with trigger and condition?
