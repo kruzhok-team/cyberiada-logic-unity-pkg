@@ -186,6 +186,11 @@ namespace Talent.GraphEditor.Core
             {
                 Node<GraphData, NodeData, EdgeData> targetNode = _nodes.Values.Where((Node<GraphData, NodeData, EdgeData> node) => node.Data.Vertex != NodeData.Vertex_Initial).FirstOrDefault();
 
+                if (targetNode == null)
+                {
+                    return;
+                }
+
                 Edge<EdgeData> edge = new Edge<EdgeData>(NodeData.Vertex_Initial + targetNode.ID, NodeData.Vertex_Initial, targetNode.ID, new EdgeData(""));
                 Graph.AddEdge(edge);
 
