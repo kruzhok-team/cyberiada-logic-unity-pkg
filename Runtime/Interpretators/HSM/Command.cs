@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using Talent.Logic.Bus;
 
 namespace Talent.Logic.HSM
@@ -9,7 +11,7 @@ namespace Talent.Logic.HSM
     {
         private readonly IEventBus _bus;
         private readonly string _commandName;
-        private readonly string _parameters;
+        private readonly List<Tuple<string, string>> _parameters;
 
         /// <summary>
         ///     Initializes a new instance of the <see cref="Command"/> class.
@@ -17,7 +19,7 @@ namespace Talent.Logic.HSM
         /// <param name="bus">The event bus to use for invoking the command.</param>
         /// <param name="commandName">The name of the command to invoke.</param>
         /// <param name="parameters">The parameters to pass to the command.</param>
-        public Command(IEventBus bus, string commandName, string parameters = "")
+        public Command(IEventBus bus, string commandName, List<Tuple<string, string>> parameters = null)
         {
             _bus = bus;
             _commandName = commandName;

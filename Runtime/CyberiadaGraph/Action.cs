@@ -1,3 +1,6 @@
+using System;
+using System.Collections.Generic;
+
 namespace Talent.Graphs
 {
     /// <summary>
@@ -13,12 +16,12 @@ namespace Talent.Graphs
         /// <summary>
         /// Parameter of action
         /// </summary>
-        public string Parameter { get; private set; }
+        public List<Tuple<string, string>> Parameters { get; private set; }
 
-        public Action(string id, string parameter = null)
+        public Action(string id, List<Tuple<string, string>> parameters = null)
         {
             ID = id;
-            Parameter = parameter;
+            Parameters = parameters;
         }
 
         /// <summary>
@@ -26,7 +29,7 @@ namespace Talent.Graphs
         /// </summary>
         public Action GetCopy()
         {
-            Action resultAction = new Action(ID, Parameter);
+            Action resultAction = new Action(ID, Parameters);
 
             return resultAction;
         }
@@ -34,9 +37,9 @@ namespace Talent.Graphs
         /// <summary>
         /// Set parameter of action
         /// </summary>
-        public void SetParameter(string parameter)
+        public void SetParameters(List<Tuple<string, string>> parameters)
         {
-            Parameter = parameter;
+            Parameters = parameters;
         }
 
         /// <summary>
@@ -44,7 +47,7 @@ namespace Talent.Graphs
         /// </summary>
         public override string ToString()
         {
-            return $"{nameof(Action)}, {nameof(ID)}={ID}, {nameof(Parameter)}={Parameter}";
+            return $"{nameof(Action)}, {nameof(ID)}={ID}, {nameof(Parameters)}={Parameters}";
         }
     }
 }

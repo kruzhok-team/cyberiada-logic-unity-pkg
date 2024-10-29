@@ -1,4 +1,7 @@
-﻿namespace Talent.Logic.Bus
+﻿using System;
+using System.Collections.Generic;
+
+namespace Talent.Logic.Bus
 {
-    public delegate bool Listener(string value);
+    public delegate bool Listener(List<Tuple<string, string>> value);
 }

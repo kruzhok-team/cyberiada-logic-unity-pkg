@@ -1,4 +1,7 @@
-﻿namespace Talent.Logic.Bus
+﻿using System;
+using System.Collections.Generic;
+
+namespace Talent.Logic.Bus
 {
     public interface ICommandBus
     {
@@ -8,6 +11,6 @@
 
         void RemoveCommandListener(string commandName, Listener listener);
 
-        void InvokeEvent(string eventName, string value = "");
+        void InvokeEvent(string eventName, List<Tuple<string, string>> value = null);
     }
 }
