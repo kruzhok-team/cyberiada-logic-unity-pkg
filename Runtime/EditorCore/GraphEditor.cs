@@ -23,10 +23,8 @@ namespace Talent.GraphEditor.Core
         private BidirectionalDictionary<Action, INodeActionView> _nodeActionViews = new BidirectionalDictionary<Action, INodeActionView>();
         private BidirectionalDictionary<Action, IEdgeActionView> _edgeActionViews = new BidirectionalDictionary<Action, IEdgeActionView>();
 
-        // TODOAAA: нужны ли тут node/edge или может лучше nodeView/edgeView?
-        private Node<GraphData, NodeData, EdgeData> _initialNode;
-        private Node<GraphData, NodeData, EdgeData> _initialNodeTarget;
-        private Edge<EdgeData> _initialEdge;
+        private INodeView _initialNode;
+        private IEdgeView _initialEdge;
 
         public GraphEditor(IGraphElementViewFactory factory)
         {
@@ -107,23 +105,18 @@ namespace Talent.GraphEditor.Core
                 return;
             }
 
-            // TODOAAA: посмотреть нужно ли разное создание вьюхи тут 
-            // но если добавить initial нод в список нод то все проверки на базе _nodes.Count сломаются
             foreach (Node<GraphData, NodeData, EdgeData> node in Graph.Nodes)
             {
                 if (node.Data.Vertex == NodeData.Vertex_Initial)
                 {
-                    _initialNode = node;
-                    _nodeViews.Set(_initialNode, GraphElementViewFactory.CreateNodeView(_initialNode.Data.VisualData, _initialNode.Data.Vertex, false));
+                    _initialNode = CreateViewForNode(node, false);
                 }
                 else
                 {
-                    CreateViewForNode(node, false, false);
+                    CreateViewForNode(node, false);
                 }
             }
 
-
-            // TODOAAA: это нужно сделать после создания вьюх нод, что бы перед созданием еджей уже была initial нода
             if (_nodes.Count > 0)
             {
                 CreateInitialNode();
@@ -131,17 +124,9 @@ namespace Talent.GraphEditor.Core
 
             foreach (Edge<EdgeData> edge in Graph.Edges)
             {
-                // TODOAAA: посмотреть нужно ли разное создание вьюхи тут 
-                if (edge.SourceNode == _initialNode.ID || edge.TargetNode == _initialNode.ID)
+                if (edge.SourceNode == NodeData.Vertex_Initial)
                 {
-                    _initialEdge = edge;
-
-                    if (_nodeViews.TryGetValue(_initialEdge.SourceNode == _initialNode.ID ? _initialNode : _nodes[_initialEdge.SourceNode], out INodeView sourceNodeView)
-                        && _nodeViews.TryGetValue(_initialEdge.TargetNode == _initialNode.ID ? _initialNode : _nodes[_initialEdge.TargetNode], out INodeView targetNodeView))
-                    {
-                        IEdgeView edgeView = GraphElementViewFactory.CreateEdgeView(sourceNodeView, targetNodeView, _initialEdge.Data.VisualData, _initialEdge.Data.TriggerID, _initialEdge.Data.Condition);
-                        _edgeViews.Add(_initialEdge, edgeView);
-                    }
+                    _initialEdge = CreateViewForEdge(edge);
                 }
                 else
                 {
@@ -152,70 +137,75 @@ namespace Talent.GraphEditor.Core
 
         public void SetInitialNode(INodeView nodeView)
         {
-            if (!_nodeViews.TryGetValue(nodeView, out Node<GraphData, NodeData, EdgeData> node))
+            if (_initialNode == null)
             {
                 return;
             }
 
-            if (!_edgeViews.TryGetValue(_initialEdge, out IEdgeView edge))
+            if (_initialEdge != null)
             {
-                // TODOAAA: wut?
-                return;
+                RemoveEdge(_initialEdge);
             }
 
-            _initialNodeTarget = node;
-
-            // TODOAAA: тут не нужно удалять вьюху если ребилдишь, тут нужно только удалить едж в самом графе и добавить новый едж в граф
-            // но круто было бы сделать чисто на RemoveEdge и CreateNewEdge без ребилда
-
-            RemoveEdge(edge);
-            _initialEdge = null;
-
-            
-            CreateRandomInitialEdge();
-            RebuildView();
+            _initialEdge = CreateNewEdge(_initialNode, nodeView, "");
         }
 
-        // TODOAAA: это должно быть только создание initial ноды если ее нет
         private void CreateInitialNode()
         {
             if (_initialNode == null)
             {
-                _initialNode = new Node<GraphData, NodeData, EdgeData>(NodeData.Vertex_Initial, new NodeData(NodeData.Vertex_Initial));
+                Node<GraphData, NodeData, EdgeData> nodeData = new(NodeData.Vertex_Initial, new NodeData(NodeData.Vertex_Initial));
 
-                Graph.AddNode(_initialNode);
-                _initialNode.Data.VisualData.Name = "INIT";
+                Graph.AddNode(nodeData);
+                nodeData.Data.VisualData.Name = "INIT";
 
-                _nodeViews.Set(_initialNode, GraphElementViewFactory.CreateNodeView(_initialNode.Data.VisualData, _initialNode.Data.Vertex, true));
-
-                CreateRandomInitialEdge();
+                _initialNode = CreateViewForNode(nodeData, true);
+                _nodeViews.Set(nodeData, _initialNode);
             }
         }
-        
-        // TODOAAA: причесать, таргет не нужен, нужно выбрать новый любой нод, first бы сканал, но он может выдать initial node если он будет в nodes
+
         private void CreateRandomInitialEdge()
         {
-            foreach (Edge<EdgeData> edge in _edges.Values)
+            if (_initialEdge == null && _initialNode != null)
             {
-                if (edge.SourceNode == NodeData.Vertex_Initial)
+                if (!TryGetRandomNode(Graph.Nodes.ToList(), out Node<GraphData, NodeData, EdgeData> targetNode))
                 {
-                    _initialNodeTarget = _nodes[edge.TargetNode];
+                    return;
+                }
+
+                Edge<EdgeData> edge = new Edge<EdgeData>(NodeData.Vertex_Initial + targetNode.ID, NodeData.Vertex_Initial, targetNode.ID, new EdgeData(""));
+                Graph.AddEdge(edge);
+
+                if (_nodeViews.TryGetValue(targetNode, out INodeView targetNodeView))
+                {
+                    _initialEdge = GraphElementViewFactory.CreateEdgeView(_initialNode, targetNodeView, edge.Data.VisualData, edge.Data.TriggerID, edge.Data.Condition);
+                    _edgeViews.Add(edge, _initialEdge);
+                }
+            }
+        }
+
+        private bool TryGetRandomNode(List<Node<GraphData, NodeData, EdgeData>> nodes, out Node<GraphData, NodeData, EdgeData> targetNode)
+        {
+            foreach (Node<GraphData, NodeData, EdgeData> node in nodes)
+            {
+                if (node.ID == NodeData.Vertex_Initial)
+                {
+                    nodes.Remove(node);
                     break;
                 }
             }
 
-            if (_initialEdge == null && _initialNode != null && _nodes.Count > 0)
+            if (nodes.Count == 0)
             {
-                _initialEdge = new Edge<EdgeData>(_initialNode.ID + _initialNodeTarget.ID, _initialNode.ID, _initialNodeTarget.ID, new EdgeData(""));
-                Graph.AddEdge(_initialEdge);
-
-                if (_nodeViews.TryGetValue(_initialNode, out INodeView sourceNodeView) && _nodeViews.TryGetValue(_initialNodeTarget, out INodeView targetNodeView))
-                {
-                    IEdgeView edgeView = GraphElementViewFactory.CreateEdgeView(sourceNodeView, targetNodeView, _initialEdge.Data.VisualData, _initialEdge.Data.TriggerID, _initialEdge.Data.Condition);
-                    _edgeViews.Add(_initialEdge, edgeView);
-                }
+                targetNode = null;
+                return false;
             }
+
+            targetNode = nodes[UnityEngine.Random.Range(0, nodes.Count)];
+
+            return true;
         }
+
 
         #region Public Create Methods
 
@@ -237,7 +227,15 @@ namespace Talent.GraphEditor.Core
             Graph.AddNode(node);
             node.Data.VisualData.Name = name;
 
-            return CreateViewForNode(node, true, true);
+            INodeView newNode = CreateViewForNode(node, true);
+
+            if (_initialNode == null)
+            {
+                CreateInitialNode();
+                SetInitialNode(newNode);
+            }
+
+            return newNode;
         }
 
         public IEdgeView CreateNewEdge(INodeView sourceView, INodeView targetView, string triggerID)
@@ -422,7 +420,7 @@ namespace Talent.GraphEditor.Core
                         Graph.DeleteEdge(edge);
                         GraphElementViewFactory.DestroyElementView(edgeView);
 
-                        if (edge.SourceNode == _initialNode.ID || edge.TargetNode == _initialNode.ID)
+                        if (edge.SourceNode == NodeData.Vertex_Initial || edge.TargetNode == NodeData.Vertex_Initial)
                         {
                             _initialEdge = null;
                         }
@@ -450,20 +448,17 @@ namespace Talent.GraphEditor.Core
                 _nodeViews.Remove(node);
                 GraphElementViewFactory.DestroyElementView(nodeView);
 
-                if (_nodes.Count > 0)
+                if (_nodes.Count > 1)
                 {
                     if (createInitialEdge)
                     {
-                        // TODOAAA: а зачем тут смена таргета?
-                        _initialNodeTarget = _nodes.Values.First();
-
                         CreateRandomInitialEdge();
                     }
                 }
                 else
                 {
-                    Graph.DeleteNode(_initialNode);
-                    GraphElementViewFactory.DestroyElementView(_nodeViews.Get(_initialNode));
+                    Graph.DeleteNode(_nodes[NodeData.Vertex_Initial]);
+                    GraphElementViewFactory.DestroyElementView(_initialNode);
                     _nodeViews.Remove(_initialNode);
                     _initialNode = null;
                 }
@@ -642,8 +637,7 @@ namespace Talent.GraphEditor.Core
 
         #region Internal Create Methods
 
-        // TODOAAA: разделение createInitialNode должно быть не на уровне создания вьюхи ноды а выше, в CreateNewNode создавать initial ноду
-        private INodeView CreateViewForNode(Node<GraphData, NodeData, EdgeData> node, bool createInitialNode, bool layoutAutomatically)
+        private INodeView CreateViewForNode(Node<GraphData, NodeData, EdgeData> node, bool layoutAutomatically)
         {
             _nodes[node.ID] = node;
             INodeView view = GraphElementViewFactory.CreateNodeView(node.Data.VisualData, node.Data.Vertex, layoutAutomatically);
@@ -676,16 +670,9 @@ namespace Talent.GraphEditor.Core
 
                 foreach (Node<GraphData, NodeData, EdgeData> nestedNode in node.NestedGraph.Nodes)
                 {
-                    INodeView nestedView = CreateViewForNode(nestedNode, false, layoutAutomatically);
+                    INodeView nestedView = CreateViewForNode(nestedNode, layoutAutomatically);
                     SetParent(nestedView, view, layoutAutomatically);
                 }
-            }
-
-            if (createInitialNode)
-            {
-                _initialNodeTarget = node;
-
-                CreateInitialNode();
             }
 
             return view;
