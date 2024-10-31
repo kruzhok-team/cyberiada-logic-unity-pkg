@@ -3,7 +3,7 @@ using System.Text;
 
 namespace Talent.Graphs
 {
-    public class VerboseGraphComparator : IEqualityComparer<CyberiadaGraph>
+    public class VerboseGraphComparer : IEqualityComparer<CyberiadaGraph>
     {
         public bool Equals(CyberiadaGraph graph, CyberiadaGraph otherGraph)
         {
