@@ -5,35 +5,37 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+using Talent.Graphs;
 using UnityEngine;
-using static UnityEngine.UI.Dropdown;
+using Action = Talent.Graphs.Action;
+using Event = Talent.Graphs.Event;
 
 namespace Talent.Graph.Cyberiada.Converter
 {
     public static class CyberiadaGraphMLConverter
     {
-        public static Graph<GraphData, NodeData, EdgeData> Deserialize(XElement xElement)
+        public static CyberiadaGraph Deserialize(XElement xElement)
         {
             if (xElement == null)
                 throw new ArgumentNullException(nameof(xElement));
 
             XElement graphElement = xElement.Element(FullName("graph"));
 
-            Graph<GraphData, NodeData, EdgeData> graph = CreateGraph(graphElement);
+            CyberiadaGraph graph = CreateGraph(graphElement);
 
             CreateEdges(graphElement, graph);
 
             return graph;
         }
 
-        public static Graph<GraphData, NodeData, EdgeData> DeserializeFromFile(string filePath)
+        public static CyberiadaGraph DeserializeFromFile(string filePath)
         {
             XDocument xml = XDocument.Load(filePath);
 
             return Deserialize(xml.Root);
         }
 
-        public static XElement Serialize(Graph<GraphData, NodeData, EdgeData> graph)
+        public static XElement Serialize(CyberiadaGraph graph)
         {
             if (graph == null)
                 throw new ArgumentNullException(nameof(graph));
@@ -46,7 +48,7 @@ namespace Talent.Graph.Cyberiada.Converter
             return root;
         }
 
-        public static void SerializeToFile(Graph<GraphData, NodeData, EdgeData> graph, string filePath)
+        public static void SerializeToFile(CyberiadaGraph graph, string filePath)
         {
             XElement xmlElement = Serialize(graph);
             var xmlDoc = new XDocument
@@ -59,22 +61,34 @@ namespace Talent.Graph.Cyberiada.Converter
 
         #region Serialization
 
-        private static XElement CreateXmlGraph(Graph<GraphData, NodeData, EdgeData> graph, XContainer parentElement)
+        private static XElement CreateXmlGraph(CyberiadaGraph graph, XContainer parentElement)
         {
             var graphElement = new XElement(FullName("graph"), new XAttribute("id", graph.ID));
+            AddGraphData(graphElement, graph.Data);
             parentElement.Add(graphElement);
             CreateXmlNodes(graph, graphElement);
 
             return graphElement;
         }
 
-        private static void CreateXmlEdges(Graph<GraphData, NodeData, EdgeData> graph, XElement parentElement)
+        private static void AddGraphData(XElement graphElement, GraphData graphData)
         {
-            foreach (Edge<EdgeData> edge in graph.Edges)
+            if (graphData == null)
+                throw new ArgumentNullException(nameof(graphData));
+            
+            var graphName = new XElement(FullName("data"), new XAttribute("key", "dName"), graphData.Name);
+            var referenceId = new XElement(FullName("data"), new XAttribute("key", "referenceGraphID"), graphData.ReferenceGraphID);
+            graphElement.Add(graphName);
+            graphElement.Add(referenceId);
+        }
+
+        private static void CreateXmlEdges(CyberiadaGraph graph, XElement parentElement)
+        {
+            foreach (Edge edge in graph.Edges)
                 CreateXmlEdge(edge, parentElement);
         }
 
-        private static void CreateXmlEdge(Edge<EdgeData> edge, XContainer parentElement)
+        private static void CreateXmlEdge(Edge edge, XContainer parentElement)
         {
             var edgeElement = new XElement(FullName("edge"),
                 new XAttribute("id", edge.ID),
@@ -104,13 +118,13 @@ namespace Talent.Graph.Cyberiada.Converter
             parentElement.Add(edgeElement);
         }
 
-        private static void CreateXmlNodes(Graph<GraphData, NodeData, EdgeData> graph, XElement parentElement)
+        private static void CreateXmlNodes(CyberiadaGraph graph, XElement parentElement)
         {
-            foreach (Node<GraphData, NodeData, EdgeData> node in graph.Nodes)
+            foreach (Node node in graph.Nodes)
                 CreateXmlNode(node, parentElement);
         }
 
-        private static void CreateXmlNode(Node<GraphData, NodeData, EdgeData> node, XContainer parentElement)
+        private static void CreateXmlNode(Node node, XContainer parentElement)
         {
             var nodeElement = new XElement(FullName("node"), new XAttribute("id", node.ID));
 
@@ -166,7 +180,7 @@ namespace Talent.Graph.Cyberiada.Converter
         private static void AddNameToXmlElement(XElement nodeElement, string name) =>
             nodeElement.Add(new XElement(FullName("data"), new XAttribute("key", "dName"), name));
 
-        private static bool IsInitialNode(Node<GraphData, NodeData, EdgeData> node) =>
+        private static bool IsInitialNode(Node node) =>
             node.Data.Vertex == "initial";
 
         private static void MarkAsInitial(XContainer nodeElement)
@@ -174,7 +188,7 @@ namespace Talent.Graph.Cyberiada.Converter
             nodeElement.Add(new XElement(FullName("data"), new XAttribute("key", "dVertex"), "initial"));
         }
 
-        private static bool HasSubGraph(Node<GraphData, NodeData, EdgeData> node) =>
+        private static bool HasSubGraph(Node node) =>
             node.NestedGraph != null;
 
         private static void AppendActionLine(Action action, StringBuilder target)
@@ -198,8 +212,8 @@ namespace Talent.Graph.Cyberiada.Converter
         #region Deserialization
 
         private static void CreateNodes(
-            XElement xElement, Graph<GraphData, NodeData, EdgeData> graph,
-            Node<GraphData, NodeData, EdgeData> parentNode = null)
+            XElement xElement, CyberiadaGraph graph,
+            Node parentNode = null)
         {
             IEnumerable<XElement> nodes = xElement.Elements(FullName("node"));
 
@@ -208,7 +222,7 @@ namespace Talent.Graph.Cyberiada.Converter
                 if (IsNote(nodeElement) || nodeElement.Attribute("id")?.Value == "")
                     continue;
 
-                Node<GraphData, NodeData, EdgeData> node = CreateNode(nodeElement);
+                Node node = CreateNode(nodeElement);
                 node.ParentNode = parentNode;
 
                 foreach (XElement subGraph in nodeElement.Elements(FullName("graph")))
@@ -218,7 +232,7 @@ namespace Talent.Graph.Cyberiada.Converter
             }
         }
 
-        private static Node<GraphData, NodeData, EdgeData> CreateNode(XElement nodeElement)
+        private static Node CreateNode(XElement nodeElement)
         {
             string nodeId = nodeElement.Attribute("id")?.Value ?? "";
             NodeData data = CreateNodeData(nodeElement);
@@ -272,7 +286,7 @@ namespace Talent.Graph.Cyberiada.Converter
                 }
             }
 
-            var node = new Node<GraphData, NodeData, EdgeData>(nodeId, data);
+            var node = new Node(nodeId, data);
             return node;
         }
 
@@ -286,19 +300,19 @@ namespace Talent.Graph.Cyberiada.Converter
             return new NodeData();
         }
 
-        private static void CreateEdges(XElement xElement, Graph<GraphData, NodeData, EdgeData> graph)
+        private static void CreateEdges(XElement xElement, CyberiadaGraph graph)
         {
             IEnumerable<XElement> edges = xElement.Elements(FullName("edge"));
 
             foreach (XElement edgeElement in edges)
             {
-                Edge<EdgeData> edge = CreateEdge(edgeElement);
+                Edge edge = CreateEdge(edgeElement);
 
                 graph.AddEdge(edge);
             }
         }
 
-        private static Edge<EdgeData> CreateEdge(XElement edgeElement)
+        private static Edge CreateEdge(XElement edgeElement)
         {
             string edgeId = edgeElement.Attribute("id")?.Value ?? "";
             string sourceNodeId = edgeElement.Attribute("source")?.Value ?? "";
@@ -318,7 +332,7 @@ namespace Talent.Graph.Cyberiada.Converter
                 }
             }
 
-            var edge = new Edge<EdgeData>(edgeId, sourceNodeId, targetNodeId, data);
+            var edge = new Edge(edgeId, sourceNodeId, targetNodeId, data);
             return edge;
         }
 
@@ -360,12 +374,17 @@ namespace Talent.Graph.Cyberiada.Converter
             return edgeData;
         }
 
-        private static Graph<GraphData, NodeData, EdgeData> CreateGraph(
-            XElement graphElement, Node<GraphData, NodeData, EdgeData> parentNode = null)
+        private static CyberiadaGraph CreateGraph(
+            XElement graphElement, Node parentNode = null)
         {
             string graphId = graphElement.Attribute("id")?.Value ?? "";
+            string graphName = graphElement.Elements().FirstOrDefault(element => element.Attribute("key")?.Value == "dName")?.Value ?? "";
+            string referenceGraphID = graphElement.Elements().FirstOrDefault(element => element.Attribute("key")?.Value == "referenceGraphID")?.Value ?? "";
             var graphData = new GraphData();
-            var graph = new Graph<GraphData, NodeData, EdgeData>(graphId, graphData);
+            var graph = new CyberiadaGraph(graphId, graphData);
+
+            graph.Data.Name = graphName;
+            graph.Data.ReferenceGraphID = referenceGraphID;
 
             CreateNodes(graphElement, graph, parentNode);
 

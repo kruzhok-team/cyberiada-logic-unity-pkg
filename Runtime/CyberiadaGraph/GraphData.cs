@@ -1,8 +1,9 @@
-namespace Talent.Graph.Cyberiada
+namespace Talent.Graphs
 {
     public class GraphData : IClonable<GraphData>
     {
         public string Name { get; set; }
+        public string ReferenceGraphID { get; set; }
 
         /// <summary>
         /// Creates a copy of the graph data

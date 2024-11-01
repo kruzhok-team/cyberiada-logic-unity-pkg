@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Talent.Graph.Cyberiada
+namespace Talent.Graphs
 {
     /// <summary>
     /// Class representing node event with condition and corresponding list of actions

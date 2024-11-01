@@ -1,7 +1,8 @@
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
-namespace Talent.Graph.Cyberiada
+namespace Talent.Graphs
 {
     public class NodeData : IClonable<NodeData>
     {
@@ -65,6 +66,20 @@ namespace Talent.Graph.Cyberiada
         }
 
         #endregion
+
+        public override string ToString()
+        {
+            StringBuilder stringBuilder = new();
+
+            stringBuilder.AppendLine($"NodeData({VisualData.Name})({VisualData.Position})");
+
+            foreach (Event @event in _events)
+            {
+                stringBuilder.AppendLine($"{@event}\n");
+            }
+
+            return stringBuilder.ToString();
+        }
     }
 
     public class NodeVisualData

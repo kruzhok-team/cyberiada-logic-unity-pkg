@@ -1,23 +1,22 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
-using Talent.Graph;
-using Talent.Graph.Cyberiada;
+using Talent.Graphs;
 using Talent.Logic.Bus;
 using Talent.Logic.HSM.Builders;
-using Action = Talent.Graph.Cyberiada.Action;
+using Action = Talent.Graphs.Action;
 
 namespace Talent.Logic.HSM
 {
     /// <summary>
     ///     Class that converts a graph source into a hierarchical state machine.
     /// </summary>
-    public class CyberiadaHSMConverter : ILogicInterpreter<Graph<GraphData, NodeData, EdgeData>, IBus>
+    public class CyberiadaHSMConverter : ILogicInterpreter<CyberiadaGraph, IBus>
     {
         private const string EnterEventId = "entry";
         private const string ExitEventId = "exit";
 
-        private Graph<GraphData, NodeData, EdgeData> _sourceGraph;
+        private CyberiadaGraph _sourceGraph;
 
         /// <summary>
         ///     Processes the graph source to build a hierarchical state machine.
@@ -25,14 +24,14 @@ namespace Talent.Logic.HSM
         /// <param name="source">The graph data containing nodes and edges.</param>
         /// <param name="bus">The bus for event handling.</param>
         /// <returns>The built hierarchical state machine behavior.</returns>
-        public IBehavior Process(Graph<GraphData, NodeData, EdgeData> source, IBus bus)
+        public IBehavior Process(CyberiadaGraph source, IBus bus)
         {
             StateBuilder builder = new StateBuilder(bus, source.ID);
             _sourceGraph = source;
 
-            foreach (Node<GraphData, NodeData, EdgeData> node in source.Nodes)
+            foreach (Node node in source.Nodes)
             {
-                IEnumerable<Edge<EdgeData>> edges = GetEdges(node.ID);
+                IEnumerable<Edge> edges = GetEdges(node.ID);
 
                 StateBuilder childBuilder = CreateChildBuilder(node, edges, bus);
                 builder.AddChildState(childBuilder);
@@ -43,8 +42,8 @@ namespace Talent.Logic.HSM
         }
 
         private StateBuilder CreateChildBuilder(
-            Node<GraphData, NodeData, EdgeData> node,
-            IEnumerable<Edge<EdgeData>> edges,
+            Node node,
+            IEnumerable<Edge> edges,
             IBus bus)
         {
             StateBuilder builder = new StateBuilder(bus, node.ID);
@@ -57,9 +56,9 @@ namespace Talent.Logic.HSM
             return builder;
         }
 
-        private void AddEventToCommands(Node<GraphData, NodeData, EdgeData> node, StateBuilder builder)
+        private void AddEventToCommands(Node node, StateBuilder builder)
         {
-            foreach (Graph.Cyberiada.Event @event in node.Data.Events)
+            foreach (Graphs.Event @event in node.Data.Events)
             {
                 foreach (Action action in @event.Actions)
                 {
@@ -86,9 +85,9 @@ namespace Talent.Logic.HSM
             }
         }
 
-        private void AddTransitions(IEnumerable<Edge<EdgeData>> edges, StateBuilder builder)
+        private void AddTransitions(IEnumerable<Edge> edges, StateBuilder builder)
         {
-            foreach (Edge<EdgeData> edge in edges)
+            foreach (Edge edge in edges)
             {
                 TransitionBuilder transitionBuilder = new TransitionBuilder();
                 transitionBuilder.AddDebugId($"{edge.SourceNode}:{edge.TargetNode}");
@@ -109,12 +108,12 @@ namespace Talent.Logic.HSM
             }
         }
 
-        private void AddSubHsm(Node<GraphData, NodeData, EdgeData> rootNode, IBus bus, StateBuilder builder)
+        private void AddSubHsm(Node rootNode, IBus bus, StateBuilder builder)
         {
             if (rootNode.NestedGraph == null)
                 return;
 
-            foreach (Node<GraphData, NodeData, EdgeData> node in rootNode.NestedGraph.Nodes)
+            foreach (Node node in rootNode.NestedGraph.Nodes)
             {
                 StateBuilder childBuilder = CreateChildBuilder(node, GetEdges(node.ID), bus);
                 builder.AddChildState(childBuilder);
@@ -136,9 +135,9 @@ namespace Talent.Logic.HSM
             return new ValueTuple<string, string, List<Tuple<string, string>>>(module, command, parameters);
         }
 
-        private IEnumerable<Edge<EdgeData>> GetEdges(string bySourceNodeId)
+        private IEnumerable<Edge> GetEdges(string bySourceNodeId)
         {
-            IEnumerable<Edge<EdgeData>> edges = _sourceGraph.Edges.Where(edge => edge.SourceNode == bySourceNodeId);
+            IEnumerable<Edge> edges = _sourceGraph.Edges.Where(edge => edge.SourceNode == bySourceNodeId);
             return edges;
         }
     }
