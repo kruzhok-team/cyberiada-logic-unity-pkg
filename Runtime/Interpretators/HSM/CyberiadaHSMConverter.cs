@@ -58,7 +58,7 @@ namespace Talent.Logic.HSM
 
         private void AddEventToCommands(Node node, StateBuilder builder)
         {
-            foreach (Graphs.Event @event in node.Data.Events.Values)
+            foreach (Graphs.Event @event in node.Data.Events)
             {
                 foreach (Action action in @event.Actions)
                 {

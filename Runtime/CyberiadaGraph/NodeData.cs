@@ -14,12 +14,12 @@ namespace Talent.Graphs
         public NodeVisualData VisualData { get; private set; } = new();
         public string Vertex { get; private set; }
 
-        private readonly Dictionary<string, Event> _events = new();
+        private readonly List<Event> _events = new();
 
         /// <summary>
         /// Events of node
         /// </summary>
-        public IReadOnlyDictionary<string, Event> Events => _events;
+        public IEnumerable<Event> Events => _events;
 
         public NodeData(string vertex = "")
         {
@@ -33,7 +33,7 @@ namespace Talent.Graphs
         {
             NodeData resultData = new NodeData(Vertex);
 
-            foreach (Event nodeEvent in _events.Values)
+            foreach (Event nodeEvent in _events)
             {
                 resultData.AddEvent(nodeEvent.GetCopy());
             }
@@ -51,7 +51,10 @@ namespace Talent.Graphs
         /// </summary>
         public void AddEvent(Event nodeEvent)
         {
-            _events[nodeEvent.TriggerID] = nodeEvent;
+            if (!_events.Contains(nodeEvent))
+            {
+                _events.Add(nodeEvent);
+            }
         }
 
         /// <summary>
@@ -59,10 +62,7 @@ namespace Talent.Graphs
         /// </summary>
         public void RemoveEvent(Event nodeEvent)
         {
-            if (_events.ContainsKey(nodeEvent.TriggerID))
-            {
-                _events.Remove(nodeEvent.TriggerID);
-            }
+            _events.Remove(nodeEvent);
         }
 
         #endregion
@@ -73,7 +73,7 @@ namespace Talent.Graphs
 
             stringBuilder.AppendLine($"NodeData({VisualData.Name})({VisualData.Position})");
 
-            foreach (KeyValuePair<string, Event> @event in _events)
+            foreach (Event @event in _events)
             {
                 stringBuilder.AppendLine($"{@event}\n");
             }

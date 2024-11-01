@@ -136,7 +136,7 @@ namespace Talent.Graph.Cyberiada.Converter
 
             var sb = new StringBuilder();
 
-            foreach ((string _, Event value) in node.Data.Events)
+            foreach (Event value in node.Data.Events)
             {
                 sb.Append(value.TriggerID);
                 sb.Append(string.IsNullOrEmpty(value.Condition) ? "" : $"[{value.Condition}]"); // copied
