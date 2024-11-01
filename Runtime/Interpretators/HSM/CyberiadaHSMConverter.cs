@@ -59,7 +59,7 @@ namespace Talent.Logic.HSM
 
         private void AddEventToCommands(Node<GraphData, NodeData, EdgeData> node, StateBuilder builder)
         {
-            foreach (Graph.Cyberiada.Event @event in node.Data.Events.Values)
+            foreach (Graph.Cyberiada.Event @event in node.Data.Events)
             {
                 foreach (Action action in @event.Actions)
                 {

@@ -13,12 +13,12 @@ namespace Talent.Graph.Cyberiada
         public NodeVisualData VisualData { get; private set; } = new();
         public string Vertex { get; private set; }
 
-        private readonly Dictionary<string, Event> _events = new();
+        private readonly List<Event> _events = new();
 
         /// <summary>
         /// Events of node
         /// </summary>
-        public IReadOnlyDictionary<string, Event> Events => _events;
+        public IEnumerable<Event> Events => _events;
 
         public NodeData(string vertex = "")
         {
@@ -32,7 +32,7 @@ namespace Talent.Graph.Cyberiada
         {
             NodeData resultData = new NodeData(Vertex);
 
-            foreach (Event nodeEvent in _events.Values)
+            foreach (Event nodeEvent in _events)
             {
                 resultData.AddEvent(nodeEvent.GetCopy());
             }
@@ -50,7 +50,10 @@ namespace Talent.Graph.Cyberiada
         /// </summary>
         public void AddEvent(Event nodeEvent)
         {
-            _events[nodeEvent.TriggerID] = nodeEvent;
+            if (!_events.Contains(nodeEvent))
+            {
+                _events.Add(nodeEvent);
+            }
         }
 
         /// <summary>
@@ -58,10 +61,7 @@ namespace Talent.Graph.Cyberiada
         /// </summary>
         public void RemoveEvent(Event nodeEvent)
         {
-            if (_events.ContainsKey(nodeEvent.TriggerID))
-            {
-                _events.Remove(nodeEvent.TriggerID);
-            }
+            _events.Remove(nodeEvent);
         }
 
         #endregion
