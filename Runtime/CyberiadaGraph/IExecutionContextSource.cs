@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 
-namespace Talent.Graph.Cyberiada
+namespace Talent.Graphs
 {
     public interface IExecutionContextSource
     {
@@ -12,12 +12,12 @@ namespace Talent.Graph.Cyberiada
     public class ActionData
     {
         public string ID { get; }
-        public ActionParameter Parameter { get; }
+        public List<ActionParameter> Parameters { get; }
 
-        public ActionData(string id, ActionParameter parameter = null)
+        public ActionData(string id, List<ActionParameter> parameters = null)
         {
             ID = id;
-            Parameter = parameter;
+            Parameters = parameters;
         }
     }
 

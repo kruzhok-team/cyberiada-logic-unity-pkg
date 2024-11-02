@@ -6,6 +6,16 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 <!-- Headers should be listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security -->
 
+## [0.2.0] - 02.11.2024
+### Added
+ - Multiple parameters support
+ - Node duplication API
+ - Initial node reconnecting API
+ - Base graph reference storing
+ - Graph name storing
+### Fixed
+ - Various spec compability fixes
+
 ## [0.1.6] - 19.09.2024
 ### Added
  - Added Condition to Node
