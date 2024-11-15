@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Text;
 
 namespace Talent.Graphs
 {
@@ -144,27 +143,5 @@ namespace Talent.Graphs
         }
 
         #endregion
-
-        /// <summary>
-        /// Custom ToString realization for creating more representive string visualization of graph data
-        /// </summary>
-        /// <returns></returns>
-        public override string ToString()
-        {
-            StringBuilder stringBuilder = new();
-            stringBuilder.AppendLine($"GRAPH({ID})\n");
-
-            foreach (Node node in Nodes)
-            {
-                stringBuilder.AppendLine($"{node}\n");
-            }
-
-            foreach (Edge edge in Edges)
-            {
-                stringBuilder.AppendLine($"{edge}\n");
-            }
-
-            return stringBuilder.ToString();
-        }
     }
 }

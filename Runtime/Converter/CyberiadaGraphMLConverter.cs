@@ -5,12 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
-using Talent.Graphs;
 using UnityEngine;
-using Action = Talent.Graphs.Action;
-using Event = Talent.Graphs.Event;
 
-namespace Talent.Graph.Cyberiada.Converter
+namespace Talent.Graphs
 {
     public static class CyberiadaGraphMLConverter
     {
@@ -42,6 +39,8 @@ namespace Talent.Graph.Cyberiada.Converter
 
             XNamespace nameSpace = "http://graphml.graphdrawing.org/xmlns";
             var root = new XElement(nameSpace + "graphml");
+            var label = new XElement(FullName("data"), new XAttribute("key", "gFormat"), "Cyberiada-GraphML-1.0");
+            root.Add(label);
             XElement graphElement = CreateXmlGraph(graph, root);
             CreateXmlEdges(graph, graphElement);
 
@@ -63,7 +62,9 @@ namespace Talent.Graph.Cyberiada.Converter
 
         private static XElement CreateXmlGraph(CyberiadaGraph graph, XContainer parentElement)
         {
-            var graphElement = new XElement(FullName("graph"), new XAttribute("id", graph.ID));
+            var graphElement = new XElement(FullName("graph"), new XAttribute("id", graph.ID), new XAttribute("edgedefault", "directed"));
+            var stateMachineDefinition = new XElement(FullName("data"), new XAttribute("key", "dStateMachine"));
+            graphElement.Add(stateMachineDefinition);
             AddGraphData(graphElement, graph.Data);
             parentElement.Add(graphElement);
             CreateXmlNodes(graph, graphElement);
@@ -77,9 +78,12 @@ namespace Talent.Graph.Cyberiada.Converter
                 throw new ArgumentNullException(nameof(graphData));
             
             var graphName = new XElement(FullName("data"), new XAttribute("key", "dName"), graphData.Name);
-            var referenceId = new XElement(FullName("data"), new XAttribute("key", "referenceGraphID"), graphData.ReferenceGraphID);
             graphElement.Add(graphName);
-            graphElement.Add(referenceId);
+            if (!string.IsNullOrEmpty(graphData.ReferenceGraphID))
+            {
+                var referenceId = new XElement(FullName("data"), new XAttribute("key", "referenceGraphID"), graphData.ReferenceGraphID);
+                graphElement.Add(referenceId);
+            }
         }
 
         private static void CreateXmlEdges(CyberiadaGraph graph, XElement parentElement)
