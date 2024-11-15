@@ -78,9 +78,12 @@ namespace Talent.Graphs
                 throw new ArgumentNullException(nameof(graphData));
             
             var graphName = new XElement(FullName("data"), new XAttribute("key", "dName"), graphData.Name);
-            var referenceId = new XElement(FullName("data"), new XAttribute("key", "referenceGraphID"), graphData.ReferenceGraphID);
             graphElement.Add(graphName);
-            graphElement.Add(referenceId);
+            if (!string.IsNullOrEmpty(graphData.ReferenceGraphID))
+            {
+                var referenceId = new XElement(FullName("data"), new XAttribute("key", "referenceGraphID"), graphData.ReferenceGraphID);
+                graphElement.Add(referenceId);
+            }
         }
 
         private static void CreateXmlEdges(CyberiadaGraph graph, XElement parentElement)
