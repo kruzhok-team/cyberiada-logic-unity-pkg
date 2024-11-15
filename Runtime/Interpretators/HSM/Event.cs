@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Talent.Logic.Bus;
 
@@ -41,7 +42,7 @@ namespace Talent.Logic.HSM
             _bus.RemoveEventListener(_eventName, Receive);
         }
 
-        private bool Receive(string parameters = "")
+        private bool Receive(List<Tuple<string, string>> parameters = null)
         {
             foreach (Command commandStorage in _commands)
             {

@@ -107,8 +107,11 @@ namespace Talent.Graphs
                 sb.AppendLine("/");
 
                 foreach (Action action in edge.Data.Actions)
-                    sb.AppendLine($"{action.ID}({action.Parameter})");
+                {
+                    AppendActionLine(action, sb);
+                }
 
+                sb.AppendLine();
 
                 AddDataToXmlElement(edgeElement, sb.ToString());
             }
@@ -134,13 +137,16 @@ namespace Talent.Graphs
 
             var sb = new StringBuilder();
 
-            foreach ((string _, Event value) in node.Data.Events)
+            foreach (Event value in node.Data.Events)
             {
                 sb.Append(value.TriggerID);
+                sb.Append(string.IsNullOrEmpty(value.Condition) ? "" : $"[{value.Condition}]"); // copied
                 sb.AppendLine("/");
 
                 foreach (Action action in value.Actions)
-                    sb.AppendLine($"{action.ID}({action.Parameter})");
+                {
+                    AppendActionLine(action, sb);
+                }
 
                 sb.AppendLine();
             }
@@ -185,6 +191,22 @@ namespace Talent.Graphs
 
         private static bool HasSubGraph(Node node) =>
             node.NestedGraph != null;
+
+        private static void AppendActionLine(Action action, StringBuilder target)
+        {
+            target.Append($"{action.ID}(");
+
+            if (action.Parameters != null)
+            {
+                for (int n = 0; n < action.Parameters.Count; n++)
+                {
+                    if (n > 0) target.Append(", ");
+                    target.Append($"{action.Parameters[n].Item2}");
+                }
+            }
+
+            target.AppendLine(")");
+        }
 
         #endregion
 
@@ -242,11 +264,23 @@ namespace Talent.Graphs
                         {
                             string trigger = line[..line.IndexOf('/')];
 
+                            int conditionStart = trigger.IndexOf('[');
+
+                            string condition = null;
+                            if (conditionStart > 0)
+                            {
+                                condition = trigger[(conditionStart + 1)..^1];
+                                trigger = trigger[..conditionStart];
+                            }
+
                             var nodeEvent = new Event(trigger);
+                            nodeEvent.SetCondition(condition);
                             data.AddEvent(nodeEvent);
 
-                            foreach ((string id, string @params) actionData in ParseActions(line))
-                                nodeEvent.AddAction(new Action(actionData.id, actionData.@params));
+                            foreach (Action a in ParseActions(line))
+                            {
+                                nodeEvent.AddAction(a);
+                            }
                         }
 
                         break;
@@ -333,8 +367,10 @@ namespace Talent.Graphs
             edgeData.SetTrigger(trigger);
             edgeData.SetCondition(condition);
 
-            foreach ((string id, string @params) actionData in ParseActions(dataString))
-                edgeData.AddAction(new Action(actionData.id, actionData.@params));
+            foreach (Action a in ParseActions(dataString))
+            {
+                edgeData.AddAction(a);
+            }
 
             return edgeData;
         }
@@ -394,27 +430,41 @@ namespace Talent.Graphs
             return isNote;
         }
 
-        private static IEnumerable<(string, string)> ParseActions(string source)
+        private static IEnumerable<Action> ParseActions(string source)
         {
-            const string pattern = @"(?:^|\n)([^()\n]+)\((.*?)\)";
-            MatchCollection matches = Regex.Matches(source, pattern);
+            const string actionsPattern = @"(?<action>.*?)\((?<args>.*?)\)";
+            const string argsPattern = @"(.+?)(?:,\s*|$)"; // TODO combine, together with trigger and condition?
+            MatchCollection actionMatches = Regex.Matches(source, actionsPattern);
 
-            var result = new List<(string, string)>();
+            List<Action> actions = new List<Action>(); // TODO remove lists
 
-            foreach (Match match in matches)
+            foreach (Match actionMatch in actionMatches)
             {
-                if (match.Groups.Count != 3)
-                    continue;
+                if (!actionMatch.Success) continue;
 
-                string id = match.Groups[1].Value.Trim();
-                string @params = match.Groups[2].Value.Trim();
+                Group argsGroup = actionMatch.Groups["args"];
 
-                result.Add((id, @params));
+                List<Tuple<string, string>> args = new List<Tuple<string, string>>();
+
+                if (argsGroup != null && argsGroup.Success && argsGroup.Length > 0)
+                {
+                    MatchCollection argsMatches = Regex.Matches(argsGroup.Value, argsPattern);
+
+                    foreach (Match argMatch in argsMatches)
+                    {
+                        if (!argMatch.Success) continue;
+
+                        string parameterName = ""; // TODO get from config data
+
+                        args.Add(new(parameterName, argMatch.Groups[1].Value));
+                    }
+                }
+
+                actions.Add(new Action(actionMatch.Groups["action"].Value, args));
             }
 
-            return result;
+            return actions;
         }
-
         #endregion
 
         private static XName FullName(string localName) =>

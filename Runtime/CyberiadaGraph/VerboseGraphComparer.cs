@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Talent.Graphs
 {
-    public class VerboseGraphComparator : IEqualityComparer<CyberiadaGraph>
+    public class VerboseGraphComparer : IEqualityComparer<CyberiadaGraph>
     {
         public bool Equals(CyberiadaGraph graph, CyberiadaGraph otherGraph)
         {
@@ -26,7 +26,7 @@ namespace Talent.Graphs
                 stringBuilder.Append($"NODE({item.Value.ID})({item.Value.Data.Vertex}(");
                 stringBuilder.AppendLine($"NodeData({item.Value.Data.VisualData.Name})({item.Value.Data.VisualData.Position})");
 
-                foreach (KeyValuePair<string, Event> @event in item.Value.Data.Events)
+                foreach (Event @event in item.Value.Data.Events)
                 {
                     stringBuilder.AppendLine($"{@event}\n");
                 }
