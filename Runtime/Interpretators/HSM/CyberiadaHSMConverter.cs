@@ -58,11 +58,11 @@ namespace Talent.Logic.HSM
 
         private void AddEventToCommands(Node node, StateBuilder builder)
         {
-            foreach (Graphs.Event @event in node.Data.Events.Values)
+            foreach (Graphs.Event @event in node.Data.Events)
             {
                 foreach (Action action in @event.Actions)
                 {
-                    (string module, string command, string parameters) data = ParseActionData(action);
+                    (string module, string command, List<Tuple<string, string>> parameters) data = ParseActionData(action);
                     string commandName = GetFullCommandName(data);
 
                     switch (@event.TriggerID)
@@ -100,7 +100,7 @@ namespace Talent.Logic.HSM
 
                 foreach (Action action in edge.Data.Actions)
                 {
-                    (string module, string command, string parameters) actionData = ParseActionData(action);
+                    (string module, string command, List<Tuple<string, string>> parameters) actionData = ParseActionData(action);
                     transitionBuilder.AddCommand(GetFullCommandName(actionData), actionData.parameters);
                 }
 
@@ -120,19 +120,19 @@ namespace Talent.Logic.HSM
             }
         }
 
-        private string GetFullCommandName((string module, string command, string parameters) data)
+        private string GetFullCommandName((string module, string command, List<Tuple<string, string>> parameters) data)
         {
             return $"{data.module}.{data.command}";
         }
 
-        private (string module, string command, string parameters) ParseActionData(Action action)
+        private (string module, string command, List<Tuple<string, string>> parameters) ParseActionData(Action action)
         {
             string[] actionId = action.ID.Split('.');
             string module = actionId[0];
             string command = actionId[1];
-            string parameters = action.Parameter;
+            List<Tuple<string, string>> parameters = action.Parameters;
 
-            return new ValueTuple<string, string, string>(module, command, parameters);
+            return new ValueTuple<string, string, List<Tuple<string, string>>>(module, command, parameters);
         }
 
         private IEnumerable<Edge> GetEdges(string bySourceNodeId)

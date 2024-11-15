@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Talent.Logic.Bus;
 
@@ -67,7 +68,7 @@ namespace Talent.Logic.HSM.Builders
         /// <param name="commandName">The name of the command.</param>
         /// <param name="parameters">The parameters for the command.</param>
         /// <returns>The updated state builder.</returns>
-        public StateBuilder AddEnter(string commandName, string parameters)
+        public StateBuilder AddEnter(string commandName, List<Tuple<string, string>> parameters)
         {
             _enter.Add(new Command(_bus, commandName, parameters));
 
@@ -80,7 +81,7 @@ namespace Talent.Logic.HSM.Builders
         /// <param name="commandName">The name of the command.</param>
         /// <param name="parameters">The parameters for the command.</param>
         /// <returns>The updated state builder.</returns>
-        public StateBuilder AddExit(string commandName, string parameters)
+        public StateBuilder AddExit(string commandName, List<Tuple<string, string>> parameters)
         {
             _exit.Add(new Command(_bus, commandName, parameters));
 
@@ -120,7 +121,7 @@ namespace Talent.Logic.HSM.Builders
         /// <param name="commandName">The name of the command to be executed.</param>
         /// <param name="parameters">The parameters for the command.</param>
         /// <returns>The updated state builder.</returns>
-        public StateBuilder AddCommandOnEvent(string eventId, string commandName, string parameters)
+        public StateBuilder AddCommandOnEvent(string eventId, string commandName, List<Tuple<string, string>> parameters)
         {
             int index = _eventToCommandData.FindIndex(data => data.EventId == eventId);
 

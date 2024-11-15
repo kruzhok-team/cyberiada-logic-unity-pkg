@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Talent.Logic.Bus;
 
@@ -26,7 +27,7 @@ namespace Talent.Logic.HSM.Builders
         /// </summary>
         /// <param name="commandName">The name of the command.</param>
         /// <param name="parameters">The parameters of the command.</param>
-        public void AddCommandStorage(string commandName, string parameters)
+        public void AddCommandStorage(string commandName, List<Tuple<string, string>> parameters)
         {
             _commandsData.AddCommandStorage(commandName, parameters);
         }

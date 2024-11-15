@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Talent.Graphs
 {
-    public class LogicalGraphComparator : IEqualityComparer<CyberiadaGraph>
+    public class VerboseGraphComparer : IEqualityComparer<CyberiadaGraph>
     {
         public bool Equals(CyberiadaGraph graph, CyberiadaGraph otherGraph)
         {
@@ -24,8 +24,9 @@ namespace Talent.Graphs
             {
                 LinkedListNode<Node> item = nodes.First;
                 stringBuilder.Append($"NODE({item.Value.ID})({item.Value.Data.Vertex}(");
+                stringBuilder.AppendLine($"NodeData({item.Value.Data.VisualData.Name})({item.Value.Data.VisualData.Position})");
 
-                foreach (KeyValuePair<string, Event> @event in item.Value.Data.Events)
+                foreach (Event @event in item.Value.Data.Events)
                 {
                     stringBuilder.AppendLine($"{@event}\n");
                 }
@@ -38,9 +39,9 @@ namespace Talent.Graphs
 
                 if (item.Value.NestedGraph != null)
                 {
-                    var innerGraph = item.Value.NestedGraph;
+                    CyberiadaGraph innerGraph = item.Value.NestedGraph;
                     stringBuilder.AppendLine($"GRAPH({innerGraph.ID})");
-                    var previousItem = item;
+                    LinkedListNode<Node> previousItem = item;
                     foreach (var node in innerGraph.Nodes)
                     {
                         var nextItem = nodes.AddAfter(previousItem, node);
@@ -49,7 +50,7 @@ namespace Talent.Graphs
                     }
                 }
 
-                var currentGraph = graphByNode[item.Value];
+                CyberiadaGraph currentGraph = graphByNode[item.Value];
 
                 if (currentGraph.Nodes.Last() == item.Value)
                 {
@@ -71,7 +72,7 @@ namespace Talent.Graphs
             stringBuilder.AppendLine("EDGE");
             stringBuilder.AppendLine($"{nameof(edge.SourceNode)}={edge.SourceNode}");
             stringBuilder.AppendLine($"{nameof(edge.TargetNode)}={edge.TargetNode}");
-            stringBuilder.AppendLine($"{nameof(edge.Data)}=({edge.Data.TriggerID})({edge.Data.Condition})");
+            stringBuilder.AppendLine($"EdgeData({edge.Data.TriggerID})({edge.Data.Condition})({edge.Data.VisualData.Position})");
 
             foreach (Action action in edge.Data.Actions)
             {
