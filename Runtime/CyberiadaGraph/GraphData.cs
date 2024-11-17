@@ -26,7 +26,7 @@ namespace Talent.Graphs
                 Name = Name,
                 ReferenceGraphID = ReferenceGraphID,
                 _notes = _notes.Select(note => note.GetCopy()).ToList(),
-                DocumentMeta = DocumentMeta.GetCopy()
+                DocumentMeta = DocumentMeta?.GetCopy()
             };
 
             return resultData;
