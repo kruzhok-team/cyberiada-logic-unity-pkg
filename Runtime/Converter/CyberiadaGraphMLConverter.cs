@@ -92,11 +92,11 @@ namespace Talent.Graphs
             
             if (graphData.DocumentMeta != null)
             {
-                AddXmlMetaData(graphElement, graphData);
+                AddMetaDataToXmlElement(graphElement, graphData);
             }
         }
 
-        private static void AddXmlMetaData(XElement graphElement, GraphData graphData)
+        private static void AddMetaDataToXmlElement(XElement graphElement, GraphData graphData)
         {
             var nodeElement = new XElement(FullName("node"), new XAttribute("id", graphData.DocumentMeta.ID));
             AddNoteTypeToXmlElement(nodeElement, Metadata.Type);
@@ -117,13 +117,6 @@ namespace Talent.Graphs
             
             AddDataToXmlElement(nodeElement, sb.ToString());
             graphElement.Add(nodeElement);
-            var graphName = new XElement(FullName("data"), new XAttribute("key", "dName"), graphData.Name);
-            graphElement.Add(graphName);
-            if (!string.IsNullOrEmpty(graphData.ReferenceGraphID))
-            {
-                var referenceId = new XElement(FullName("data"), new XAttribute("key", "referenceGraphID"), graphData.ReferenceGraphID);
-                graphElement.Add(referenceId);
-            }
         }
 
         private static void CreateXmlEdges(CyberiadaGraph graph, XElement parentElement)
@@ -322,17 +315,20 @@ namespace Talent.Graphs
         private static Metadata CreateMetadata(Note note)
         {
             var data = new Dictionary<string, string>();
-            var entries = note.Text.Trim().Split("\n\n").ToList();
-            foreach (var entry in entries)
+            if (note.Text != null)
             {
-                const string delimiter = "/ ";
-                var delimiterPosition = entry.IndexOf(delimiter, StringComparison.Ordinal);
-                var key = entry[..delimiterPosition];
-                var value = entry[(delimiterPosition + delimiter.Length)..];
-                data.Add(key, value);
+                var entries = note.Text.Trim().Split("\n\n").ToList();
+                foreach (var entry in entries)
+                {
+                    const string delimiter = "/ ";
+                    var delimiterPosition = entry.IndexOf(delimiter, StringComparison.Ordinal);
+                    var key = entry[..delimiterPosition];
+                    var value = entry[(delimiterPosition + delimiter.Length)..];
+                    data.Add(key, value);
+                }
             }
 
-            var metaData = new Metadata(note.ID, data);
+            var metaData = new Metadata(data);
             return metaData;
         }
 

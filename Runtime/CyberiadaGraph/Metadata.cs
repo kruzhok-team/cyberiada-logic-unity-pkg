@@ -7,16 +7,19 @@ namespace Talent.Graphs
         public new const string Name = "CGML_META";
         public new const string Type = "formal";
         public IReadOnlyDictionary<string, string> Data => _data;
-        private readonly Dictionary<string, string> _data;
+        private readonly Dictionary<string, string> _data = new();
         
-        public Metadata(string id, Dictionary<string, string> data) : base(id)
+        public Metadata(Dictionary<string, string> data = null) : base("coreMeta")
         {
-            _data = data;
+            if (data != null)
+            {
+                _data = data;
+            }
         }
 
         public new Metadata GetCopy()
         {
-            Metadata resultData = new Metadata(ID, new Dictionary<string, string>(_data));
+            Metadata resultData = new Metadata(new Dictionary<string, string>(_data));
             return resultData;
         }
     }
