@@ -16,7 +16,7 @@ namespace Talent.Graphs
         private string ConvertToString(CyberiadaGraph graph)
         {
             StringBuilder stringBuilder = new StringBuilder();
-            stringBuilder.AppendLine($"GRAPH({graph.ID})");
+
             Dictionary<Node, CyberiadaGraph> graphByNode = graph.Nodes.ToDictionary(node => node, _ => graph);
             LinkedList<Node> nodes = new LinkedList<Node>(graph.Nodes);
 
@@ -24,7 +24,7 @@ namespace Talent.Graphs
             {
                 LinkedListNode<Node> item = nodes.First;
                 stringBuilder.Append($"NODE({item.Value.ID})({item.Value.Data.Vertex}(");
-                stringBuilder.AppendLine($"NodeData({item.Value.Data.VisualData.Name})({item.Value.Data.VisualData.Position})");
+                stringBuilder.AppendLine($"NodeData({item.Value.Data.VisualData.Name})({item.Value.Data.VisualData.Position.ToString("F1")})");
 
                 foreach (Event @event in item.Value.Data.Events)
                 {
@@ -72,7 +72,7 @@ namespace Talent.Graphs
             stringBuilder.AppendLine("EDGE");
             stringBuilder.AppendLine($"{nameof(edge.SourceNode)}={edge.SourceNode}");
             stringBuilder.AppendLine($"{nameof(edge.TargetNode)}={edge.TargetNode}");
-            stringBuilder.AppendLine($"EdgeData({edge.Data.TriggerID})({edge.Data.Condition})({edge.Data.VisualData.Position})");
+            stringBuilder.AppendLine($"EdgeData({edge.Data.TriggerID})({edge.Data.Condition})({edge.Data.VisualData.Position.ToString("F1")})");
 
             foreach (Action action in edge.Data.Actions)
             {
