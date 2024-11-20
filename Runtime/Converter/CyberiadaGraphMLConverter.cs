@@ -279,11 +279,12 @@ namespace Talent.Graphs
             XElement xElement, CyberiadaGraph graph,
             Node parentNode = null)
         {
-            IEnumerable<XElement> nodes = xElement.Elements(FullName("node"));
+            IEnumerable<XElement> nodes = xElement.Elements(FullName("node")).SelectMany(node=>node.Elements(FullName("data")).Where(data =>
+                data.Attribute("key")?.Value == "dName" && data.Value != "CGML_META")).Select(data=>data.Parent);
 
             foreach (XElement nodeElement in nodes)
             {
-                if (nodeElement.Attribute("id")?.Value == "")
+                if (nodeElement!.Attribute("id")?.Value == "")
                 {
                     continue;
                 }
