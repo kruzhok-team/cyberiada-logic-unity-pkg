@@ -159,12 +159,15 @@ namespace Talent.Graphs
                 sb.Append(string.IsNullOrEmpty(edge.Data.Condition) ? "" : $"[{edge.Data.Condition}]");
                 sb.AppendLine("/");
 
-                foreach (Action action in edge.Data.Actions)
+                if (edge.Data.Actions.Count > 0)
                 {
-                    AppendActionLine(action, sb);
-                }
+                    foreach (Action action in edge.Data.Actions)
+                    {
+                        AppendActionLine(action, sb);
+                    }
 
-                sb.AppendLine();
+                    sb.AppendLine();
+                }
 
                 AddDataToXmlElement(edgeElement, sb.ToString());
             }
@@ -189,19 +192,22 @@ namespace Talent.Graphs
             AddGeometryToXmlElement(nodeElement, "dGeometry", node.Data.VisualData.Position);
 
             var sb = new StringBuilder();
-
-            foreach (Event value in node.Data.Events)
+            for (var i = 0; i < node.Data.Events.Count; i++)
             {
-                sb.Append(value.TriggerID);
-                sb.Append(string.IsNullOrEmpty(value.Condition) ? "" : $"[{value.Condition}]"); // copied
+                var @event = node.Data.Events[i];
+                sb.Append(@event.TriggerID);
+                sb.Append(string.IsNullOrEmpty(@event.Condition) ? "" : $"[{@event.Condition}]"); // copied
                 sb.AppendLine("/");
 
-                foreach (Action action in value.Actions)
+                foreach (Action action in @event.Actions)
                 {
                     AppendActionLine(action, sb);
                 }
 
-                sb.AppendLine();
+                if (i < node.Data.Events.Count - 1)
+                {
+                    sb.AppendLine();
+                }
             }
 
             AddDataToXmlElement(nodeElement, sb.ToString());
