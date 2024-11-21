@@ -8,7 +8,7 @@ namespace Talent.GraphEditor.Core
 {
     public class GraphEditor
     {
-        public CyberiadaGraph Graph { get; private set; }
+        public CyberiadaGraphDocument GraphDocument { get; private set; }
 
         private IGraphElementViewFactory GraphElementViewFactory { get; }
         private Dictionary<string, Node> _nodes = new Dictionary<string, Node>();
@@ -30,12 +30,12 @@ namespace Talent.GraphEditor.Core
         }
 
         /// <summary>
-        /// Set graph and rebuild views
+        /// Set document and rebuild views
         /// </summary>
-        /// <param name="graph"></param>
-        public void SetGraph(CyberiadaGraph graph)
+        /// <param name="graphDocument"></param>
+        public void SetGraphDocument(CyberiadaGraphDocument graphDocument)
         {
-            Graph = graph;
+            GraphDocument = graphDocument;
             RebuildView();
         }
 
@@ -98,12 +98,12 @@ namespace Talent.GraphEditor.Core
             _initialNodeView = null;
             _initialEdgeView = null;
 
-            if (Graph == null)
+            if (GraphDocument?.RootGraph == null)
             {
                 return;
             }
 
-            foreach (Node node in Graph.Nodes)
+            foreach (Node node in GraphDocument.RootGraph.Nodes)
             {
                 if (node.Data.Vertex == NodeData.Vertex_Initial)
                 {
@@ -120,7 +120,7 @@ namespace Talent.GraphEditor.Core
                 CreateInitialNode();
             }
 
-            foreach (Edge edge in Graph.Edges)
+            foreach (Edge edge in GraphDocument.RootGraph.Edges)
             {
                 if (edge.SourceNode == NodeData.Vertex_Initial)
                 {
@@ -158,7 +158,7 @@ namespace Talent.GraphEditor.Core
 
             Node newNode = node.GetCopy(node.Data.GetCopy(), parentNode: node.ParentNode, newID: Guid.NewGuid().ToString());
 
-            Graph.AddNode(newNode);
+            GraphDocument.RootGraph.AddNode(newNode);
 
             duplicatedNode = CreateViewForNode(newNode, true);
             return true;
@@ -170,7 +170,7 @@ namespace Talent.GraphEditor.Core
             {
                 Node nodeData = new(NodeData.Vertex_Initial, new NodeData(NodeData.Vertex_Initial));
 
-                Graph.AddNode(nodeData);
+                GraphDocument.RootGraph.AddNode(nodeData);
                 nodeData.Data.VisualData.Name = "INIT";
 
                 _initialNodeView = CreateViewForNode(nodeData, true);
@@ -190,7 +190,7 @@ namespace Talent.GraphEditor.Core
                 }
 
                 Edge edge = new Edge(NodeData.Vertex_Initial + targetNode.ID, NodeData.Vertex_Initial, targetNode.ID, new EdgeData(""));
-                Graph.AddEdge(edge);
+                GraphDocument.RootGraph.AddEdge(edge);
 
                 if (_nodeViews.TryGetValue(targetNode, out INodeView targetNodeView))
                 {
@@ -217,7 +217,7 @@ namespace Talent.GraphEditor.Core
         public INodeView CreateNewNode(string name)
         {
             Node node = new Node(System.Guid.NewGuid().ToString(), new NodeData());
-            Graph.AddNode(node);
+            GraphDocument.RootGraph.AddNode(node);
             node.Data.VisualData.Name = name;
 
             INodeView newNode = CreateViewForNode(node, true);
@@ -242,7 +242,7 @@ namespace Talent.GraphEditor.Core
             }
 
             Edge edge = new Edge(System.Guid.NewGuid().ToString(), sourceNode.ID, targetNode.ID, new EdgeData(triggerID));
-            Graph.AddEdge(edge);
+            GraphDocument.RootGraph.AddEdge(edge);
 
             return CreateViewForEdge(edge);
         }
@@ -377,7 +377,7 @@ namespace Talent.GraphEditor.Core
                     }
                 }
 
-                foreach (Edge edge in Graph.Edges.Where(edge => edge.SourceNode == node.ID || edge.TargetNode == node.ID).ToArray())
+                foreach (Edge edge in GraphDocument.RootGraph.Edges.Where(edge => edge.SourceNode == node.ID || edge.TargetNode == node.ID).ToArray())
                 {
                     if (_edgeViews.TryGetValue(edge, out IEdgeView edgeView))
                     {
@@ -394,7 +394,7 @@ namespace Talent.GraphEditor.Core
 
                         _edges.Remove(edge.ID);
                         _edgeViews.Remove(edgeView);
-                        Graph.DeleteEdge(edge);
+                        GraphDocument.RootGraph.DeleteEdge(edge);
                         GraphElementViewFactory.DestroyElementView(edgeView);
 
                         if (edge.SourceNode == NodeData.Vertex_Initial || edge.TargetNode == NodeData.Vertex_Initial)
@@ -421,7 +421,7 @@ namespace Talent.GraphEditor.Core
                 }
 
                 _nodes.Remove(node.ID);
-                Graph.DeleteNode(node);
+                GraphDocument.RootGraph.DeleteNode(node);
                 _nodeViews.Remove(node);
                 GraphElementViewFactory.DestroyElementView(nodeView);
 
@@ -434,7 +434,7 @@ namespace Talent.GraphEditor.Core
                 }
                 else
                 {
-                    Graph.DeleteNode(_nodes[NodeData.Vertex_Initial]);
+                    GraphDocument.RootGraph.DeleteNode(_nodes[NodeData.Vertex_Initial]);
                     GraphElementViewFactory.DestroyElementView(_initialNodeView);
                     _nodeViews.Remove(_initialNodeView);
                     _initialNodeView = null;
@@ -457,7 +457,7 @@ namespace Talent.GraphEditor.Core
                 }
 
                 _edges.Remove(edge.ID);
-                Graph.DeleteEdge(edge);
+                GraphDocument.RootGraph.DeleteEdge(edge);
                 _edgeViews.Remove(edgeView);
                 GraphElementViewFactory.DestroyElementView(edgeView);
             }
@@ -522,7 +522,7 @@ namespace Talent.GraphEditor.Core
                 if (child.ParentNode != null)
                 {
                     child.ParentNode.NestedGraph.DeleteNode(child);
-                    Graph.AddNode(child);
+                    GraphDocument.RootGraph.AddNode(child);
                 }
 
                 oldParent = child.ParentNode;
@@ -540,9 +540,9 @@ namespace Talent.GraphEditor.Core
                     }
 
                     //удаление чайлд ноды из корневого графа или из графа текущего родителя
-                    if (Graph.TryGetNode(child.ID, out _))
+                    if (GraphDocument.RootGraph.TryGetNode(child.ID, out _))
                     {
-                        Graph.DeleteNode(child);
+                        GraphDocument.RootGraph.DeleteNode(child);
                     }
                     else
                     {
