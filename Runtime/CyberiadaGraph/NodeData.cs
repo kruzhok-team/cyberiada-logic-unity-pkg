@@ -19,7 +19,7 @@ namespace Talent.Graphs
         /// <summary>
         /// Events of node
         /// </summary>
-        public IEnumerable<Event> Events => _events;
+        public IReadOnlyList<Event> Events => _events;
 
         public NodeData(string vertex = "")
         {
