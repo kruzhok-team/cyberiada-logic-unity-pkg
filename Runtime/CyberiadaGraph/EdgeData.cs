@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 
 namespace Talent.Graphs
@@ -78,22 +77,6 @@ namespace Talent.Graphs
         }
 
         #endregion
-
-        public override string ToString()
-        {
-            StringBuilder stringBuilder = new();
-            stringBuilder.AppendLine($"EdgeData({TriggerID})({Condition})({VisualData.Position})");
-
-            string actions = "\n";
-            foreach (Action action in Actions)
-            {
-                actions += $"\n{action}";
-            }
-
-            stringBuilder.AppendLine(actions);
-
-            return stringBuilder.ToString();
-        }
     }
 
     public class EdgeVisualData

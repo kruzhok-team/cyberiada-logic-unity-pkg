@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 <!-- Headers should be listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security -->
 
+## [0.2.1] - 22.11.2024
+### Added
+ - Metadata block in resulting file
+ - Format tag in resulting file
+ 
 ## [0.2.0] - 02.11.2024
 ### Added
  - Multiple parameters support
