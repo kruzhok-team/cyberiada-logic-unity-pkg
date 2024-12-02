@@ -5,7 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+#if UNITY
 using UnityEngine;
+#endif
 
 namespace Talent.Graphs
 {
