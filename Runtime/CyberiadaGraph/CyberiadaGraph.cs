@@ -3,31 +3,31 @@ using System.Collections.Generic;
 namespace Talent.Graphs
 {
     /// <summary>
-    /// Main class for graph representation
+    /// Класс, представляющий граф в документе CyberiadaGraphML
     /// </summary>
     public class CyberiadaGraph
     {
         /// <summary>
-        /// Unique id of a graph
+        /// Уникальный идентификатор графа
         /// </summary>
         public string ID { get; }
 
         private readonly Dictionary<string, Node> _nodes = new();
 
         /// <summary>
-        /// Root nodes that the graph contains, without child nodes
+        /// Корневые узлы, которые содержит граф, исключая дочерние узлы
         /// </summary>
         public IReadOnlyCollection<Node> Nodes => _nodes.Values;
 
         private readonly HashSet<Edge> _edges = new();
 
         /// <summary>
-        /// Root edges that the graph contains
+        /// Корневые ребра, которые содержит граф
         /// </summary>
         public IReadOnlyCollection<Edge> Edges => _edges;
 
         /// <summary>
-        /// Data of a concrete graph implementation
+        /// Данные графа
         /// </summary>
         public GraphData Data { get; }
 
@@ -43,17 +43,18 @@ namespace Talent.Graphs
         }
 
         /// <summary>
-        /// Creates a copy of the graph
+        /// Создает копию графа
         /// </summary>
-        /// <param name="data">Data for a copy of the graph</param>
-        /// <param name="parentNode">The parent node of this graph, is needed to set the reference in the nodes of the graph</param>
-        /// <param name="newID">The ID of graph copy, if id is null, the ID will be given from the original edge</param>
-        /// <returns>A copy of the graph</returns>
+        /// <param name="data">Исходные данные графа</param>
+        /// <param name="parentNode">Родительский узел графа, устанавливается как родитель для всех узлов данного графа</param>
+        /// <param name="newID">Новый идентификатор графа, если отстсутствует, используется оригинальный идентификатор</param>
+        /// <returns>Копия графа</returns>
         public CyberiadaGraph GetCopy(GraphData data, Node parentNode = null, string newID = null)
         {
             if (newID == "")
             {
-                throw new System.ArgumentNullException($"Can't copy Graph with newID '{newID}'. ID can't be null or empty");
+                throw new System.ArgumentNullException(
+                    $"Can't copy Graph with newID '{newID}'. ID can't be null or empty");
             }
 
             CyberiadaGraph resultGraph = new CyberiadaGraph(newID ?? ID, data);
@@ -71,6 +72,12 @@ namespace Talent.Graphs
             return resultGraph;
         }
 
+        /// <summary>
+        /// Проверяет граф на равенство с другим графом
+        /// </summary>
+        /// <param name="graph">Другой граф</param>
+        /// <param name="comparer">Сравниватель графов</param>
+        /// <returns>true если графы равны, иначе false</returns>
         public bool IsGraphEqual(CyberiadaGraph graph, IEqualityComparer<CyberiadaGraph> comparer)
         {
             return comparer.Equals(this, graph);
@@ -79,39 +86,39 @@ namespace Talent.Graphs
         #region Nodes API
 
         /// <summary>
-        /// Check if graph contains node with this id
+        /// Проверяет, есть ли в графе узел с определенным уникальным идентификатором
         /// </summary>
-        /// <param name="id">Node id</param>
-        /// <returns>True if succesfully found node, false if not</returns>
+        /// <param name="id">Уникальный идентификатор узла</param>
+        /// <returns>true если узел найден, иначе false</returns>
         public bool HasNode(string id)
         {
             return id != null && _nodes.ContainsKey(id);
         }
-        
+
         /// <summary>
-        /// Get node if graph has one
+        /// Пытается найти узел с определенным уникальным идентификатор в графе
         /// </summary>
-        /// <param name="id">Node id</param>
-        /// <param name="node">Result node, null if graph doesn't have corresponding node</param>
-        /// <returns>True if succesfully found node, false if not</returns>
+        /// <param name="id">Уникальный идентификатор узла</param>
+        /// <param name="node">Возравращает узел, если узел с таким соответствующим идентфикатором есть в графе, иначе null</param>
+        /// <returns>true если узел найден, иначе false</returns>
         public bool TryGetNode(string id, out Node node)
         {
             return _nodes.TryGetValue(id, out node);
         }
 
         /// <summary>
-        /// Add node to graph
+        /// Добавляет новый узел в граф
         /// </summary>
-        /// <param name="node">Node to adding</param>
+        /// <param name="node">Добавляемый узел</param>
         public void AddNode(Node node)
         {
             _nodes[node.ID] = node;
         }
 
         /// <summary>
-        /// Delete existing node
+        /// Удаляет существующий узел из графа
         /// </summary>
-        /// <param name="node">Target node</param>
+        /// <param name="node">Удаляемый узел</param>
         public void DeleteNode(Node node)
         {
             if (HasNode(node.ID))
@@ -125,18 +132,18 @@ namespace Talent.Graphs
         #region Edges API
 
         /// <summary>
-        /// Add edge to graph
+        /// Добавляет новое ребро в граф
         /// </summary>
-        /// <param name="edge">Edge to adding</param>
+        /// <param name="edge">Добавляемое ребро</param>
         public void AddEdge(Edge edge)
         {
             _edges.Add(edge);
         }
 
         /// <summary>
-        /// Deleting existing edge between nodes
+        /// Удаляет существующее ребро из графа
         /// </summary>
-        /// <param name="edge">Target edge</param>
+        /// <param name="edge">Удаляемое ребро</param>
         public void DeleteEdge(Edge edge)
         {
             _edges.Remove(edge);

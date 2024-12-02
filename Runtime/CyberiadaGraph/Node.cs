@@ -1,35 +1,43 @@
+using System;
+
 namespace Talent.Graphs
 {
     /// <summary>
-    /// Class representing single node of graph
+    /// Элемент графа, представляющий узел
     /// </summary>
     public class Node
     {
         /// <summary>
-        /// Unique id of a node
+        /// Уникальный идентификатор узла
         /// </summary>
         public string ID { get; }
 
         /// <summary>
-        /// Parent node of a node if it has one
+        /// Родительский узел данного узла
         /// </summary>
         public Node ParentNode { get; set; }
 
         /// <summary>
-        /// Nested graph of a node if it has one, this graph contains child nodes
+        /// Подграф хранимый в данном узле
         /// </summary>
         public CyberiadaGraph NestedGraph { get; set; }
 
         /// <summary>
-        /// Data of a concrete node implementation
+        /// Состояние, содержимое в узле
         /// </summary>
         public NodeData Data { get; }
 
+        /// <summary>
+        /// Конструктор узла
+        /// </summary>
+        /// <param name="id">Уникальный идентификатор узла</param>
+        /// <param name="data">Состояние узла</param>
+        /// <exception cref="ArgumentNullException">Если идентификатор равен null, выбрасывается исключение</exception>
         public Node(string id, NodeData data)
         {
             if (string.IsNullOrEmpty(id))
             {
-                throw new System.ArgumentNullException($"Can't create Node with id '{id}'. ID can't be null or empty");
+                throw new ArgumentNullException($"Can't create Node with id '{id}'. ID can't be null or empty");
             }
 
             ID = id;
@@ -37,17 +45,17 @@ namespace Talent.Graphs
         }
 
         /// <summary>
-        /// Creates a copy of the node
+        /// Создает копию узла
         /// </summary>
-        /// <param name="data">Data for a copy of the node</param>
-        /// <param name="parentNode">The parent node of this node</param>
-        /// <param name="newID">The ID of node copy, if id is null, the ID will be given from the original edge</param>
-        /// <returns>A copy of the node</returns>
+        /// <param name="data">Состояние узла</param>
+        /// <param name="parentNode">Родительский узел для копии узла</param>
+        /// <param name="newID">Новый идентификатор узла, если отстсутствует, используеться оригинальный идентификатор</param>
+        /// <returns>Копия узла</returns>
         public Node GetCopy(NodeData data, Node parentNode = null, string newID = null)
         {
             if (newID == "")
             {
-                throw new System.ArgumentNullException($"Can't copy Node with newID '{newID}'. ID can't be null or empty");
+                throw new ArgumentNullException($"Can't copy Node with newID '{newID}'. ID can't be null or empty");
             }
 
             Node resultNode = new Node(newID ?? ID, data);

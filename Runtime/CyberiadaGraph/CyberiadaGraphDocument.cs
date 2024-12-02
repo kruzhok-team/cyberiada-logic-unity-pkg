@@ -1,10 +1,28 @@
 ﻿namespace Talent.Graphs
 {
+    /// <summary>
+    /// Класс, представляющий CyberiadaGraphML документ
+    /// </summary>
     public class CyberiadaGraphDocument
     {
+        /// <summary>
+        /// Корневой граф документа
+        /// </summary>
         public CyberiadaGraph RootGraph { get; set; }
+
+        /// <summary>
+        /// Целевой дрон, к которому применяется корневой документ
+        /// </summary>
         public string Target { get; set; }
+
+        /// <summary>
+        /// Имя документа
+        /// </summary>
         public string Name { get; set; }
+
+        /// <summary>
+        /// Уникальный идентификатор оригинального корневого графа
+        /// </summary>
         public string ReferenceGraphId { get; set; }
     }
 }

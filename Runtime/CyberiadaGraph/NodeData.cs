@@ -1,34 +1,63 @@
 using System.Collections.Generic;
-using System.Text;
 using UnityEngine;
 
 namespace Talent.Graphs
 {
+    /// <summary>
+    /// Класс, предстваляющий состояние узла
+    /// </summary>
     public class NodeData : IClonable<NodeData>
     {
+        /// <summary>
+        /// Начальное псевдосостояние
+        /// </summary>
         public const string Vertex_Initial = "initial";
+
+        /// <summary>
+        /// Конечное состояние
+        /// </summary>
         public const string Vertex_Final = "final";
+
+        /// <summary>
+        /// Псевдосостояние выбора
+        /// </summary>
         public const string Vertex_Choice = "choice";
+
+        /// <summary>
+        /// Завершающее псевдосостояние («исключение»)
+        /// </summary>
         public const string Vertex_Terminate = "terminate";
 
+        /// <summary>
+        /// Визулальное представление узла
+        /// </summary>
         public NodeVisualData VisualData { get; private set; } = new();
+       
+        /// <summary>
+        /// Имя вершины
+        /// </summary>
         public string Vertex { get; private set; }
 
         private readonly List<Event> _events = new();
 
         /// <summary>
-        /// Events of node
+        /// Список переходов состояния
         /// </summary>
         public IReadOnlyList<Event> Events => _events;
 
+        /// <summary>
+        /// Конструктор состояния
+        /// </summary>
+        /// <param name="vertex">Имя вершины состояния</param>
         public NodeData(string vertex = "")
         {
             Vertex = vertex;
         }
 
         /// <summary>
-        /// Creates a copy of the node data
+        /// Создает копию состояния
         /// </summary>
+        /// <returns>Копия состояния</returns>
         public NodeData GetCopy()
         {
             NodeData resultData = new NodeData(Vertex);
@@ -47,8 +76,9 @@ namespace Talent.Graphs
         #region Events API
 
         /// <summary>
-        /// Add event to node
+        /// Добавляет новый переход в состояние
         /// </summary>
+        /// <param name="nodeEvent">Добавляемый переход</param>
         public void AddEvent(Event nodeEvent)
         {
             if (!_events.Contains(nodeEvent))
@@ -58,8 +88,9 @@ namespace Talent.Graphs
         }
 
         /// <summary>
-        /// Remove existing event from node
+        /// Удаляет существующий переход из состояния
         /// </summary>
+        /// <param name="nodeEvent">Удаляемый переход</param>
         public void RemoveEvent(Event nodeEvent)
         {
             _events.Remove(nodeEvent);
@@ -68,9 +99,18 @@ namespace Talent.Graphs
         #endregion
     }
 
+    /// <summary>
+    /// Визуальное представление узла
+    /// </summary>
     public class NodeVisualData
     {
+        /// <summary>
+        /// Имя узла
+        /// </summary>
         public string Name { get; set; }
+        /// <summary>
+        /// Визулаьная позиция узла
+        /// </summary>
         public Vector2 Position { get; set; }
     }
 }
