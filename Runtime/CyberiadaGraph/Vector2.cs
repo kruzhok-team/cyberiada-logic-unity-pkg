@@ -1,7 +1,7 @@
+#if !UNITY
 using System;
 using System.Globalization;
 
-#if !UNITY
 namespace Talent.Graphs
 {
     public struct Vector2
@@ -14,6 +14,15 @@ namespace Talent.Graphs
             this.x = x;
             this.y = y;
         }
+
+        public static Vector2 operator +(Vector2 a, Vector2 b) => new Vector2(a.x + b.x, a.y + b.y);
+        public static Vector2 operator -(Vector2 a, Vector2 b) => new Vector2(a.x - b.x, a.y - b.y);
+        public static Vector2 operator *(Vector2 a, Vector2 b) => new Vector2(a.x * b.x, a.y * b.y);
+        public static Vector2 operator /(Vector2 a, Vector2 b) => new Vector2(a.x / b.x, a.y / b.y);
+        public static Vector2 operator -(Vector2 a) => new Vector2(-a.x, -a.y);
+        public static Vector2 operator *(Vector2 a, float d) => new Vector2(a.x * d, a.y * d);
+        public static Vector2 operator *(float d, Vector2 a) => new Vector2(a.x * d, a.y * d);
+        public static Vector2 operator /(Vector2 a, float d) => new Vector2(a.x / d, a.y / d);
 
         public static Vector2 zero => new Vector2(0, 0);
 

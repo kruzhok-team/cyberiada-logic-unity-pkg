@@ -1,5 +1,5 @@
 using System;
-#if UNITY && (UNITY_EDITOR || DEBUG)
+#if UNITY && DEBUG
 using UnityEngine;
 #endif
 

@@ -1,7 +1,7 @@
 using System;
 using System.Globalization;
 using Talent.Logic.Bus;
-#if UNITY
+#if UNITY && DEBUG
 using UnityEngine;
 #endif
 
@@ -86,7 +86,7 @@ namespace Talent.Logic.HSM
                 case "!=":
                     return Math.Abs(leftValue - rightValue) >= float.Epsilon;
                 default:
-#if UNITY && (UNITY_EDITOR || DEBUG)
+#if UNITY && DEBUG
                         Debug.LogError($"Cant resolve parameters {_parameters[1]} and to go next state");
 #endif
                     break;
