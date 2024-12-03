@@ -5,7 +5,7 @@ using Talent.Logic.Bus;
 namespace Talent.Logic.HSM.Builders
 {
     /// <summary>
-    ///     Utility class for creating HSM
+    /// Класс для создания состояний в иерархической машине состояний (ИМС)
     /// </summary>
     public class StateBuilder
     {
@@ -22,10 +22,10 @@ namespace Talent.Logic.HSM.Builders
         private State _parent;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="StateBuilder"/> class.
+        /// Конструктор строителя состояний ИМС
         /// </summary>
-        /// <param name="bus">The bus used for event handling.</param>
-        /// <param name="id">The optional identifier for the state builder.</param>
+        /// <param name="bus">Шина для обработки переходов</param>
+        /// <param name="id">Опциональный параметр для идентификатора строителя состояний</param>
         public StateBuilder(IBus bus, string id = "")
         {
             _bus = bus;
@@ -33,10 +33,10 @@ namespace Talent.Logic.HSM.Builders
         }
 
         /// <summary>
-        ///     Sets the label of the state builder.
+        ///  Устанавливает строковую метку в создаваемое состояние
         /// </summary>
-        /// <param name="label">The label to set.</param>
-        /// <returns>The updated state builder.</returns>
+        /// <param name="label">Метка</param>
+        /// <returns>Обновленный строитель состояний</returns>
         public StateBuilder AddLabel(string label)
         {
             _label = label;
@@ -45,10 +45,10 @@ namespace Talent.Logic.HSM.Builders
         }
 
         /// <summary>
-        ///     Adds a child state to the current state builder.
+        /// Добавляет дочернее состояние в создаваемое состояние
         /// </summary>
-        /// <param name="builder">The state builder for the child state.</param>
-        /// <returns>The updated state builder.</returns>
+        /// <param name="builder">Дочернее состояние</param>
+        /// <returns>Обновленный строитель состояний</returns>
         public StateBuilder AddChildState(StateBuilder builder)
         {
             _owner ??= new HierarchicalStateMachine();
@@ -63,11 +63,11 @@ namespace Talent.Logic.HSM.Builders
         }
 
         /// <summary>
-        ///     Adds an enter command to the state builder.
+        /// Добавляет команду входа в создаваемое состояние
         /// </summary>
-        /// <param name="commandName">The name of the command.</param>
-        /// <param name="parameters">The parameters for the command.</param>
-        /// <returns>The updated state builder.</returns>
+        /// <param name="commandName">Имя команд</param>
+        /// <param name="parameters">Список параметров для команды</param>
+        /// <returns>Обновленный строитель состояний</returns>
         public StateBuilder AddEnter(string commandName, List<Tuple<string, string>> parameters)
         {
             _enter.Add(new Command(_bus, commandName, parameters));
@@ -76,11 +76,11 @@ namespace Talent.Logic.HSM.Builders
         }
 
         /// <summary>
-        ///     Adds an exit command to the state builder.
+        /// Добавляет команду выхода в создаваемое состояние
         /// </summary>
-        /// <param name="commandName">The name of the command.</param>
-        /// <param name="parameters">The parameters for the command.</param>
-        /// <returns>The updated state builder.</returns>
+        /// <param name="commandName">Имя команд</param>
+        /// <param name="parameters">Список параметров для команды</param>
+        /// <returns>Обновленный строитель состояний</returns>
         public StateBuilder AddExit(string commandName, List<Tuple<string, string>> parameters)
         {
             _exit.Add(new Command(_bus, commandName, parameters));
@@ -89,12 +89,12 @@ namespace Talent.Logic.HSM.Builders
         }
 
         /// <summary>
-        ///     Adds a transition to the state builder.
+        /// Добавляет переход в создаваемое состояние
         /// </summary>
-        /// <param name="nextStateId">The ID of the next state.</param>
-        /// <param name="eventId">The event ID triggering the transition.</param>
-        /// <param name="parameters">Optional parameters for the transition.</param>
-        /// <returns>The updated state builder.</returns>
+        /// <param name="nextStateId">Уникальный идентификатор следующего состояния</param>
+        /// <param name="eventId">Идентификатор события, срабатывающего при переходе</param>
+        /// <param name="parameters">Опциональные параметры для перехода</param>
+        /// <returns>Обновленный строитель состояний</returns>
         public StateBuilder AddTransition(string nextStateId, string eventId, string parameters = "")
         {
             _transitions.Add(new Transition(nextStateId, eventId, _bus, parameters));
@@ -103,10 +103,10 @@ namespace Talent.Logic.HSM.Builders
         }
 
         /// <summary>
-        ///     Adds a transition to the state builder.
+        /// Добавляет переход в создаваемое состояние
         /// </summary>
-        /// <param name="transitionBuilder">The transition builder.</param>
-        /// <returns>The updated state builder.</returns>
+        /// <param name="transitionBuilder">Строитель переходов</param>
+        /// <returns>Обновленный строитель состояний</returns>
         public StateBuilder AddTransition(TransitionBuilder transitionBuilder)
         {
             _transitions.Add(transitionBuilder.AddBus(_bus).Build());
@@ -115,12 +115,12 @@ namespace Talent.Logic.HSM.Builders
         }
 
         /// <summary>
-        ///     Adds a command to be executed when a specific event occurs.
+        /// Добавляет команду, которая будет выполняться при возникновении определенного события.
         /// </summary>
-        /// <param name="eventId">The ID of the event.</param>
-        /// <param name="commandName">The name of the command to be executed.</param>
-        /// <param name="parameters">The parameters for the command.</param>
-        /// <returns>The updated state builder.</returns>
+        /// <param name="eventId">Идентификатор события</param>
+        /// <param name="commandName">Имя команды</param>
+        /// <param name="parameters">Список параметров для команды</param>
+        /// <returns>Обновленный строитель состояний</returns>
         public StateBuilder AddCommandOnEvent(string eventId, string commandName, List<Tuple<string, string>> parameters)
         {
             int index = _eventToCommandData.FindIndex(data => data.EventId == eventId);
@@ -137,9 +137,9 @@ namespace Talent.Logic.HSM.Builders
         }
 
         /// <summary>
-        ///     Builds and returns a new State object based on the current state of the StateBuilder.
+        /// Строит и возвращает новое состояние ИМС
         /// </summary>
-        /// <returns>The newly built State object.</returns>
+        /// <returns>Новое состояние</returns>
         public State Build()
         {
             Event[] eventToCommand = null;

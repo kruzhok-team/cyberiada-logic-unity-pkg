@@ -62,7 +62,7 @@ namespace Talent.Graphs
         /// Создает копию ребра
         /// </summary>
         /// <param name="data">Новый переход ребра</param>
-        /// <param name="newID">Новый идентификатор ребра, если отстсутствует, используеться оригинальный идентификатор</param>
+        /// <param name="newID">Новый идентификатор ребра, если отсутствует, используется оригинальный идентификатор</param>
         /// <returns>Копия ребра</returns>
         public Edge GetCopy(EdgeData data, string newID = null)
         {

@@ -30,7 +30,7 @@ namespace Talent.GraphEditor.Core
         }
 
         /// <summary>
-        /// Добавяет новое значение по ключу
+        /// Добавляет новое значение по ключу
         /// </summary>
         /// <param name="key">Ключ</param>
         /// <param name="value">Значение</param>
@@ -114,7 +114,7 @@ namespace Talent.GraphEditor.Core
         }
 
         /// <summary>
-        /// Проверяет содержит, ли словарь ключ
+        /// Проверяет, содержит ли словарь ключ
         /// </summary>
         /// <param name="key">true, если ключ найден, иначе false</param>
         /// <returns></returns>
@@ -124,7 +124,7 @@ namespace Talent.GraphEditor.Core
         }
 
         /// <summary>
-        /// Проверяет содержит, ли словарь значение по ключу
+        /// Проверяет, содержит ли словарь значение по ключу
         /// </summary>
         /// <param name="value">true, если ключ найден, иначе false</param>
         /// <returns></returns>
@@ -133,6 +133,9 @@ namespace Talent.GraphEditor.Core
             return _forward.ContainsValue(value);
         }
 
+        /// <summary>
+        /// Очищает словарь
+        /// </summary>
         public void Clear()
         {
             _forward.Clear();

@@ -49,7 +49,7 @@ namespace Talent.Graphs
         /// </summary>
         /// <param name="data">Состояние узла</param>
         /// <param name="parentNode">Родительский узел для копии узла</param>
-        /// <param name="newID">Новый идентификатор узла, если отстсутствует, используеться оригинальный идентификатор</param>
+        /// <param name="newID">Новый идентификатор узла, если отсутствует, используется оригинальный идентификатор</param>
         /// <returns>Копия узла</returns>
         public Node GetCopy(NodeData data, Node parentNode = null, string newID = null)
         {

@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Talent.Graphs
 {
     /// <summary>
-    /// Класс, предстваляющий состояние узла
+    /// Класс, представляющий состояние узла
     /// </summary>
     public class NodeData : IClonable<NodeData>
     {
@@ -29,7 +29,7 @@ namespace Talent.Graphs
         public const string Vertex_Terminate = "terminate";
 
         /// <summary>
-        /// Визулальное представление узла
+        /// Визуальное представление узла
         /// </summary>
         public NodeVisualData VisualData { get; private set; } = new();
        
@@ -109,7 +109,7 @@ namespace Talent.Graphs
         /// </summary>
         public string Name { get; set; }
         /// <summary>
-        /// Визулаьная позиция узла
+        /// Визуальная позиция узла
         /// </summary>
         public Vector2 Position { get; set; }
     }

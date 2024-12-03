@@ -48,7 +48,7 @@ namespace Talent.GraphEditor.Core
         }
 
         /// <summary>
-        /// Установливает новый документ и перестраивает представление
+        /// Устанавливает новый документ и перестраивает представление
         /// </summary>
         /// <param name="graphDocument">Новый документ</param>
         public void SetGraphDocument(CyberiadaGraphDocument graphDocument)
@@ -58,7 +58,7 @@ namespace Talent.GraphEditor.Core
         }
 
         /// <summary>
-        /// Перегенерирует отсутствующие представаления, удаляет ненужные представления.
+        /// Пересоздает отсутствующие представления, удаляет ненужные представления.
         /// Полезно, если что-то сломалось или граф изменился в обход редактора
         /// </summary>
         public void RefreshView()
@@ -640,7 +640,7 @@ namespace Talent.GraphEditor.Core
         #endregion
 
         /// <summary>
-        /// Установливает нового родителя для представления узла
+        /// Устанавливает нового родителя для представления узла
         /// </summary>
         /// <param name="childView">Представление дочернего узла</param>
         /// <param name="parentView">Представление родительского узла</param>

@@ -3,33 +3,59 @@ using System.Collections.Generic;
 namespace Talent.Logic.HSM
 {
     /// <summary>
-    ///     Represents a state in the Hierarchical State Machine system.
+    /// Класс, представляющий состояние иерархической машины состояний
     /// </summary>
     public class State
     {
         private State _parent;
         private HierarchicalStateMachine _owner;
 
+        /// <summary>
+        /// Идентификатор состояния
+        /// </summary>
         public string ID { get; private set; }
+
+        /// <summary>
+        /// Метка состояния
+        /// </summary>
         public string Label { get; private set; } = "";
 
+        /// <summary>
+        /// Дочерние состояния
+        /// </summary>
         public IEnumerable<State> ChildStates => _owner?.States;
+
+        /// <summary>
+        /// Команды, вызываемые при входе в состояние
+        /// </summary>
         public IEnumerable<Command> EnterCommands { get; private set; }
+
+        /// <summary>
+        /// Команды вызываемые при выходе из состояния
+        /// </summary>
         public IEnumerable<Command> ExitCommands { get; private set; }
+
+        /// <summary>
+        /// События состояния
+        /// </summary>
         public IEnumerable<Event> Events { get; private set; }
+
+        /// <summary>
+        /// Переходы состояния
+        /// </summary>
         public IEnumerable<Transition> Transition { get; private set; }
 
         /// <summary>
-        ///     Initializes the state with the given parameters.
+        /// Инициализирует состояние через переданные параметры
         /// </summary>
-        /// <param name="id">The ID of the state.</param>
-        /// <param name="label">The label of the state.</param>
-        /// <param name="parent">The parent state.</param>
-        /// <param name="enter">The commands to execute when entering the state.</param>
-        /// <param name="exit">The commands to execute when exiting the state.</param>
-        /// <param name="events">The events associated with the state.</param>
-        /// <param name="transitions">The transitions from the state.</param>
-        /// <param name="owner">The owner of the state.</param>
+        /// <param name="id">Идентификатор состояния</param>
+        /// <param name="label">Метка состояния</param>
+        /// <param name="parent">Родительское состояние</param>
+        /// <param name="enter">Команды входа в состояния</param>
+        /// <param name="exit">Команды выхода из состояния</param>
+        /// <param name="events">События, ассоциированные с состояниями</param>
+        /// <param name="transitions">Переходы из состояния</param>
+        /// <param name="owner">Машина состояний, хранящая данное состояние</param>
         public void Init(
             string id,
             string label,
@@ -51,7 +77,7 @@ namespace Talent.Logic.HSM
         }
 
         /// <summary>
-        ///     Enter the state
+        /// Входит в состояние
         /// </summary>
         public void Enter()
         {
@@ -82,16 +108,16 @@ namespace Talent.Logic.HSM
         }
 
         /// <summary>
-        ///     Enters a substate with the specified ID.
+        /// Входит в подсостояние с уникальным идентификатором
         /// </summary>
-        /// <param name="id">The ID of the substate to enter.</param>
+        /// <param name="id">Уникальный идентификатор</param>
         public void EnterSubState(string id)
         {
             _owner?.EnterState(id);
         }
 
         /// <summary>
-        ///     Exit the state
+        /// Выходит из состояния
         /// </summary>
         public void Exit()
         {

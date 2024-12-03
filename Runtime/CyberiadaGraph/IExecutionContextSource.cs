@@ -10,7 +10,7 @@ namespace Talent.Graphs
     }
 
     /// <summary>
-    /// Класс, представлющий данные поведения
+    /// Класс, представляющий данные поведения
     /// </summary>
     public class ActionData
     {

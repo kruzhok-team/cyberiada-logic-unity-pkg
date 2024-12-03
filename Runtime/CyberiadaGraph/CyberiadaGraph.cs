@@ -99,7 +99,7 @@ namespace Talent.Graphs
         /// Пытается найти узел с определенным уникальным идентификатор в графе
         /// </summary>
         /// <param name="id">Уникальный идентификатор узла</param>
-        /// <param name="node">Возравращает узел, если узел с таким соответствующим идентфикатором есть в графе, иначе null</param>
+        /// <param name="node">Возвращает узел, если узел с таким соответствующим идентификатором есть в графе, иначе null</param>
         /// <returns>true если узел найден, иначе false</returns>
         public bool TryGetNode(string id, out Node node)
         {

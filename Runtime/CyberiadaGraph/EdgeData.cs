@@ -4,7 +4,7 @@ using UnityEngine;
 namespace Talent.Graphs
 {
     /// <summary>
-    /// Класс, предстваляющий переход, содержащийся в ребре
+    /// Класс, представляющий переход, содержащийся в ребре
     /// </summary>
     public class EdgeData : IClonable<EdgeData>
     {
@@ -38,7 +38,7 @@ namespace Talent.Graphs
         }
 
         /// <summary>
-        /// Cоздает копию перехода
+        /// Создает копию перехода
         /// </summary>
         /// <returns>Копия перехода</returns>
         public EdgeData GetCopy()
@@ -99,12 +99,12 @@ namespace Talent.Graphs
     }
 
     /// <summary>
-    /// Визальное представление ребра
+    /// Визуальное представление ребра
     /// </summary>
     public class EdgeVisualData
     {
         /// <summary>
-        /// Визулаьная позиция ребра
+        /// Визуальная позиция ребра
         /// </summary>
         public Vector2 Position { get; set; }
     }

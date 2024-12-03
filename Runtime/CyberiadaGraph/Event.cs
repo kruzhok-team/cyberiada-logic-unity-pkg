@@ -72,7 +72,7 @@ namespace Talent.Graphs
         /// <summary>
         /// Добавляет новое поведение для перехода
         /// </summary>
-        /// <param name="action">Добаляемое поведение</param>
+        /// <param name="action">Добавляемое поведение</param>
         public void AddAction(Action action)
         {
             _actions.Add(action);

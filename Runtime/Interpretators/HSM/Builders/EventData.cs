@@ -5,39 +5,42 @@ using Talent.Logic.Bus;
 namespace Talent.Logic.HSM.Builders
 {
     /// <summary>
-    ///     Represents data related to an event in the hierarchical state machine.
+    /// Данные, используемые событиями в иерархической машине состояний (ИМС)
     /// </summary>
     public class EventData
     {
         private readonly CommandsData _commandsData = new CommandsData();
 
+        /// <summary>
+        /// Идентификатор события
+        /// </summary>
         public string EventId { get; private set; }
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="EventData"/> class.
+        /// Конструктор данных перехода
         /// </summary>
-        /// <param name="eventId">The identifier of the event.</param>
+        /// <param name="eventId">Идентификатор события</param>
         public EventData(string eventId)
         {
             EventId = eventId;
         }
 
         /// <summary>
-        ///     Adds a command with parameter to the Commands storage.
+        /// Добавляет данные для команды в хранилище
         /// </summary>
-        /// <param name="commandName">The name of the command.</param>
-        /// <param name="parameters">The parameters of the command.</param>
+        /// <param name="commandName">Имя команды</param>
+        /// <param name="parameters">Список параметров команды</param>
         public void AddCommandStorage(string commandName, List<Tuple<string, string>> parameters)
         {
             _commandsData.AddCommandStorage(commandName, parameters);
         }
 
         /// <summary>
-        ///     Creates an enumerable collection of Command objects based on the stored command data.
+        /// Создает команды, используя данные, добавленные в хранилище
         /// </summary>
-        /// <param name="bus">The bus to associate with the commands.</param>
-        /// <returns>An enumerable collection of Command objects.</returns>
-        public IEnumerable<Command> CreateCommands(IBus bus)
+        /// <param name="bus">Шина команд, ассоциированный с создаваемыми командами</param>
+        /// <returns>Перечисление команд</returns>
+        public IEnumerable<Command> CreateCommands(ICommandBus bus)
         {
             return _commandsData.CreateCommands(bus);
         }

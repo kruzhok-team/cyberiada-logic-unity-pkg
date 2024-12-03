@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Talent.Logic.HSM
 {
     /// <summary>
-    ///     Utility class for checking conditions based on variables and parameters.
+    /// Полезный класс для проверки условий, основанных на переменных и параметрах
     /// </summary>
     public class ConditionChecker
     {
@@ -15,13 +15,16 @@ namespace Talent.Logic.HSM
         private readonly IVariableBus _bus;
         private readonly string[] _parameters;
 
+        /// <summary>
+        /// Проверяемые параметры условия
+        /// </summary>
         public string Parameters => _parameters != null ? string.Join(SeparatorChar, _parameters) : "";
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ConditionChecker"/> class.
+        /// Конструктор класс для проверки условий
         /// </summary>
-        /// <param name="bus">The variable bus to use for evaluating conditions.</param>
-        /// <param name="parameters">The parameters to use in the condition.</param>
+        /// <param name="bus">Шина переменных</param>
+        /// <param name="parameters">Список параметров, используемых условием</param>
         public ConditionChecker(IVariableBus bus, string parameters)
         {
             _bus = bus;
@@ -38,9 +41,9 @@ namespace Talent.Logic.HSM
         }
 
         /// <summary>
-        ///     Evaluates the condition based on the provided parameters and variables.
+        /// Оценивает условие на основе предоставленных параметров и переменных.
         /// </summary>
-        /// <returns>True if the condition is satisfied, false otherwise.</returns>
+        /// <returns>true, если условие удовлетворено, иначе false</returns>
         public bool Check()
         {
             if (_parameters == null)

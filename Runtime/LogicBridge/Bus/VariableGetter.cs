@@ -5,15 +5,30 @@ using UnityEngine;
 
 namespace Talent.Logic.Bus
 {
+    /// <summary>
+    /// Структура для получения переменных
+    /// </summary>
+    /// <typeparam name="T">Тип получаемой переменной</typeparam>
     public readonly struct VariableGetter<T> : IVariableGetter
     {
         private readonly Func<T> _getter;
 
+        /// <summary>
+        /// Конструктор <see cref="VariableGetter{T}"/>
+        /// </summary>
+        /// <param name="getter">Функция получения переменной</param>
+        /// <exception cref="ArgumentNullException">Если функция получения переменной равна null, выбрасывается исключение</exception>
         public VariableGetter(Func<T> getter)
         {
             _getter = getter ?? throw new ArgumentNullException(nameof(getter));
         }
 
+        /// <summary>
+        /// Пытается получить значение переменной по типу
+        /// </summary>
+        /// <param name="variable">Если найдена переменная, то возвращается значение иначе null</param>
+        /// <typeparam name="T">Тип переменной</typeparam>
+        /// <returns>true, если переменная успешно получена, иначе false</returns>
         public bool TryGetTypedVariable<K>(out K variable)
         {
             if (_getter is Func<K> typedGetter)
@@ -29,6 +44,10 @@ namespace Talent.Logic.Bus
             return false;
         }
 
+        /// <summary>
+        /// Получает строковое представление переменной
+        /// </summary>
+        /// <returns>Строковое представление</returns>
         public string GetStringVariable()
         {
             T value = _getter.Invoke();

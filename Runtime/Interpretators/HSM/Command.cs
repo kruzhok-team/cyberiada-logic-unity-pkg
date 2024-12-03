@@ -5,21 +5,21 @@ using Talent.Logic.Bus;
 namespace Talent.Logic.HSM
 {
     /// <summary>
-    ///     Represents a command that can be invoked through the event bus.
+    /// Класс, представляющий команду, которая может быть вызвана при помощи шины событий
     /// </summary>
     public class Command
     {
-        private readonly IEventBus _bus;
+        private readonly ICommandBus _bus;
         private readonly string _commandName;
         private readonly List<Tuple<string, string>> _parameters;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="Command"/> class.
+        /// Конструктор команды
         /// </summary>
-        /// <param name="bus">The event bus to use for invoking the command.</param>
-        /// <param name="commandName">The name of the command to invoke.</param>
-        /// <param name="parameters">The parameters to pass to the command.</param>
-        public Command(IEventBus bus, string commandName, List<Tuple<string, string>> parameters = null)
+        /// <param name="bus">Шина команд</param>
+        /// <param name="commandName">Имя команды</param>
+        /// <param name="parameters">Список параметров команды</param>
+        public Command(ICommandBus bus, string commandName, List<Tuple<string, string>> parameters = null)
         {
             _bus = bus;
             _commandName = commandName;
@@ -27,7 +27,7 @@ namespace Talent.Logic.HSM
         }
 
         /// <summary>
-        ///     Invokes the command with the specified parameters.
+        /// Вызывает команду с определенными параметрами
         /// </summary>
         public void Make()
         {
