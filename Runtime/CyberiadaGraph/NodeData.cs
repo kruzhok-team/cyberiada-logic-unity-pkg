@@ -34,7 +34,7 @@ namespace Talent.Graphs
         public NodeVisualData VisualData { get; private set; } = new();
        
         /// <summary>
-        /// Имя вершины
+        /// Тип вершины
         /// </summary>
         public string Vertex { get; private set; }
 
@@ -48,7 +48,7 @@ namespace Talent.Graphs
         /// <summary>
         /// Конструктор состояния
         /// </summary>
-        /// <param name="vertex">Имя вершины состояния</param>
+        /// <param name="vertex">Тип вершины</param>
         public NodeData(string vertex = "")
         {
             Vertex = vertex;

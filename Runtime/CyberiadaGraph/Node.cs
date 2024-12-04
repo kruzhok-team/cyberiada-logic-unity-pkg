@@ -23,7 +23,7 @@ namespace Talent.Graphs
         public CyberiadaGraph NestedGraph { get; set; }
 
         /// <summary>
-        /// Состояние, содержимое в узле
+        /// Данные узла
         /// </summary>
         public NodeData Data { get; }
 

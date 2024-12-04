@@ -6,7 +6,7 @@ using UnityEngine;
 namespace Talent.Logic.HSM
 {
     /// <summary>
-    /// Полезный класс для проверки условий, основанных на переменных и параметрах
+    /// Класс для проверки условий, основанных на переменных и параметрах
     /// </summary>
     public class ConditionChecker
     {

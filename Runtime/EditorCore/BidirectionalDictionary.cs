@@ -114,7 +114,7 @@ namespace Talent.GraphEditor.Core
         }
 
         /// <summary>
-        /// Проверяет, содержит ли словарь ключ
+        /// Проверяет, что словарь содержит ключ
         /// </summary>
         /// <param name="key">true, если ключ найден, иначе false</param>
         /// <returns></returns>
@@ -124,7 +124,7 @@ namespace Talent.GraphEditor.Core
         }
 
         /// <summary>
-        /// Проверяет, содержит ли словарь значение по ключу
+        /// Проверяет, что словарь содержит значение по ключу
         /// </summary>
         /// <param name="value">true, если ключ найден, иначе false</param>
         /// <returns></returns>

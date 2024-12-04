@@ -23,7 +23,7 @@ namespace Talent.Graphs
         public string TargetNode { get; private set; }
 
         /// <summary>
-        /// Переход, содержимый в ребре
+        /// Данные ребра
         /// </summary>
         public EdgeData Data { get; }
 
