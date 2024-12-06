@@ -15,7 +15,7 @@ namespace Talent.Logic.Bus
         void AddEventListener(Listener listener);
 
         /// <summary>
-        /// Добавляет слушатель любого события в шину событий
+        /// Добавляет слушатель конкретного события с конкретным именем в шину событий
         /// </summary>
         /// <param name="eventName">Имя прослушиваемого события</param>
         /// <param name="listener">Добавляемый слушатель</param>

@@ -26,9 +26,9 @@ namespace Talent.Logic.Bus
         /// <summary>
         /// Пытается получить значение переменной по типу
         /// </summary>
-        /// <param name="variable">Если найдена переменная, то возвращается значение иначе null</param>
-        /// <typeparam name="T">Тип переменной</typeparam>
-        /// <returns>true, если переменная успешно получена, иначе false</returns>
+        /// <param name="variable">Если найдена переменная с указанным типом, то возвращается значение, иначе null</param>
+        /// <typeparam name="K">Тип переменной</typeparam>
+        /// <returns>true, если переменная с указанным типом успешно получена, иначе false</returns>
         public bool TryGetTypedVariable<K>(out K variable)
         {
             if (_getter is Func<K> typedGetter)

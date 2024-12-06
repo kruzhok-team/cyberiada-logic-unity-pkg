@@ -25,7 +25,7 @@ namespace Talent.Logic.HSM
         }
 
         /// <summary>
-        /// Стартует машину состояний
+        /// Запускает машину состояний
         /// </summary>
         public void Start()
         {

@@ -15,7 +15,7 @@ namespace Talent.Logic.Bus
         void AddCommandListener(Listener listener);
 
         /// <summary>
-        /// Добавляет слушатель команды в шину команд
+        /// Добавляет слушатель конкретной команды с конкретным именем в шину команд
         /// </summary>
         /// <param name="commandName">Имя команды, которую нужно прослушать.</param>
         /// <param name="listener">Добавляемый слушатель</param>

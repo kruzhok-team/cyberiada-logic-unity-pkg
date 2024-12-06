@@ -580,8 +580,8 @@ namespace Talent.GraphEditor.Core
         /// <summary>
         /// Удаляет переход в узле
         /// </summary>
-        /// <param name="nodeView">Представление узла</param>
-        /// <param name="nodeEventView">Представление перехода</param>
+        /// <param name="nodeView">Представление узла, из которого будет удален переход</param>
+        /// <param name="nodeEventView">Удаляемое представление перехода</param>
         public void RemoveNodeEvent(INodeView nodeView, INodeEventView nodeEventView)
         {
             Node node = _nodeViews.Get(nodeView);
@@ -608,8 +608,8 @@ namespace Talent.GraphEditor.Core
         /// <summary>
         /// Удаляет представление поведение для перехода в узле
         /// </summary>
-        /// <param name="nodeEventView">Представление перехода</param>
-        /// <param name="nodeActionView">Представление поведения</param>
+        /// <param name="nodeEventView">Представление перехода узла, из которого будет удалено поведение</param>
+        /// <param name="nodeActionView">Удаляемое представление поведения</param>
         public void RemoveNodeAction(INodeEventView nodeEventView, INodeActionView nodeActionView)
         {
             if (_nodeEventViews.TryGetValue(nodeEventView, out Event nodeEvent) &&
@@ -624,8 +624,8 @@ namespace Talent.GraphEditor.Core
         /// <summary>
         /// Удаляет представление поведение для перехода в ребре
         /// </summary>
-        /// <param name="edgeView">Представление ребра</param>
-        /// <param name="edgeActionView">Представление поведения</param>
+        /// <param name="edgeView">Представление перехода ребра, из которого будет удалено поведение</param>
+        /// <param name="edgeActionView">Удаляемое представление поведения</param>
         public void RemoveEdgeAction(IEdgeView edgeView, IEdgeActionView edgeActionView)
         {
             if (_edgeViews.TryGetValue(edgeView, out Edge nodeEvent) &&

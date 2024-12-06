@@ -8,15 +8,15 @@ namespace Talent.Logic.Bus
     public interface IVariableBus
     {
         /// <summary>
-        /// Добавляет функцию получения переменной в шину переменных
+        /// Добавляет делегат получения переменной в шину переменных
         /// </summary>
         /// <typeparam name="T">Тип переменной</typeparam>
         /// <param name="variableName">Имя переменной</param>
-        /// <param name="getter">Функция, возвращающая значение переменной</param>
+        /// <param name="getter">Делегат, возвращающий значение переменной</param>
         void AddVariableGetter<T>(string variableName, Func<T> getter);
 
         /// <summary>
-        /// Удаляет функцию получения переменной из шины переменных
+        /// Удаляет делегат получения переменной из шины переменных
         /// </summary>
         /// <param name="variableName">Имя переменной</param>
         void RemoveVariableGetter(string variableName);
