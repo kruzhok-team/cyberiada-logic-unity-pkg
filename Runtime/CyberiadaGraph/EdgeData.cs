@@ -7,7 +7,7 @@ namespace Talent.Graphs
     {
         public string TriggerID { get; private set; }
         public string Condition { get; private set; }
-        public EdgeVisualData VisualData { get; private set; } = new();
+        public EdgeVisualData VisualData { get; set; } = new();
 
         private readonly List<Action> _actions = new();
 
