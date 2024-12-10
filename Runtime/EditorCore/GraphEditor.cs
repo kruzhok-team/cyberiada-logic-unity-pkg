@@ -157,8 +157,7 @@ namespace Talent.GraphEditor.Core
                 return false;
             }
 
-            Node newNode = node.GetCopy(node.Data.GetCopy(), parentNode: node.ParentNode,
-                newID: Guid.NewGuid().ToString());
+            Node newNode = node.GetCopy(node.Data.GetCopy(), parentNode: node.ParentNode, newID: Guid.NewGuid().ToString());
 
             GraphDocument.RootGraph.AddNode(newNode);
 
@@ -184,22 +183,19 @@ namespace Talent.GraphEditor.Core
         {
             if (_initialEdgeView == null && _initialNodeView != null)
             {
-                Node targetNode = _nodes.Values.Where((Node node) => node.Data.Vertex != NodeData.Vertex_Initial)
-                    .FirstOrDefault();
+                Node targetNode = _nodes.Values.FirstOrDefault(node => node.Data.Vertex != NodeData.Vertex_Initial);
 
                 if (targetNode == null)
                 {
                     return;
                 }
 
-                Edge edge = new Edge(NodeData.Vertex_Initial + targetNode.ID, NodeData.Vertex_Initial, targetNode.ID,
-                    new EdgeData(""));
+                Edge edge = new Edge(NodeData.Vertex_Initial + targetNode.ID, NodeData.Vertex_Initial, targetNode.ID, new EdgeData(""));
                 GraphDocument.RootGraph.AddEdge(edge);
 
                 if (_nodeViews.TryGetValue(targetNode, out INodeView targetNodeView))
                 {
-                    _initialEdgeView = GraphElementViewFactory.CreateEdgeView(_initialNodeView, targetNodeView,
-                        edge.Data.VisualData, edge.Data.TriggerID, edge.Data.Condition);
+                    _initialEdgeView = GraphElementViewFactory.CreateEdgeView(_initialNodeView, targetNodeView, edge.Data.VisualData, edge.Data.TriggerID, edge.Data.Condition);
                     _edgeViews.Add(edge, _initialEdgeView);
                 }
             }
@@ -246,8 +242,7 @@ namespace Talent.GraphEditor.Core
                 return null;
             }
 
-            Edge edge = new Edge(System.Guid.NewGuid().ToString(), sourceNode.ID, targetNode.ID,
-                new EdgeData(triggerID));
+            Edge edge = new Edge(System.Guid.NewGuid().ToString(), sourceNode.ID, targetNode.ID, new EdgeData(triggerID));
             GraphDocument.RootGraph.AddEdge(edge);
 
             return CreateViewForEdge(edge);
@@ -267,9 +262,8 @@ namespace Talent.GraphEditor.Core
             {
                 return false;
             }
-            
-            Edge edge = new Edge(System.Guid.NewGuid().ToString(), sourceNode.ID, targetNode.ID,
-                new EdgeData(triggerID));
+
+            Edge edge = new Edge(System.Guid.NewGuid().ToString(), sourceNode.ID, targetNode.ID, new EdgeData(triggerID));
             edge.Data.VisualData = visualData;
             GraphDocument.RootGraph.AddEdge(edge);
             _edges[edge.ID] = edge;
@@ -280,7 +274,7 @@ namespace Talent.GraphEditor.Core
                 _edgeActionViews.Add(action, actionView);
                 ChangeEdgeActionParameter(actionView, action.Parameters);
             }
-            
+
             return true;
         }
 
@@ -295,8 +289,7 @@ namespace Talent.GraphEditor.Core
 
                 if (!_nodeEventViews.ContainsKey(nodeEvent))
                 {
-                    _nodeEventViews.Set(nodeEvent,
-                        GraphElementViewFactory.CreateNodeEventView(_nodeViews.Get(node), triggerID, nodeEvent));
+                    _nodeEventViews.Set(nodeEvent, GraphElementViewFactory.CreateNodeEventView(_nodeViews.Get(node), triggerID, nodeEvent));
                 }
 
                 result = _nodeEventViews.Get(nodeEvent);
@@ -356,8 +349,7 @@ namespace Talent.GraphEditor.Core
 
         public void ChangeNodeEventCondition(INodeView nodeView, INodeEventView nodeEventView, string condition)
         {
-            if (_nodeViews.TryGetValue(nodeView, out Node node) &&
-                _nodeEventViews.TryGetValue(nodeEventView, out Event nodeEvent) && nodeEvent.Condition != condition)
+            if (_nodeViews.TryGetValue(nodeView, out Node node) && _nodeEventViews.TryGetValue(nodeEventView, out Event nodeEvent) && nodeEvent.Condition != condition)
             {
                 nodeEvent.SetCondition(condition);
                 nodeEventView.SetCondition(condition);
@@ -416,8 +408,7 @@ namespace Talent.GraphEditor.Core
                     }
                 }
 
-                foreach (Edge edge in GraphDocument.RootGraph.Edges
-                             .Where(edge => edge.SourceNode == node.ID || edge.TargetNode == node.ID).ToArray())
+                foreach (Edge edge in GraphDocument.RootGraph.Edges.Where(edge => edge.SourceNode == node.ID || edge.TargetNode == node.ID).ToArray())
                 {
                     if (_edgeViews.TryGetValue(edge, out IEdgeView edgeView))
                     {
@@ -425,8 +416,7 @@ namespace Talent.GraphEditor.Core
                         {
                             IEdgeActionView edgeActionView = _edgeActionViews.Get(action);
 
-                            if (_edgeViews.TryGetValue(edgeView, out Edge nodeEvent) &&
-                                _edgeActionViews.TryGetValue(edgeActionView, out Action eventAction))
+                            if (_edgeViews.TryGetValue(edgeView, out Edge nodeEvent) && _edgeActionViews.TryGetValue(edgeActionView, out Action eventAction))
                             {
                                 _edgeActionViews.Remove(edgeActionView);
                                 GraphElementViewFactory.DestroyElementView(edgeActionView);
@@ -529,8 +519,7 @@ namespace Talent.GraphEditor.Core
 
         public void RemoveNodeAction(INodeEventView nodeEventView, INodeActionView nodeActionView)
         {
-            if (_nodeEventViews.TryGetValue(nodeEventView, out Event nodeEvent) &&
-                _nodeActionViews.TryGetValue(nodeActionView, out Action eventAction))
+            if (_nodeEventViews.TryGetValue(nodeEventView, out Event nodeEvent) && _nodeActionViews.TryGetValue(nodeActionView, out Action eventAction))
             {
                 nodeEvent.RemoveAction(eventAction);
                 _nodeActionViews.Remove(nodeActionView);
@@ -540,8 +529,7 @@ namespace Talent.GraphEditor.Core
 
         public void RemoveEdgeAction(IEdgeView edgeView, IEdgeActionView edgeActionView)
         {
-            if (_edgeViews.TryGetValue(edgeView, out Edge nodeEvent) &&
-                _edgeActionViews.TryGetValue(edgeActionView, out Action eventAction))
+            if (_edgeViews.TryGetValue(edgeView, out Edge nodeEvent) && _edgeActionViews.TryGetValue(edgeActionView, out Action eventAction))
             {
                 nodeEvent.Data.RemoveAction(eventAction);
                 _edgeActionViews.Remove(edgeActionView);
@@ -553,8 +541,7 @@ namespace Talent.GraphEditor.Core
 
         public void SetParent(INodeView childView, INodeView parentView, bool layoutAutomatically)
         {
-            if (childView == null || !_nodeViews.TryGetValue(childView, out Node child) ||
-                (_initialNodeView != null && child == _initialNodeView))
+            if (childView == null || !_nodeViews.TryGetValue(childView, out Node child) || _initialNodeView != null && childView == _initialNodeView)
             {
                 return;
             }
@@ -574,8 +561,7 @@ namespace Talent.GraphEditor.Core
 
                 _nodeViews.Get(child).SetParent(null, layoutAutomatically);
             }
-            else if (_nodeViews.TryGetValue(parentView, out Node parent) && child != parent &&
-                     (_initialNodeView == null || parent != _initialNodeView))
+            else if (_nodeViews.TryGetValue(parentView, out Node parent) && child != parent && (_initialNodeView == null || parentView != _initialNodeView))
             {
                 if (child.ParentNode != parent)
                 {
@@ -662,8 +648,7 @@ namespace Talent.GraphEditor.Core
         private INodeView CreateViewForNode(Node node, bool layoutAutomatically)
         {
             _nodes[node.ID] = node;
-            INodeView view =
-                GraphElementViewFactory.CreateNodeView(node.Data.VisualData, node.Data.Vertex, layoutAutomatically);
+            INodeView view = GraphElementViewFactory.CreateNodeView(node.Data.VisualData, node.Data.Vertex, layoutAutomatically);
             _nodeViews.Set(node, view);
 
             foreach (Event nodeEvent in node.Data.Events)
@@ -675,8 +660,7 @@ namespace Talent.GraphEditor.Core
                     actionsArray[i] = nodeEvent.Actions[i].ID;
                 }
 
-                INodeEventView eventView =
-                    GraphElementViewFactory.CreateNodeEventView(view, nodeEvent.TriggerID, nodeEvent);
+                INodeEventView eventView = GraphElementViewFactory.CreateNodeEventView(view, nodeEvent.TriggerID, nodeEvent);
                 _nodeEventViews.Add(nodeEvent, eventView);
                 eventView.SetCondition(nodeEvent.Condition);
 
@@ -706,12 +690,10 @@ namespace Talent.GraphEditor.Core
         {
             IEdgeView edgeView = null;
 
-            if (_nodeViews.TryGetValue(_nodes[edge.SourceNode], out INodeView sourceNodeView) &&
-                _nodeViews.TryGetValue(_nodes[edge.TargetNode], out INodeView targetNodeView))
+            if (_nodeViews.TryGetValue(_nodes[edge.SourceNode], out INodeView sourceNodeView) && _nodeViews.TryGetValue(_nodes[edge.TargetNode], out INodeView targetNodeView))
             {
                 _edges[edge.ID] = edge;
-                edgeView = GraphElementViewFactory.CreateEdgeView(sourceNodeView, targetNodeView, edge.Data.VisualData,
-                    edge.Data.TriggerID, edge.Data.Condition);
+                edgeView = GraphElementViewFactory.CreateEdgeView(sourceNodeView, targetNodeView, edge.Data.VisualData, edge.Data.TriggerID, edge.Data.Condition);
                 _edgeViews.Add(edge, edgeView);
 
                 foreach (Action action in edge.Data.Actions)
@@ -745,13 +727,9 @@ namespace Talent.GraphEditor.Core
         void DestroyElementView(IGraphElementView view);
     }
 
-    public interface IGraphView : IGraphElementView
-    {
-    }
+    public interface IGraphView : IGraphElementView { }
 
-    public interface IGraphElementView
-    {
-    }
+    public interface IGraphElementView { }
 
     public interface INodeView : IGraphElementView
     {
