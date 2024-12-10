@@ -15,20 +15,12 @@ namespace Talent.GraphEditor.Core
         private Dictionary<string, Node> _nodes = new Dictionary<string, Node>();
         private Dictionary<string, Edge> _edges = new Dictionary<string, Edge>();
 
-        private BidirectionalDictionary<CyberiadaGraph, IGraphView> _graphViews =
-            new BidirectionalDictionary<CyberiadaGraph, IGraphView>();
-
+        private BidirectionalDictionary<CyberiadaGraph, IGraphView> _graphViews = new BidirectionalDictionary<CyberiadaGraph, IGraphView>();
         private BidirectionalDictionary<Node, INodeView> _nodeViews = new BidirectionalDictionary<Node, INodeView>();
         private BidirectionalDictionary<Edge, IEdgeView> _edgeViews = new BidirectionalDictionary<Edge, IEdgeView>();
-
-        private BidirectionalDictionary<Event, INodeEventView> _nodeEventViews =
-            new BidirectionalDictionary<Event, INodeEventView>();
-
-        private BidirectionalDictionary<Action, INodeActionView> _nodeActionViews =
-            new BidirectionalDictionary<Action, INodeActionView>();
-
-        private BidirectionalDictionary<Action, IEdgeActionView> _edgeActionViews =
-            new BidirectionalDictionary<Action, IEdgeActionView>();
+        private BidirectionalDictionary<Event, INodeEventView> _nodeEventViews = new BidirectionalDictionary<Event, INodeEventView>();
+        private BidirectionalDictionary<Action, INodeActionView> _nodeActionViews = new BidirectionalDictionary<Action, INodeActionView>();
+        private BidirectionalDictionary<Action, IEdgeActionView> _edgeActionViews = new BidirectionalDictionary<Action, IEdgeActionView>();
 
         private INodeView _initialNodeView;
         private IEdgeView _initialEdgeView;
@@ -261,7 +253,7 @@ namespace Talent.GraphEditor.Core
             return CreateViewForEdge(edge);
         }
 
-        public IEdgeView CreateEmptyEdgeView(INodeView sourceView)
+        public IEdgeView CreatePreviewEdgeView(INodeView sourceView)
         {
             IEdgeView edgeView = GraphElementViewFactory.CreateEmptyEdgeView(sourceView);
             return edgeView;
@@ -288,8 +280,7 @@ namespace Talent.GraphEditor.Core
                 _edgeActionViews.Add(action, actionView);
                 ChangeEdgeActionParameter(actionView, action.Parameters);
             }
-
-            visualData = edge.Data.VisualData;
+            
             return true;
         }
 
