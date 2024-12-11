@@ -237,7 +237,7 @@ namespace Talent.GraphEditor.Core
             Node sourceNode = _nodeViews.Get(sourceView);
             Node targetNode = _nodeViews.Get(targetView);
 
-            if ((sourceView == _initialNodeView || targetView == _initialNodeView) && _initialEdgeView != null)
+            if ((sourceView == _initialNodeView || targetView == _initialNodeView) && _edgeViews.ContainsValue(_initialEdgeView))
             {
                 return null;
             }
