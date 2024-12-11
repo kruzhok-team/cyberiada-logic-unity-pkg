@@ -258,6 +258,7 @@ namespace Talent.GraphEditor.Core
         {
             Node sourceNode = _nodeViews.Get(sourceView);
             Node targetNode = _nodeViews.Get(targetView);
+
             if (sourceNode == targetNode)
             {
                 return false;
@@ -268,6 +269,7 @@ namespace Talent.GraphEditor.Core
             GraphDocument.RootGraph.AddEdge(edge);
             _edges[edge.ID] = edge;
             _edgeViews.Add(edge, edgeView);
+
             foreach (Action action in edge.Data.Actions)
             {
                 IEdgeActionView actionView = GraphElementViewFactory.CreateEdgeActionView(edgeView, action.ID);
