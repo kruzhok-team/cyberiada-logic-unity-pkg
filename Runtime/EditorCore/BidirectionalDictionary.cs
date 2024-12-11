@@ -16,18 +16,12 @@ namespace Talent.GraphEditor.Core
         /// <summary>
         /// Возвращает ключи в словаре
         /// </summary>
-        public IReadOnlyCollection<TKey> Keys
-        {
-            get { return _forward.Keys; }
-        }
+        public IReadOnlyCollection<TKey> Keys => _forward.Keys;
 
         /// <summary>
         /// Возвращает значения в словаре
         /// </summary>
-        public IReadOnlyCollection<TValue> Values
-        {
-            get { return _forward.Values; }
-        }
+        public IReadOnlyCollection<TValue> Values => _forward.Values;
 
         /// <summary>
         /// Добавляет новое значение по ключу

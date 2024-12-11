@@ -315,9 +315,8 @@ namespace Talent.Graphs
             XElement xElement, CyberiadaGraph graph,
             Node parentNode = null)
         {
-            IEnumerable<XElement> nodes = xElement.Elements(FullName("node")).SelectMany(node => node
-                .Elements(FullName("data")).Where(data =>
-                    data.Attribute("key")?.Value == "dName" && data.Value != "CGML_META")).Select(data => data.Parent);
+            IEnumerable<XElement> nodes = xElement.Elements(FullName("node")).SelectMany(node=>node.Elements(FullName("data")).Where(data =>
+                data.Attribute("key")?.Value == "dName" && data.Value != "CGML_META")).Select(data=>data.Parent);
 
             foreach (XElement nodeElement in nodes)
             {
@@ -496,8 +495,7 @@ namespace Talent.Graphs
 
             if (metaDataElements.First().Parent?.Parent != graphElement)
             {
-                throw new ArgumentException("Expected metadata node on top level of graphml document",
-                    nameof(graphElement));
+                throw new ArgumentException("Expected metadata node on top level of graphml document", nameof(graphElement));
             }
 
             var serializedMetaData = metaDataElements.First().Parent!.Elements(FullName("data"))
@@ -506,8 +504,7 @@ namespace Talent.Graphs
             {
                 throw new ArgumentException("Invalid metadata format", nameof(graphElement));
             }
-
-
+            
             var metaData = new Dictionary<string, string>();
             var entries = serializedMetaData.Trim().Split("\n\n").ToList();
             foreach (var entry in entries)

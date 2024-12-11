@@ -53,8 +53,7 @@ namespace Talent.Graphs
         {
             if (newID == "")
             {
-                throw new System.ArgumentNullException(
-                    $"Can't copy Graph with newID '{newID}'. ID can't be null or empty");
+                throw new System.ArgumentNullException($"Can't copy Graph with newID '{newID}'. ID can't be null or empty");
             }
 
             CyberiadaGraph resultGraph = new CyberiadaGraph(newID ?? ID, data);

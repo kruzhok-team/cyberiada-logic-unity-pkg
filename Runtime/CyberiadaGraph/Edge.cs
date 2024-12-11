@@ -68,7 +68,7 @@ namespace Talent.Graphs
         {
             if (newID == "")
             {
-                throw new System.ArgumentNullException($"Can't copy Edge with newID '{newID}'. ID can't be null or empty");
+                throw new ArgumentNullException($"Can't copy Edge with newID '{newID}'. ID can't be null or empty");
             }
 
             Edge resultEdge = new Edge(newID ?? ID, SourceNode, TargetNode, data);
