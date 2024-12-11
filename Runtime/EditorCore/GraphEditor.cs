@@ -690,7 +690,8 @@ namespace Talent.GraphEditor.Core
         {
             IEdgeView edgeView = null;
 
-            if (_nodeViews.TryGetValue(_nodes[edge.SourceNode], out INodeView sourceNodeView) && _nodeViews.TryGetValue(_nodes[edge.TargetNode], out INodeView targetNodeView))
+            if (_nodeViews.TryGetValue(_nodes[edge.SourceNode], out INodeView sourceNodeView) &&
+                _nodeViews.TryGetValue(_nodes[edge.TargetNode], out INodeView targetNodeView))
             {
                 _edges[edge.ID] = edge;
                 edgeView = GraphElementViewFactory.CreateEdgeView(sourceNodeView, targetNodeView, edge.Data.VisualData, edge.Data.TriggerID, edge.Data.Condition);
