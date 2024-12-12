@@ -3,31 +3,39 @@ using System.Collections.Generic;
 namespace Talent.Graphs
 {
     /// <summary>
-    /// Class representing node event with condition and corresponding list of actions
+    /// Класс, представляющий переход в машине состояний 
     /// </summary>
     public class Event
     {
         /// <summary>
-        /// Node that event is connected to
+        /// Идентификатор события перехода
         /// </summary>
         public string TriggerID { get; private set; }
+        /// <summary>
+        /// Условие перехода
+        /// </summary>
         public string Condition { get; private set; }
 
         private readonly List<Action> _actions = new();
 
         /// <summary>
-        /// List of actions
+        /// Список поведений перехода
         /// </summary>
         public IReadOnlyList<Action> Actions => _actions;
 
+        /// <summary>
+        /// Конструктор перехода
+        /// </summary>
+        /// <param name="triggerID">Заданное событие</param>
         public Event(string triggerID)
         {
             TriggerID = triggerID;
         }
 
         /// <summary>
-        /// Creates a copy of the event
+        /// Создает копию перехода
         /// </summary>
+        /// <returns>Копия перехода</returns>
         public Event GetCopy()
         {
             Event resultEvent = new Event(TriggerID);
@@ -42,16 +50,18 @@ namespace Talent.Graphs
         }
 
         /// <summary>
-        /// Change trigger id for this event
+        /// Изменяет идентификатор события для перехода
         /// </summary>
+        /// <param name="triggerID">Идентификатор перехода</param>
         public void SetTrigger(string triggerID)
         {
             TriggerID = triggerID;
         }
 
         /// <summary>
-        /// Change condition for this node event
+        /// Изменяет условие для перехода
         /// </summary>
+        /// <param name="condition">Заданное условие</param>
         public void SetCondition(string condition)
         {
             Condition = condition;
@@ -60,16 +70,18 @@ namespace Talent.Graphs
         #region EventAction API
 
         /// <summary>
-        /// Add action to event
+        /// Добавляет новое поведение для перехода
         /// </summary>
+        /// <param name="action">Добавляемое поведение</param>
         public void AddAction(Action action)
         {
             _actions.Add(action);
         }
 
         /// <summary>
-        /// Remove action from event if it has provided one
+        /// Удаляет существующее поведение для перехода
         /// </summary>
+        /// <param name="eventAction">Удаляемое поведение</param>
         public void RemoveAction(Action eventAction)
         {
             if (_actions.Contains(eventAction))
@@ -81,8 +93,9 @@ namespace Talent.Graphs
         #endregion
 
         /// <summary>
-        /// Custom ToString realization for creating more representive string visualization of event data
+        /// Возвращает строковое представление перехода
         /// </summary>
+        /// <returns>Строковое представление</returns>
         public override string ToString()
         {
             return $"{TriggerID}\n{string.Join("\n", Actions)}";

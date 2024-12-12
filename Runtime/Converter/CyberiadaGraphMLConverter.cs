@@ -5,22 +5,38 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml.Linq;
+#if UNITY
 using UnityEngine;
+#endif
 
 namespace Talent.Graphs
 {
+    /// <summary>
+    /// Конвертер CyberiadaGraphML документа
+    /// </summary>
     public class CyberiadaGraphMLConverter
     {
         private const string StandardVersion = "1.0";
         private readonly string _platform;
         private readonly string _platformVersion;
 
+        /// <summary>
+        /// Конструктор CyberiadaGraphML конвертера
+        /// </summary>
+        /// <param name="platform">Имя целевой платформы</param>
+        /// <param name="platformVersion">Версия целевой платформы</param>
         public CyberiadaGraphMLConverter(string platform, string platformVersion)
         {
             _platform = platform;
             _platformVersion = platformVersion;
         }
 
+        /// <summary>
+        /// Десериализует XML элемент в CyberiadaGraphML документ
+        /// </summary>
+        /// <param name="xElement">Исходный XML элемент</param>
+        /// <returns>CyberiadaGraphML документ</returns>
+        /// <exception cref="ArgumentNullException">Исходный XML элемент равен null</exception>
         public CyberiadaGraphDocument Deserialize(XElement xElement)
         {
             if (xElement == null)
@@ -31,12 +47,23 @@ namespace Talent.Graphs
             return graphDocument;
         }
 
+        /// <summary>
+        /// Десериализурует файл с XML разметкой в CyberiadaGraphML документ
+        /// </summary>
+        /// <param name="filePath">Путь до файла</param>
+        /// <returns>CyberiadaGraphML документ</returns>
         public CyberiadaGraphDocument DeserializeFromFile(string filePath)
         {
             XDocument xml = XDocument.Load(filePath);
             return Deserialize(xml.Root);
         }
 
+        /// <summary>
+        /// Сериализует CyberiadaGraphML документ в XML элемент
+        /// </summary>
+        /// <param name="graphDocument">CyberiadaGraphML документ</param>
+        /// <returns>XML элемент</returns>
+        /// <exception cref="ArgumentNullException">Исходный CyberiadaGraphML документ равен null</exception>
         public XElement Serialize(CyberiadaGraphDocument graphDocument)
         {
             if (graphDocument == null)
@@ -52,6 +79,11 @@ namespace Talent.Graphs
             return root;
         }
 
+        /// <summary>
+        /// Сериализует CyberiadaGraphML документ в файл с XML разметкой
+        /// </summary>
+        /// <param name="graphDocument">CyberiadaGraphML документ</param>
+        /// <param name="filePath">Путь до файла</param>
         public void SerializeToFile(CyberiadaGraphDocument graphDocument, string filePath)
         {
             XElement xmlElement = Serialize(graphDocument);
@@ -467,15 +499,14 @@ namespace Talent.Graphs
             {
                 throw new ArgumentException("Expected metadata node on top level of graphml document", nameof(graphElement));
             }
-            
+
             var serializedMetaData = metaDataElements.First().Parent!.Elements(FullName("data"))
                 .FirstOrDefault(e => e.Attribute("key")?.Value == "dData")?.Value;
             if (serializedMetaData == null)
             {
                 throw new ArgumentException("Invalid metadata format", nameof(graphElement));
             }
-
-
+            
             var metaData = new Dictionary<string, string>();
             var entries = serializedMetaData.Trim().Split("\n\n").ToList();
             foreach (var entry in entries)

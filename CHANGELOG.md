@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 <!-- Headers should be listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security -->
 
+## [0.2.2] - 12.12.2024
+### Added
+ - Basic documentation
+ - Edge preview management API
+ - Added define-hidden classes like Vector2 to allow compiling outside of Unity Engine
+ 
 ## [0.2.1] - 22.11.2024
 ### Added
  - Metadata block in resulting file

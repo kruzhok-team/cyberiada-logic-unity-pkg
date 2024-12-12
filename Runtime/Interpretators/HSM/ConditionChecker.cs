@@ -1,12 +1,14 @@
 using System;
 using System.Globalization;
 using Talent.Logic.Bus;
+#if UNITY && DEBUG
 using UnityEngine;
+#endif
 
 namespace Talent.Logic.HSM
 {
     /// <summary>
-    ///     Utility class for checking conditions based on variables and parameters.
+    /// Класс для проверки условий, основанных на переменных и параметрах
     /// </summary>
     public class ConditionChecker
     {
@@ -15,13 +17,16 @@ namespace Talent.Logic.HSM
         private readonly IVariableBus _bus;
         private readonly string[] _parameters;
 
+        /// <summary>
+        /// Проверяемые параметры условия
+        /// </summary>
         public string Parameters => _parameters != null ? string.Join(SeparatorChar, _parameters) : "";
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="ConditionChecker"/> class.
+        /// Конструктор класс для проверки условий
         /// </summary>
-        /// <param name="bus">The variable bus to use for evaluating conditions.</param>
-        /// <param name="parameters">The parameters to use in the condition.</param>
+        /// <param name="bus">Шина переменных</param>
+        /// <param name="parameters">Список параметров, используемых условием</param>
         public ConditionChecker(IVariableBus bus, string parameters)
         {
             _bus = bus;
@@ -38,9 +43,9 @@ namespace Talent.Logic.HSM
         }
 
         /// <summary>
-        ///     Evaluates the condition based on the provided parameters and variables.
+        /// Проверяет условие на основе предоставленных параметров и переменных.
         /// </summary>
-        /// <returns>True if the condition is satisfied, false otherwise.</returns>
+        /// <returns>true, если условие удовлетворено, иначе false</returns>
         public bool Check()
         {
             if (_parameters == null)
@@ -50,15 +55,17 @@ namespace Talent.Logic.HSM
 
             if (TryGetVariableByName(_parameters[0], out float leftValue) == false)
             {
+#if UNITY && DEBUG
                 Debug.Log($"cant find variable:{_parameters[0]}");
-
+#endif
                 return false;
             }
 
             if (TryGetVariableByName(_parameters[2], out float rightValue) == false)
             {
+#if UNITY && DEBUG
                 Debug.Log($"cant find variable{_parameters[2]}");
-
+#endif
                 return false;
             }
 
@@ -70,7 +77,7 @@ namespace Talent.Logic.HSM
             switch (_parameters[1])
             {
                 case "==":
-                    return Math.Abs(leftValue - rightValue) < Mathf.Epsilon;
+                    return Math.Abs(leftValue - rightValue) < float.Epsilon;
                 case "<":
                     return leftValue < rightValue;
                 case "<=":
@@ -80,10 +87,11 @@ namespace Talent.Logic.HSM
                 case ">=":
                     return leftValue >= rightValue;
                 case "!=":
-                    return Math.Abs(leftValue - rightValue) >= Mathf.Epsilon;
+                    return Math.Abs(leftValue - rightValue) >= float.Epsilon;
                 default:
-                    Debug.LogError($"Cant resolve parameters {_parameters[1]} and to go next state");
-
+#if UNITY && DEBUG
+                        Debug.LogError($"Cant resolve parameters {_parameters[1]} and to go next state");
+#endif
                     break;
             }
 
@@ -101,10 +109,12 @@ namespace Talent.Logic.HSM
                 CultureInfo.InvariantCulture,
                 out variable);
 
+#if UNITY && DEBUG
             if (isTryGetVariableByName && isSuccessParse == false)
             {
                 Debug.LogError($"Parse is failed: {variableName} {variableString}");
             }
+#endif
 
             return isTryGetVariableByName && isSuccessParse;
         }

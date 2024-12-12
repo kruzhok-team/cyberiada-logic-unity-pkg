@@ -1,29 +1,48 @@
 using System.Collections.Generic;
+#if UNITY
 using UnityEngine;
+#endif
 
 namespace Talent.Graphs
 {
+    /// <summary>
+    /// Класс, представляющий переход, содержащийся в ребре
+    /// </summary>
     public class EdgeData : IClonable<EdgeData>
     {
+        /// <summary>
+        /// Событие перехода
+        /// </summary>
         public string TriggerID { get; private set; }
+        /// <summary>
+        /// Условие перехода
+        /// </summary>
         public string Condition { get; private set; }
-        public EdgeVisualData VisualData { get; private set; } = new();
+        /// <summary>
+        /// Визуальное представление перехода
+        /// </summary>
+        public EdgeVisualData VisualData { get; set; } = new();
 
         private readonly List<Action> _actions = new();
 
         /// <summary>
-        /// List of actions
+        /// Список поведений перехода
         /// </summary>
         public IReadOnlyList<Action> Actions => _actions;
 
+        /// <summary>
+        /// Конструктор перехода
+        /// </summary>
+        /// <param name="triggerID">Заданное событие</param>
         public EdgeData(string triggerID)
         {
             TriggerID = triggerID;
         }
 
         /// <summary>
-        /// Creates a copy of the edge data
+        /// Создает копию перехода
         /// </summary>
+        /// <returns>Копия перехода</returns>
         public EdgeData GetCopy()
         {
             EdgeData resultData = new EdgeData(TriggerID);
@@ -40,16 +59,18 @@ namespace Talent.Graphs
         }
 
         /// <summary>
-        /// Change trigger id for this edge
+        /// Изменяет событие перехода
         /// </summary>
+        /// <param name="triggerID">Новое событие</param>
         public void SetTrigger(string triggerID)
         {
             TriggerID = triggerID;
         }
 
         /// <summary>
-        /// Change condition for this edge
+        /// Изменяет условие перехода
         /// </summary>
+        /// <param name="condition">Новое условие</param>
         public void SetCondition(string condition)
         {
             Condition = condition;
@@ -58,7 +79,7 @@ namespace Talent.Graphs
         #region EventAction API
 
         /// <summary>
-        /// Add action to edge
+        /// Добавляет новое действие к переходу
         /// </summary>
         public void AddAction(Action eventAction)
         {
@@ -66,7 +87,7 @@ namespace Talent.Graphs
         }
 
         /// <summary>
-        /// Remove existing action from edge
+        /// Удаляет существующее действие из перехода
         /// </summary>
         public void RemoveAction(Action eventAction)
         {
@@ -79,8 +100,14 @@ namespace Talent.Graphs
         #endregion
     }
 
+    /// <summary>
+    /// Визуальное представление ребра
+    /// </summary>
     public class EdgeVisualData
     {
+        /// <summary>
+        /// Визуальная позиция ребра
+        /// </summary>
         public Vector2 Position { get; set; }
     }
 }

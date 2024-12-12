@@ -3,11 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using Talent.Graphs;
 using Action = Talent.Graphs.Action;
+using Event = Talent.Graphs.Event;
 
 namespace Talent.GraphEditor.Core
 {
+    /// <summary>
+    /// Редактор графа
+    /// </summary>
     public class GraphEditor
     {
+        /// <summary>
+        /// Документ, хранящий корневой граф
+        /// </summary>
         public CyberiadaGraphDocument GraphDocument { get; private set; }
 
         private IGraphElementViewFactory GraphElementViewFactory { get; }
@@ -24,15 +31,19 @@ namespace Talent.GraphEditor.Core
         private INodeView _initialNodeView;
         private IEdgeView _initialEdgeView;
 
+        /// <summary>
+        /// Конструктор редактора графов
+        /// </summary>
+        /// <param name="factory">Фабрика представлений элементов графа</param>
         public GraphEditor(IGraphElementViewFactory factory)
         {
             GraphElementViewFactory = factory;
         }
 
         /// <summary>
-        /// Set document and rebuild views
+        /// Устанавливает новый документ и перестраивает представление
         /// </summary>
-        /// <param name="graphDocument"></param>
+        /// <param name="graphDocument">Новый документ</param>
         public void SetGraphDocument(CyberiadaGraphDocument graphDocument)
         {
             GraphDocument = graphDocument;
@@ -40,16 +51,16 @@ namespace Talent.GraphEditor.Core
         }
 
         /// <summary>
-        /// Go through the current graph, generate missing views, delete unnecessary views
-        /// Useful if something broke or the graph was changed bypassing the editor
+        /// Пересоздает отсутствующие представления, удаляет ненужные представления.
+        /// Полезно, если что-то сломалось или граф изменился в обход редактора
         /// </summary>
         public void RefreshView()
         {
-            throw new System.NotImplementedException();
+            throw new NotImplementedException();
         }
 
         /// <summary>
-        /// Destroy all current views and generate all views for current graph
+        /// Уничтожает все текущие представления и пересоздает их для текущего графа
         /// </summary>
         public void RebuildView()
         {
@@ -133,6 +144,10 @@ namespace Talent.GraphEditor.Core
             }
         }
 
+        /// <summary>
+        /// Подсоединяет представление узла к стартовому узлу
+        /// </summary>
+        /// <param name="nodeView">Подсоединяемое представление узла</param>
         public void ConnectToInitialNode(INodeView nodeView)
         {
             if (_initialNodeView == null)
@@ -148,6 +163,12 @@ namespace Talent.GraphEditor.Core
             _initialEdgeView = CreateNewEdge(_initialNodeView, nodeView, "");
         }
 
+        /// <summary>
+        /// Пытается создать копию представления узла
+        /// </summary>
+        /// <param name="nodeView">Оригинал представления узла</param>
+        /// <param name="duplicatedNode">Если копия создалась удачно, возвращает копию, иначе null</param>
+        /// <returns>true, если копирование произошло успешно, иначе false</returns>
         public bool TryDuplicateNode(INodeView nodeView, out INodeView duplicatedNode)
         {
             if (!_nodeViews.TryGetValue(nodeView, out Node node))
@@ -157,7 +178,6 @@ namespace Talent.GraphEditor.Core
             }
 
             Node newNode = node.GetCopy(node.Data.GetCopy(), parentNode: node.ParentNode, newID: Guid.NewGuid().ToString());
-
             GraphDocument.RootGraph.AddNode(newNode);
 
             duplicatedNode = CreateViewForNode(newNode, true);
@@ -182,7 +202,7 @@ namespace Talent.GraphEditor.Core
         {
             if (_initialEdgeView == null && _initialNodeView != null)
             {
-                Node targetNode = _nodes.Values.Where((Node node) => node.Data.Vertex != NodeData.Vertex_Initial).FirstOrDefault();
+                Node targetNode = _nodes.Values.FirstOrDefault(node => node.Data.Vertex != NodeData.Vertex_Initial);
 
                 if (targetNode == null)
                 {
@@ -202,6 +222,12 @@ namespace Talent.GraphEditor.Core
 
         #region Public Create Methods
 
+        /// <summary>
+        /// Создает новое представление графа
+        /// </summary>
+        /// <param name="id">Уникальный идентификатор графа</param>
+        /// <param name="nodeView">Представление графа, содержащее данный граф</param>
+        /// <returns>Представление графа</returns>
         public IGraphView CreateNewGraph(string id, INodeView nodeView)
         {
             if (_nodeViews.TryGetValue(nodeView, out Node node) && node.NestedGraph == null)
@@ -214,9 +240,14 @@ namespace Talent.GraphEditor.Core
             return graphView;
         }
 
+        /// <summary>
+        /// Создает новое представление узла
+        /// </summary>
+        /// <param name="name">Имя узла</param>
+        /// <returns>Созданное представление узла</returns>
         public INodeView CreateNewNode(string name)
         {
-            Node node = new Node(System.Guid.NewGuid().ToString(), new NodeData());
+            Node node = new Node(Guid.NewGuid().ToString(), new NodeData());
             GraphDocument.RootGraph.AddNode(node);
             node.Data.VisualData.Name = name;
 
@@ -231,12 +262,19 @@ namespace Talent.GraphEditor.Core
             return newNode;
         }
 
+        /// <summary>
+        /// Создает новое представление ребра
+        /// </summary>
+        /// <param name="sourceView">Представление входящего узла</param>
+        /// <param name="targetView">Представление исходящего узла</param>
+        /// <param name="triggerID">Событие перехода</param>
+        /// <returns>Созданное представление ребра</returns>
         public IEdgeView CreateNewEdge(INodeView sourceView, INodeView targetView, string triggerID)
         {
             Node sourceNode = _nodeViews.Get(sourceView);
             Node targetNode = _nodeViews.Get(targetView);
 
-            if ((sourceNode == _initialNodeView || targetNode == _initialNodeView) && _initialEdgeView != null)
+            if ((sourceView == _initialNodeView || targetView == _initialNodeView) && _edgeViews.ContainsValue(_initialEdgeView))
             {
                 return null;
             }
@@ -246,7 +284,59 @@ namespace Talent.GraphEditor.Core
 
             return CreateViewForEdge(edge);
         }
+        
+        /// <summary>
+        /// Создает предварительное представление ребра
+        /// </summary>
+        /// <param name="sourceView">Входящее представление узла</param>
+        /// <returns>Предварительно созданное представление ребра</returns>
+        public IEdgeView CreatePreviewEdgeView(INodeView sourceView)
+        {
+            IEdgeView edgeView = GraphElementViewFactory.CreatePreviewEdgeView(sourceView);
+            return edgeView;
+        }
 
+        /// <summary>
+        /// Пытается применить настройки предварительного ребра для создания полноценного ребра
+        /// </summary>
+        /// <param name="edgeView">Предварительно созданное ребро</param>
+        /// <param name="sourceView">Входящее представление узла</param>
+        /// <param name="targetView">Исходящее представление узла</param>
+        /// <param name="triggerID">Идентификатор события перехода</param>
+        /// <param name="visualData">Визуальные данные ребра</param>
+        /// <returns></returns>
+        public bool TryApplyPreview(IEdgeView edgeView, INodeView sourceView, INodeView targetView, string triggerID, EdgeVisualData visualData)
+        {
+            Node sourceNode = _nodeViews.Get(sourceView);
+            Node targetNode = _nodeViews.Get(targetView);
+
+            if (sourceNode == targetNode)
+            {
+                return false;
+            }
+
+            Edge edge = new Edge(System.Guid.NewGuid().ToString(), sourceNode.ID, targetNode.ID, new EdgeData(triggerID));
+            edge.Data.VisualData = visualData;
+            GraphDocument.RootGraph.AddEdge(edge);
+            _edges[edge.ID] = edge;
+            _edgeViews.Add(edge, edgeView);
+
+            foreach (Action action in edge.Data.Actions)
+            {
+                IEdgeActionView actionView = GraphElementViewFactory.CreateEdgeActionView(edgeView, action.ID);
+                _edgeActionViews.Add(action, actionView);
+                ChangeEdgeActionParameter(actionView, action.Parameters);
+            }
+
+            return true;
+        }
+        
+        /// <summary>
+        /// Создает новое представление перехода в узле
+        /// </summary>
+        /// <param name="nodeView">Представление узла</param>
+        /// <param name="triggerID">Событие перехода</param>
+        /// <returns>Созданное представление</returns>
         public INodeEventView CreateNewNodeEvent(INodeView nodeView, string triggerID)
         {
             INodeEventView result = default;
@@ -267,6 +357,12 @@ namespace Talent.GraphEditor.Core
             return result;
         }
 
+        /// <summary>
+        /// Создает новое представление поведения для перехода в узле
+        /// </summary>
+        /// <param name="eventView">Представление перехода узла</param>
+        /// <param name="actionID">Поведение</param>
+        /// <returns>Созданное представление</returns>
         public INodeActionView CreateNewNodeAction(INodeEventView eventView, string actionID)
         {
             INodeActionView result = default;
@@ -283,6 +379,12 @@ namespace Talent.GraphEditor.Core
             return result;
         }
 
+        /// <summary>
+        /// Создает новое представление перехода в ребре
+        /// </summary>
+        /// <param name="edgeView">Представление ребра</param>
+        /// <param name="actionID">Поведение</param>
+        /// <returns>Созданное представление</returns>
         public IEdgeActionView CreateNewEdgeAction(IEdgeView edgeView, string actionID)
         {
             IEdgeActionView result = default;
@@ -301,12 +403,23 @@ namespace Talent.GraphEditor.Core
 
         #endregion
 
+        /// <summary>
+        /// Изменяет событие для перехода в узле
+        /// </summary>
+        /// <param name="nodeEventView">Представление поведения для перехода в узле</param>
+        /// <param name="event">Переход узла</param>
+        /// <param name="triggerID">Новое событие</param>
         public void ChangeNodeEventTrigger(INodeEventView nodeEventView, Event @event, string triggerID)
         {
             @event.SetTrigger(triggerID);
             nodeEventView.SetTrigger(triggerID);
         }
 
+        /// <summary>
+        /// Изменяет событие для перехода в ребре
+        /// </summary>
+        /// <param name="edgeView">Представление ребра</param>
+        /// <param name="triggerID">Новое событие</param>
         public void ChangeEdgeTrigger(IEdgeView edgeView, string triggerID)
         {
             if (_edgeViews.TryGetValue(edgeView, out Edge edge))
@@ -316,6 +429,12 @@ namespace Talent.GraphEditor.Core
             }
         }
 
+        /// <summary>
+        /// Изменяет условие для перехода в узле
+        /// </summary>
+        /// <param name="nodeView">Представление узла</param>
+        /// <param name="nodeEventView">Представление перехода в узле</param>
+        /// <param name="condition">Новое условие</param>
         public void ChangeNodeEventCondition(INodeView nodeView, INodeEventView nodeEventView, string condition)
         {
             if (_nodeViews.TryGetValue(nodeView, out Node node) && _nodeEventViews.TryGetValue(nodeEventView, out Event nodeEvent) && nodeEvent.Condition != condition)
@@ -325,6 +444,11 @@ namespace Talent.GraphEditor.Core
             }
         }
 
+        /// <summary>
+        /// Изменяет условие для перехода в ребре
+        /// </summary>
+        /// <param name="edgeView">Представление ребра</param>
+        /// <param name="condition">Новое условие</param>
         public void ChangeEdgeCondition(IEdgeView edgeView, string condition)
         {
             if (_edgeViews.TryGetValue(edgeView, out Edge edge))
@@ -334,6 +458,11 @@ namespace Talent.GraphEditor.Core
             }
         }
 
+        /// <summary>
+        /// Изменяет список параметров поведения для перехода в узле
+        /// </summary>
+        /// <param name="actionView">Представление поведения</param>
+        /// <param name="parameters">Новый список параметров</param>
         public void ChangeNodeActionParameter(INodeActionView actionView, List<Tuple<string, string>> parameters)
         {
             if (_nodeActionViews.TryGetValue(actionView, out Action action))
@@ -343,6 +472,11 @@ namespace Talent.GraphEditor.Core
             }
         }
 
+        /// <summary>
+        /// Изменяет список параметров поведения для перехода в ребре
+        /// </summary>
+        /// <param name="actionView">Представление поведения</param>
+        /// <param name="parameters">Новый список параметров</param>
         public void ChangeEdgeActionParameter(IEdgeActionView actionView, List<Tuple<string, string>> parameters)
         {
             if (_edgeActionViews.TryGetValue(actionView, out Action action))
@@ -354,6 +488,11 @@ namespace Talent.GraphEditor.Core
 
         #region Public Remove Methods
 
+        /// <summary>
+        /// Удаляет представление узла
+        /// </summary>
+        /// <param name="nodeView">Удаляемое представление узла</param>
+        /// <param name="createInitialEdge">Необходимо ли, создавать ребро из стартового состояния</param>
         public void RemoveNode(INodeView nodeView, bool createInitialEdge = true)
         {
             if (_nodeViews.TryGetValue(nodeView, out Node node))
@@ -377,7 +516,7 @@ namespace Talent.GraphEditor.Core
                     }
                 }
 
-                foreach (Edge edge in GraphDocument.RootGraph.Edges.Where(edge => edge.SourceNode == node.ID || edge.TargetNode == node.ID).ToArray())
+                foreach (Edge edge in GraphDocument.RootGraph.Edges.Where(edge => edge.SourceNode == node.ID || edge.TargetNode == node.ID))
                 {
                     if (_edgeViews.TryGetValue(edge, out IEdgeView edgeView))
                     {
@@ -444,6 +583,10 @@ namespace Talent.GraphEditor.Core
             }
         }
 
+        /// <summary>
+        /// Удаляет представление ребра
+        /// </summary>
+        /// <param name="edgeView">Удаляемое представление ребра</param>
         public void RemoveEdge(IEdgeView edgeView)
         {
             if (_edgeViews.TryGetValue(edgeView, out Edge edge))
@@ -463,6 +606,11 @@ namespace Talent.GraphEditor.Core
             }
         }
 
+        /// <summary>
+        /// Удаляет переход в узле
+        /// </summary>
+        /// <param name="nodeView">Представление узла, из которого будет удален переход</param>
+        /// <param name="nodeEventView">Удаляемое представление перехода</param>
         public void RemoveNodeEvent(INodeView nodeView, INodeEventView nodeEventView)
         {
             Node node = _nodeViews.Get(nodeView);
@@ -486,6 +634,11 @@ namespace Talent.GraphEditor.Core
             node.Data.RemoveEvent(nodeEvent);
         }
 
+        /// <summary>
+        /// Удаляет представление поведение для перехода в узле
+        /// </summary>
+        /// <param name="nodeEventView">Представление перехода узла, из которого будет удалено поведение</param>
+        /// <param name="nodeActionView">Удаляемое представление поведения</param>
         public void RemoveNodeAction(INodeEventView nodeEventView, INodeActionView nodeActionView)
         {
             if (_nodeEventViews.TryGetValue(nodeEventView, out Event nodeEvent) && _nodeActionViews.TryGetValue(nodeActionView, out Action eventAction))
@@ -496,6 +649,11 @@ namespace Talent.GraphEditor.Core
             }
         }
 
+        /// <summary>
+        /// Удаляет представление поведение для перехода в ребре
+        /// </summary>
+        /// <param name="edgeView">Представление перехода ребра, из которого будет удалено поведение</param>
+        /// <param name="edgeActionView">Удаляемое представление поведения</param>
         public void RemoveEdgeAction(IEdgeView edgeView, IEdgeActionView edgeActionView)
         {
             if (_edgeViews.TryGetValue(edgeView, out Edge nodeEvent) && _edgeActionViews.TryGetValue(edgeActionView, out Action eventAction))
@@ -508,9 +666,15 @@ namespace Talent.GraphEditor.Core
 
         #endregion
 
+        /// <summary>
+        /// Устанавливает нового родителя для представления узла
+        /// </summary>
+        /// <param name="childView">Представление дочернего узла</param>
+        /// <param name="parentView">Представление родительского узла</param>
+        /// <param name="layoutAutomatically"></param>
         public void SetParent(INodeView childView, INodeView parentView, bool layoutAutomatically)
         {
-            if (childView == null || !_nodeViews.TryGetValue(childView, out Node child) || (_initialNodeView != null && child == _initialNodeView))
+            if (childView == null || !_nodeViews.TryGetValue(childView, out Node child) || _initialNodeView != null && childView == _initialNodeView)
             {
                 return;
             }
@@ -530,7 +694,7 @@ namespace Talent.GraphEditor.Core
 
                 _nodeViews.Get(child).SetParent(null, layoutAutomatically);
             }
-            else if (_nodeViews.TryGetValue(parentView, out Node parent) && child != parent && (_initialNodeView == null || parent != _initialNodeView))
+            else if (_nodeViews.TryGetValue(parentView, out Node parent) && child != parent && (_initialNodeView == null || parentView != _initialNodeView))
             {
                 if (child.ParentNode != parent)
                 {
@@ -659,7 +823,8 @@ namespace Talent.GraphEditor.Core
         {
             IEdgeView edgeView = null;
 
-            if (_nodeViews.TryGetValue(_nodes[edge.SourceNode], out INodeView sourceNodeView) && _nodeViews.TryGetValue(_nodes[edge.TargetNode], out INodeView targetNodeView))
+            if (_nodeViews.TryGetValue(_nodes[edge.SourceNode], out INodeView sourceNodeView) &&
+                _nodeViews.TryGetValue(_nodes[edge.TargetNode], out INodeView targetNodeView))
             {
                 _edges[edge.ID] = edge;
                 edgeView = GraphElementViewFactory.CreateEdgeView(sourceNodeView, targetNodeView, edge.Data.VisualData, edge.Data.TriggerID, edge.Data.Condition);
@@ -681,45 +846,159 @@ namespace Talent.GraphEditor.Core
 
     #region Interfaces
 
+    /// <summary>
+    /// Фабрика представлений элементов графа
+    /// </summary>
     public interface IGraphElementViewFactory
     {
+        /// <summary>
+        /// Создает новое представление графа
+        /// </summary>
+        /// <param name="graphID">Уникальный идентификатор графа</param>
+        /// <param name="parentNodeView">Представление родительской вершины</param>
+        /// <returns>Представление графа</returns>
         IGraphView CreateGraphView(string graphID, INodeView parentNodeView);
+
+        /// <summary>
+        /// Создает новое представление узла
+        /// </summary>
+        /// <param name="visualData">Данные для визуального представления узла</param>
+        /// <param name="vertex">Имя вершины</param>
+        /// <param name="layoutAutomatically"></param>
+        /// <returns>Представление узла</returns>
         INodeView CreateNodeView(NodeVisualData visualData, string vertex, bool layoutAutomatically);
+
+        /// <summary>
+        /// Создает представление перехода в узле
+        /// </summary>
+        /// <param name="nodeView">Представление узла</param>
+        /// <param name="triggerID">Событие</param>
+        /// <param name="event">Переход</param>
+        /// <returns>Представление перехода</returns>
         INodeEventView CreateNodeEventView(INodeView nodeView, string triggerID, Event @event);
+
+        /// <summary>
+        /// Создает представление поведения в переходе для узла 
+        /// </summary>
+        /// <param name="eventView">Представление перехода</param>
+        /// <param name="actionID">Переход</param>
+        /// <returns>Представление поведения</returns>
         INodeActionView CreateNodeActionView(INodeEventView eventView, string actionID);
-        IEdgeView CreateEdgeView(INodeView sourceNode, INodeView targetNode, EdgeVisualData edgeVisualData, string triggerID, string condition);
+
+        /// <summary>
+        /// Создает представление ребра
+        /// </summary>
+        /// <param name="sourceNode">Входящее представление узла</param>
+        /// <param name="targetNode">Исходящее представление узла</param>
+        /// <param name="edgeVisualData">Данные для представления ребра</param>
+        /// <param name="triggerID">Событие</param>
+        /// <param name="condition">Условие</param>
+        /// <returns>Представление ребра</returns>
+        IEdgeView CreateEdgeView(INodeView sourceNode, INodeView targetNode, EdgeVisualData edgeVisualData,
+            string triggerID, string condition);
+        
+        /// <summary>
+        /// Создает предварительное представление ребра
+        /// </summary>
+        /// <param name="sourceView">Входящее представление узла</param>
+        /// <returns>Предварительно созданное представление ребра</returns>
+        IEdgeView CreatePreviewEdgeView(INodeView sourceView);
+
+        /// <summary>
+        /// Создает представление поведения в переходе для ребра
+        /// </summary>
+        /// <param name="edgeView">Представление ребра</param>
+        /// <param name="actionID">Поведение</param>
+        /// <returns>Представление поведения</returns>
         IEdgeActionView CreateEdgeActionView(IEdgeView edgeView, string actionID);
+
+        /// <summary>
+        /// Разрушает представление элемента графа 
+        /// </summary>
+        /// <param name="view">Элемент графа</param>
         void DestroyElementView(IGraphElementView view);
     }
 
+    /// <summary>
+    /// Представление графа
+    /// </summary>
     public interface IGraphView : IGraphElementView { }
 
+    /// <summary>
+    /// Представление элемента графа
+    /// </summary>
     public interface IGraphElementView { }
 
+    /// <summary>
+    /// Представление узла
+    /// </summary>
     public interface INodeView : IGraphElementView
     {
+        /// <summary>
+        /// Устанавливает родительский граф для узла
+        /// </summary>
+        /// <param name="parent">Родительский граф</param>
+        /// <param name="layoutAutomatically"></param>
         void SetParent(IGraphView parent, bool layoutAutomatically);
     }
 
+    /// <summary>
+    /// Представление перехода в узле
+    /// </summary>
     public interface INodeEventView : IGraphElementView
     {
+        /// <summary>
+        /// Устанавливает условие для перехода
+        /// </summary>
+        /// <param name="condition">Условие</param>
         void SetCondition(string condition);
+
+        /// <summary>
+        /// Устанавливает событие для перехода
+        /// </summary>
+        /// <param name="triggerID">Событие</param>
         void SetTrigger(string triggerID);
     }
 
+    /// <summary>
+    /// Представление поведения для перехода в узле
+    /// </summary>
     public interface INodeActionView : IGraphElementView
     {
+        /// <summary>
+        /// Устанавливает список параметров для поведения
+        /// </summary>
+        /// <param name="parameters">Список параметров</param>
         void SetParameters(List<Tuple<string, string>> parameters);
     }
 
+    /// <summary>
+    /// Представление ребра
+    /// </summary>
     public interface IEdgeView : IGraphElementView
     {
+        /// <summary>
+        /// Устанавливает событие для перехода
+        /// </summary>
+        /// <param name="triggerID">Событие</param>
         void SetTrigger(string triggerID);
+
+        /// <summary>
+        /// Устанавливает условие для перехода
+        /// </summary>
+        /// <param name="condition">Условие</param>
         void SetCondition(string condition);
     }
 
+    /// <summary>
+    /// Представление поведения для перехода в ребре
+    /// </summary>
     public interface IEdgeActionView : IGraphElementView
     {
+        /// <summary>
+        /// Устанавливает список параметров для поведения
+        /// </summary>
+        /// <param name="parameters">Список параметров</param>
         void SetParameters(List<Tuple<string, string>> parameters);
     }
 

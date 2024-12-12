@@ -5,7 +5,7 @@ using Talent.Logic.Bus;
 namespace Talent.Logic.HSM.Builders
 {
     /// <summary>
-    ///     Class responsible for storing and creating commands based on provided data.
+    /// Класс ответственный за создание команд и хранение данных для этих команд
     /// </summary>
     public class CommandsData
     {
@@ -13,21 +13,21 @@ namespace Talent.Logic.HSM.Builders
             new List<(string commandName, List<Tuple<string, string>> parameters)>();
 
         /// <summary>
-        ///     Adds a command to the storage.
+        /// Добавляет данные для создания команд в хранилище
         /// </summary>
-        /// <param name="commandName">The name of the command.</param>
-        /// <param name="parameters">The parameters of the command.</param>
+        /// <param name="commandName">Имя команды</param>
+        /// <param name="parameters">Список параметров команды</param>
         public void AddCommandStorage(string commandName, List<Tuple<string, string>> parameters)
         {
             _commandsData.Add((commandName, parameters));
         }
 
         /// <summary>
-        ///     Creates Command objects based on the stored command data.
+        /// Создает команды, используя данные, добавленные в хранилище
         /// </summary>
-        /// <param name="bus">The bus to associate with the commands.</param>
-        /// <returns>An IEnumerable of Command objects.</returns>
-        public IEnumerable<Command> CreateCommands(IBus bus)
+        /// <param name="bus">Шина команд, ассоциированный с создаваемыми командами</param>
+        /// <returns>Перечисление команд</returns>
+        public IEnumerable<Command> CreateCommands(ICommandBus bus)
         {
             if (_commandsData == null || _commandsData.Count == 0)
             {

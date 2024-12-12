@@ -9,7 +9,7 @@ using Action = Talent.Graphs.Action;
 namespace Talent.Logic.HSM
 {
     /// <summary>
-    ///     Class that converts a graph source into a hierarchical state machine.
+    /// Класс, конвертирующий исходный Cyberiada граф в иерархическую машину состояний (ИМС)
     /// </summary>
     public class CyberiadaHSMConverter : ILogicInterpreter<CyberiadaGraph, IBus>
     {
@@ -19,11 +19,11 @@ namespace Talent.Logic.HSM
         private CyberiadaGraph _sourceGraph;
 
         /// <summary>
-        ///     Processes the graph source to build a hierarchical state machine.
+        /// Обрабатывает исходный граф для строительства ИМС
         /// </summary>
-        /// <param name="source">The graph data containing nodes and edges.</param>
-        /// <param name="bus">The bus for event handling.</param>
-        /// <returns>The built hierarchical state machine behavior.</returns>
+        /// <param name="source">Исходный граф</param>
+        /// <param name="bus">Шина</param>
+        /// <returns>Построенная ИМС</returns>
         public IBehavior Process(CyberiadaGraph source, IBus bus)
         {
             StateBuilder builder = new StateBuilder(bus, source.ID);
@@ -62,7 +62,8 @@ namespace Talent.Logic.HSM
             {
                 foreach (Action action in @event.Actions)
                 {
-                    (string module, string command, List<Tuple<string, string>> parameters) data = ParseActionData(action);
+                    (string module, string command, List<Tuple<string, string>> parameters) data =
+                        ParseActionData(action);
                     string commandName = GetFullCommandName(data);
 
                     switch (@event.TriggerID)
@@ -100,7 +101,8 @@ namespace Talent.Logic.HSM
 
                 foreach (Action action in edge.Data.Actions)
                 {
-                    (string module, string command, List<Tuple<string, string>> parameters) actionData = ParseActionData(action);
+                    (string module, string command, List<Tuple<string, string>> parameters) actionData =
+                        ParseActionData(action);
                     transitionBuilder.AddCommand(GetFullCommandName(actionData), actionData.parameters);
                 }
 
