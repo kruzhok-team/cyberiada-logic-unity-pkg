@@ -1,7 +1,9 @@
 using System;
 using System.Globalization;
 using Talent.Logic.Bus;
+#if UNITY && DEBUG
 using UnityEngine;
+#endif
 
 namespace Talent.Logic.HSM
 {
@@ -53,15 +55,17 @@ namespace Talent.Logic.HSM
 
             if (TryGetVariableByName(_parameters[0], out float leftValue) == false)
             {
+#if UNITY && DEBUG
                 Debug.Log($"cant find variable:{_parameters[0]}");
-
+#endif
                 return false;
             }
 
             if (TryGetVariableByName(_parameters[2], out float rightValue) == false)
             {
+#if UNITY && DEBUG
                 Debug.Log($"cant find variable{_parameters[2]}");
-
+#endif
                 return false;
             }
 
@@ -73,7 +77,7 @@ namespace Talent.Logic.HSM
             switch (_parameters[1])
             {
                 case "==":
-                    return Math.Abs(leftValue - rightValue) < Mathf.Epsilon;
+                    return Math.Abs(leftValue - rightValue) < float.Epsilon;
                 case "<":
                     return leftValue < rightValue;
                 case "<=":
@@ -83,10 +87,11 @@ namespace Talent.Logic.HSM
                 case ">=":
                     return leftValue >= rightValue;
                 case "!=":
-                    return Math.Abs(leftValue - rightValue) >= Mathf.Epsilon;
+                    return Math.Abs(leftValue - rightValue) >= float.Epsilon;
                 default:
-                    Debug.LogError($"Cant resolve parameters {_parameters[1]} and to go next state");
-
+#if UNITY && DEBUG
+                        Debug.LogError($"Cant resolve parameters {_parameters[1]} and to go next state");
+#endif
                     break;
             }
 
@@ -104,10 +109,12 @@ namespace Talent.Logic.HSM
                 CultureInfo.InvariantCulture,
                 out variable);
 
+#if UNITY && DEBUG
             if (isTryGetVariableByName && isSuccessParse == false)
             {
                 Debug.LogError($"Parse is failed: {variableName} {variableString}");
             }
+#endif
 
             return isTryGetVariableByName && isSuccessParse;
         }

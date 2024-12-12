@@ -2,8 +2,7 @@
     "name": "org.kruzhok.talent.graph.cyberiada.converter",
     "rootNamespace": "Talent.Graph.Cyberiada.Converter",
     "references": [
-        "GUID:7cd565da61ce6c7429e15c8dc320759e",
-        "GUID:6b8087584a35f8e43b76aad88a5c8878"
+        "GUID:7cd565da61ce6c7429e15c8dc320759e"
     ],
     "includePlatforms": [],
     "excludePlatforms": [],
@@ -12,6 +11,12 @@
     "precompiledReferences": [],
     "autoReferenced": true,
     "defineConstraints": [],
-    "versionDefines": [],
+    "versionDefines": [
+        {
+            "name": "Unity",
+            "expression": "",
+            "define": "UNITY"
+        }
+    ],
     "noEngineReferences": false
 }

@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+#if UNITY
 using UnityEngine;
+#endif
 
 namespace Talent.Graphs
 {
@@ -19,7 +21,7 @@ namespace Talent.Graphs
         /// <summary>
         /// Визуальное представление перехода
         /// </summary>
-        public EdgeVisualData VisualData { get; private set; } = new();
+        public EdgeVisualData VisualData { get; set; } = new();
 
         private readonly List<Action> _actions = new();
 

@@ -1,5 +1,5 @@
 using System;
-#if UNITY_EDITOR || DEBUG
+#if UNITY && DEBUG
 using UnityEngine;
 #endif
 
@@ -37,7 +37,7 @@ namespace Talent.Logic.Bus
                 return true;
             }
 
-#if UNITY_EDITOR || DEBUG
+#if UNITY && DEBUG
             Debug.LogWarning($"Could not cast variable getter of type {typeof(T)} to {typeof(K)}");
 #endif
             variable = default;
