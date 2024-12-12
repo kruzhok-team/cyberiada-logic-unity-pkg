@@ -4,7 +4,7 @@ using Talent.Logic.HSM.Utilities;
 namespace Talent.Logic.HSM
 {
     /// <summary>
-    ///     Represents a hierarchical state machine in the Talent Logic system.
+    /// Класс представляющий иерархические машину состояний в логической системе Талант
     /// </summary>
     public class HierarchicalStateMachine
     {
@@ -12,30 +12,33 @@ namespace Talent.Logic.HSM
 
         private State _currentState;
 
+        /// <summary>
+        /// Состояния, хранимые в машине состояний
+        /// </summary>
         public IEnumerable<State> States => _states;
 
         /// <summary>
-        ///     Adds a new states to the hierarchical state machine.
+        /// Добавляет новые состояния в машину состояний
         /// </summary>
-        /// <param name="states">The state to add to the state machine.</param>
+        /// <param name="states">Добавляемые состояния</param>
         public void AddStates(IEnumerable<State> states)
         {
             _states.AddRange(states);
         }
 
         /// <summary>
-        ///     Adds a new state to the hierarchical state machine.
+        /// Добавляет новое состояние в машину состояний
         /// </summary>
-        /// <param name="state">The state to add to the state machine.</param>
+        /// <param name="state">Добавляемое состояние в машину состояний</param>
         public void AddState(State state)
         {
             _states.Add(state);
         }
 
         /// <summary>
-        ///     Enters a state with the specified ID.
+        /// Входит в состояние, соответствующее уникальному идентификатору состояния
         /// </summary>
-        /// <param name="id">The ID of the state to enter.</param>
+        /// <param name="id">Уникальный идентификатор состояния</param>
         public void EnterState(string id)
         {
             if (string.IsNullOrEmpty(id))
@@ -74,7 +77,7 @@ namespace Talent.Logic.HSM
         }
 
         /// <summary>
-        ///     Exits the current state and sets it to null.
+        /// Выходит из текущего состояния
         /// </summary>
         public void ExitCurrent()
         {

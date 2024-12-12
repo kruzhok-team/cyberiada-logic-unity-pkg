@@ -5,7 +5,7 @@ using Talent.Logic.Bus;
 namespace Talent.Logic.HSM
 {
     /// <summary>
-    ///     Class that represents transition between HSM states
+    /// Класс, представляющий переходы в иерархической машине состояний
     /// </summary>
     public class Transition
     {
@@ -14,21 +14,36 @@ namespace Talent.Logic.HSM
 
         private bool _isActive;
 
+        /// <summary>
+        /// Идентификатор следующего состояния
+        /// </summary>
         public string NextStateId { get; }
+
+        /// <summary>
+        /// Имя события перехода
+        /// </summary>
         public string EventName { get; }
+
+        /// <summary>
+        /// Команды перехода
+        /// </summary>
         public IEnumerable<Command> Commands { get; }
+
         public string Parameters => _conditionChecker.Parameters;
 
+        /// <summary>
+        /// Вызывается при срабатывании события перехода
+        /// </summary>
         public event Action<string> Triggered;
 
         /// <summary>
-        ///     Initializes a new instance of the <see cref="Transition"/> class.
+        /// Конструктор перехода машины состояний
         /// </summary>
-        /// <param name="nextStateId">The ID of the next state.</param>
-        /// <param name="eventName">The name of the event.</param>
-        /// <param name="bus">The bus used for communication.</param>
-        /// <param name="parameters">Optional parameters for the transition.</param>
-        /// <param name="commands">Optional collection of commands to be executed.</param>
+        /// <param name="nextStateId">Идентификатор следующего состояния</param>
+        /// <param name="eventName">Имя события перехода</param>
+        /// <param name="bus">Шина</param>
+        /// <param name="parameters">Опциональные параметры для перехода</param>
+        /// <param name="commands">Команды перехода</param>
         public Transition(
             string nextStateId,
             string eventName,
@@ -44,7 +59,7 @@ namespace Talent.Logic.HSM
         }
 
         /// <summary>
-        ///     Activates the function and adds an event listener to the bus for the specified event name.
+        /// Активирует функцию и добавляет в шину слушатель событий
         /// </summary>
         public void Active()
         {
@@ -53,7 +68,7 @@ namespace Talent.Logic.HSM
         }
 
         /// <summary>
-        ///     Deactivates the function and removes the event listener from the bus for the specified event name.
+        /// Деактивирует функцию и удаляет слушатель событий из шины   
         /// </summary>
         public void Deactivate()
         {

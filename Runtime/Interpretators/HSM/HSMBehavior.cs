@@ -3,7 +3,7 @@
 namespace Talent.Logic.HSM
 {
     /// <summary>
-    ///     Represents the behavior of a Hierarchical State Machine (HSM).
+    /// Класс, представляющий поведение иерархической машины состояний
     /// </summary>
     public class HSMBehavior : IBehavior
     {
@@ -25,7 +25,7 @@ namespace Talent.Logic.HSM
         }
 
         /// <summary>
-        ///     Starts the HSM.
+        /// Запускает машину состояний
         /// </summary>
         public void Start()
         {
@@ -34,14 +34,14 @@ namespace Talent.Logic.HSM
         }
 
         /// <summary>
-        ///     Update the HSM.
+        /// Обновляет машину состояний
         /// </summary>
         public void Update()
         {
         }
 
         /// <summary>
-        ///     Stop the HSM.
+        /// Останавливает машину состояний
         /// </summary>
         public void Stop()
         {

@@ -4,8 +4,17 @@ using System.Text;
 
 namespace Talent.Graphs
 {
+    /// <summary>
+    /// Сравниватель графов, использующий полное сравнение
+    /// </summary>
     public class VerboseGraphComparer : IEqualityComparer<CyberiadaGraph>
     {
+        /// <summary>
+        /// Проверяет два графа на равенство
+        /// </summary>
+        /// <param name="graph">Первый граф</param>
+        /// <param name="otherGraph">Второй граф</param>
+        /// <returns>true, если графы равны, иначе false</returns>
         public bool Equals(CyberiadaGraph graph, CyberiadaGraph otherGraph)
         {
             return ConvertToString(graph) == ConvertToString(otherGraph);

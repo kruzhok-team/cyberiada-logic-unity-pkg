@@ -4,20 +4,25 @@ using System.Collections.Generic;
 namespace Talent.Graphs
 {
     /// <summary>
-    /// Class representing abstract action
+    /// Класс, представляющий абстрактное поведение
     /// </summary>
     public class Action
     {
         /// <summary>
-        /// Action ID
+        /// Идентификатор поведения
         /// </summary>
         public string ID { get; private set; }
 
         /// <summary>
-        /// Parameter of action
+        /// Список параметров поведения
         /// </summary>
         public List<Tuple<string, string>> Parameters { get; private set; }
 
+        /// <summary>
+        /// Конструктор поведения
+        /// </summary>
+        /// <param name="id">Уникальный идентификатор поведения</param>
+        /// <param name="parameters">Список параметров поведения</param>
         public Action(string id, List<Tuple<string, string>> parameters = null)
         {
             ID = id;
@@ -25,26 +30,28 @@ namespace Talent.Graphs
         }
 
         /// <summary>
-        /// Creates a copy of the action
+        /// Создает копию поведения
         /// </summary>
+        /// <returns>Копия поведения</returns>
         public Action GetCopy()
         {
             Action resultAction = new Action(ID, Parameters);
-
             return resultAction;
         }
 
         /// <summary>
-        /// Set parameter of action
+        /// Устанавливает новый список параметров поведения
         /// </summary>
+        /// <param name="parameters">Новый список параметров</param>
         public void SetParameters(List<Tuple<string, string>> parameters)
         {
             Parameters = parameters;
         }
 
         /// <summary>
-        /// Custom ToString realization for creating more representive string visualization of action data
+        /// Переводит поведение в строковое представление
         /// </summary>
+        /// <returns>Результирующая строка</returns>
         public override string ToString()
         {
             return $"{nameof(Action)}, {nameof(ID)}={ID}, {nameof(Parameters)}={Parameters}";

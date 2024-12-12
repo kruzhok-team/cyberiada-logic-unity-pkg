@@ -5,7 +5,7 @@ using Talent.Logic.Bus;
 namespace Talent.Logic.HSM
 {
     /// <summary>
-    ///     Represents an event in the HSM.
+    /// Класс, представляющий событие в иерархической машине состояний
     /// </summary>
     public class Event
     {
@@ -14,11 +14,11 @@ namespace Talent.Logic.HSM
         private readonly string _eventName;
 
         /// <summary>
-        ///     Initializes a new instance of the Event class.
+        /// Конструктор события
         /// </summary>
-        /// <param name="bus">The event bus for handling event-related operations.</param>
-        /// <param name="eventName">The name of the event.</param>
-        /// <param name="commands">The commands associated with the event.</param>
+        /// <param name="bus">Шина событий</param>
+        /// <param name="eventName">Имя события</param>
+        /// <param name="commands">Команды, ассоциированные с данным событием</param>
         public Event(IEventBus bus, string eventName, IEnumerable<Command> commands)
         {
             _eventName = eventName;
@@ -27,7 +27,7 @@ namespace Talent.Logic.HSM
         }
 
         /// <summary>
-        ///     Activates the event by adding an event listener to the event bus.
+        /// Активирует событие с помощью добавления слушателеля событий в шину событий
         /// </summary>
         public void Activate()
         {
@@ -35,7 +35,7 @@ namespace Talent.Logic.HSM
         }
 
         /// <summary>
-        ///     Deactivates the event by removing the event listener from the event bus.
+        /// Деактивирует событие, удаляя слушатель событий из шины событий
         /// </summary>
         public void Deactivate()
         {

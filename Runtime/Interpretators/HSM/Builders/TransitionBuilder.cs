@@ -5,7 +5,7 @@ using Talent.Logic.Bus;
 namespace Talent.Logic.HSM.Builders
 {
     /// <summary>
-    ///     Represents a builder class for creating instances of the Transition class.
+    /// Класс, используемый для создания переходов в иерархической машине состояний (ИМС)
     /// </summary>
     public class TransitionBuilder
     {
@@ -18,9 +18,10 @@ namespace Talent.Logic.HSM.Builders
         private string _id = "";
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TransitionBuilder"/> class.
+        /// Добавляет шину, ассоциированный с создаваемым переходом
         /// </summary>
-        /// <param name="bus">The bus to associate with the transition.</param>
+        /// <param name="bus">Шина</param>
+        /// /// <returns>Обновленный строитель переходов</returns>
         public TransitionBuilder AddBus(IBus bus)
         {
             _bus = bus;
@@ -29,11 +30,11 @@ namespace Talent.Logic.HSM.Builders
         }
 
         /// <summary>
-        ///     Sets the next state ID and event ID for the transition.
+        /// Устанавливает следующий идентификатор состояния и события для перехода
         /// </summary>
-        /// <param name="nextStateId">The ID of the next state.</param>
-        /// <param name="eventId">The ID of the event.</param>
-        /// <returns>The TransitionBuilder instance for method chaining.</returns>
+        /// <param name="nextStateId">Следующий идентификатор состояния</param>
+        /// <param name="eventId">Идентификатор события</param>
+        /// <returns>Обновленный строитель переходов</returns>
         public TransitionBuilder ToNextStateOnEvent(string nextStateId, string eventId)
         {
             _nextStateId = nextStateId;
@@ -43,10 +44,10 @@ namespace Talent.Logic.HSM.Builders
         }
 
         /// <summary>
-        ///     Sets the condition parameters for the transition.
+        /// Устанавливает параметры для условия в создаваемом переходе
         /// </summary>
-        /// <param name="parameters">The condition parameters to set.</param>
-        /// <returns>The TransitionBuilder instance for method chaining.</returns>
+        /// <param name="parameters">Параметры условия</param>
+        /// <returns>Обновленный строитель переходов</returns>
         public TransitionBuilder WithCondition(string parameters)
         {
             _parameters = parameters;
@@ -55,11 +56,11 @@ namespace Talent.Logic.HSM.Builders
         }
 
         /// <summary>
-        ///     Adds a command to the TransitionBuilder with the specified command name and optional parameters.
+        /// Добавляет команду для создаваемого перехода
         /// </summary>
-        /// <param name="commandName">The name of the command to add.</param>
-        /// <param name="parameters">Optional parameters for the command. Defaults to an empty string.</param>
-        /// <returns>The TransitionBuilder instance for method chaining.</returns>
+        /// <param name="commandName">Имя команды</param>
+        /// <param name="parameters">Опциональный список параметров команды</param>
+        /// <returns>Обновленный строитель переходов</returns>
         public TransitionBuilder AddCommand(string commandName, List<Tuple<string, string>> parameters = null)
         {
             _commandsData.AddCommandStorage(commandName, parameters);
@@ -68,10 +69,10 @@ namespace Talent.Logic.HSM.Builders
         }
 
         /// <summary>
-        ///     Adds a debug ID to the TransitionBuilder.
+        /// Добавляет идентификатор отладки для создаваемого перехода
         /// </summary>
-        /// <param name="id">The debug ID to add.</param>
-        /// <returns>The TransitionBuilder instance for method chaining.</returns>
+        /// <param name="id">Идентификатор отладки</param>
+        /// <returns>Обновленный строитель переходов</returns>
         public TransitionBuilder AddDebugId(string id)
         {
             _id = id;
@@ -80,9 +81,9 @@ namespace Talent.Logic.HSM.Builders
         }
 
         /// <summary>
-        ///     Builds and returns a new Transition object based on the current state of the TransitionBuilder.
+        /// Создает новый переход для ИМС
         /// </summary>
-        /// <returns>The newly built Transition object.</returns>
+        /// <returns>Новый переход</returns>
         public Transition Build()
         {
             if (string.IsNullOrEmpty(_nextStateId))
