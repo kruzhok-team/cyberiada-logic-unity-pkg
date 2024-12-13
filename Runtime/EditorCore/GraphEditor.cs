@@ -516,7 +516,7 @@ namespace Talent.GraphEditor.Core
                     }
                 }
 
-                foreach (Edge edge in GraphDocument.RootGraph.Edges.Where(edge => edge.SourceNode == node.ID || edge.TargetNode == node.ID))
+                foreach (Edge edge in GraphDocument.RootGraph.Edges.Where(edge => edge.SourceNode == node.ID || edge.TargetNode == node.ID).ToArray())
                 {
                     if (_edgeViews.TryGetValue(edge, out IEdgeView edgeView))
                     {
