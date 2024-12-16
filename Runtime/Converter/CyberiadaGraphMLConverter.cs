@@ -489,36 +489,45 @@ namespace Talent.Graphs
             var metaDataElements = graphElement.Descendants(FullName("node"))
                 .SelectMany(node => node.Elements(FullName("data"))).Where(data =>
                     data.Attribute("key")?.Value == "dName" && data.Value == "CGML_META").ToArray();
-            if (metaDataElements.Length != 1)
-            {
-                throw new ArgumentException($"Expected exactly one metadata node, but got {metaDataElements.Length}",
-                    nameof(graphElement));
-            }
 
-            if (metaDataElements.First().Parent?.Parent != graphElement)
+            if (metaDataElements.Length == 0)
             {
-                throw new ArgumentException("Expected metadata node on top level of graphml document", nameof(graphElement));
+                document.Target = "";
             }
-
-            var serializedMetaData = metaDataElements.First().Parent!.Elements(FullName("data"))
-                .FirstOrDefault(e => e.Attribute("key")?.Value == "dData")?.Value;
-            if (serializedMetaData == null)
+            else
             {
-                throw new ArgumentException("Invalid metadata format", nameof(graphElement));
+                if (metaDataElements.Length != 1)
+                {
+                    throw new ArgumentException($"Expected exactly one metadata node, but got {metaDataElements.Length}",
+                        nameof(graphElement));
+                }
+
+                if (metaDataElements.First().Parent?.Parent != graphElement)
+                {
+                    throw new ArgumentException("Expected metadata node on top level of graphml document", nameof(graphElement));
+                }
+
+                var serializedMetaData = metaDataElements.First().Parent!.Elements(FullName("data"))
+                    .FirstOrDefault(e => e.Attribute("key")?.Value == "dData")?.Value;
+                if (serializedMetaData == null)
+                {
+                    throw new ArgumentException("Invalid metadata format", nameof(graphElement));
+                }
+            
+                var metaData = new Dictionary<string, string>();
+                var entries = serializedMetaData.Trim().Split("\n\n").ToList();
+                foreach (var entry in entries)
+                {
+                    const string delimiter = "/ ";
+                    var delimiterPosition = entry.IndexOf(delimiter, StringComparison.Ordinal);
+                    var key = entry[..delimiterPosition];
+                    var value = entry[(delimiterPosition + delimiter.Length)..];
+                    metaData.Add(key, value);
+                }
+
+                document.Target = metaData.GetValueOrDefault("target", "");    
             }
             
-            var metaData = new Dictionary<string, string>();
-            var entries = serializedMetaData.Trim().Split("\n\n").ToList();
-            foreach (var entry in entries)
-            {
-                const string delimiter = "/ ";
-                var delimiterPosition = entry.IndexOf(delimiter, StringComparison.Ordinal);
-                var key = entry[..delimiterPosition];
-                var value = entry[(delimiterPosition + delimiter.Length)..];
-                metaData.Add(key, value);
-            }
-
-            document.Target = metaData.GetValueOrDefault("target", "");
             document.RootGraph = CreateGraph(graphElement);
             CreateEdges(graphElement, document.RootGraph);
             return document;
