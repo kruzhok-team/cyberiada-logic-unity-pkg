@@ -178,9 +178,17 @@ namespace Talent.GraphEditor.Core
             }
 
             Node newNode = node.GetCopy(node.Data.GetCopy(), parentNode: node.ParentNode, newID: Guid.NewGuid().ToString());
-            GraphDocument.RootGraph.AddNode(newNode);
 
-            duplicatedNode = CreateViewForNode(newNode, true);
+            if (node.ParentNode != null)
+            {
+                node.ParentNode.NestedGraph.AddNode(newNode);
+            }
+            else
+            {
+                GraphDocument.RootGraph.AddNode(newNode);
+            }
+
+            duplicatedNode = CreateViewForNode(newNode, false);
             return true;
         }
 
