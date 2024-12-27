@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 <!-- Headers should be listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security -->
 
+## [0.2.3] - 27.12.2024
+### Fixed
+ - Exceptions if no metadata is present
+ - Proped nested node duplication
+ - Error on node removal
+
 ## [0.2.2] - 12.12.2024
 ### Added
  - Basic documentation

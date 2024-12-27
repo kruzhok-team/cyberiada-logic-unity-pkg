@@ -178,9 +178,17 @@ namespace Talent.GraphEditor.Core
             }
 
             Node newNode = node.GetCopy(node.Data.GetCopy(), parentNode: node.ParentNode, newID: Guid.NewGuid().ToString());
-            GraphDocument.RootGraph.AddNode(newNode);
 
-            duplicatedNode = CreateViewForNode(newNode, true);
+            if (node.ParentNode != null)
+            {
+                node.ParentNode.NestedGraph.AddNode(newNode);
+            }
+            else
+            {
+                GraphDocument.RootGraph.AddNode(newNode);
+            }
+
+            duplicatedNode = CreateViewForNode(newNode, false);
             return true;
         }
 
@@ -516,7 +524,7 @@ namespace Talent.GraphEditor.Core
                     }
                 }
 
-                foreach (Edge edge in GraphDocument.RootGraph.Edges.Where(edge => edge.SourceNode == node.ID || edge.TargetNode == node.ID))
+                foreach (Edge edge in GraphDocument.RootGraph.Edges.Where(edge => edge.SourceNode == node.ID || edge.TargetNode == node.ID).ToArray())
                 {
                     if (_edgeViews.TryGetValue(edge, out IEdgeView edgeView))
                     {
