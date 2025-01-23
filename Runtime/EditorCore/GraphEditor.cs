@@ -223,6 +223,7 @@ namespace Talent.GraphEditor.Core
                 if (_nodeViews.TryGetValue(targetNode, out INodeView targetNodeView))
                 {
                     _initialEdgeView = GraphElementViewFactory.CreateEdgeView(_initialNodeView, targetNodeView, edge.Data.VisualData, edge.Data.TriggerID, edge.Data.Condition);
+                    _initialEdgeView.ID = edge.ID;
                     _edgeViews.Add(edge, _initialEdgeView);
                 }
             }
@@ -327,6 +328,7 @@ namespace Talent.GraphEditor.Core
             edge.Data.VisualData = visualData;
             GraphDocument.RootGraph.AddEdge(edge);
             _edges[edge.ID] = edge;
+            edgeView.ID = edge.ID;
             _edgeViews.Add(edge, edgeView);
 
             foreach (Action action in edge.Data.Actions)
@@ -765,6 +767,28 @@ namespace Talent.GraphEditor.Core
             return false;
         }
 
+        public bool TryGetNodeViewByID(string id, out INodeView nodeView)
+        {
+            if (!_nodes.TryGetValue(id, out Node node))
+            {
+                nodeView = null;
+                return false;
+            }
+            
+            return _nodeViews.TryGetValue(node, out nodeView);
+        }
+
+        public bool TryGetEdgeViewByID(string id, out IEdgeView edgeView)
+        {
+            if (!_edges.TryGetValue(id, out Edge edge))
+            {
+                edgeView = null;
+                return false;
+            }
+            
+            return _edgeViews.TryGetValue(edge, out edgeView);
+        }
+
         private void RemoveGraphFromNode(Node node)
         {
             if (node == null || node.NestedGraph == null)
@@ -790,6 +814,7 @@ namespace Talent.GraphEditor.Core
         {
             _nodes[node.ID] = node;
             INodeView view = GraphElementViewFactory.CreateNodeView(node.Data.VisualData, node.Data.Vertex, layoutAutomatically);
+            view.ID = node.ID;
             _nodeViews.Set(node, view);
 
             foreach (Event nodeEvent in node.Data.Events)
@@ -836,6 +861,7 @@ namespace Talent.GraphEditor.Core
             {
                 _edges[edge.ID] = edge;
                 edgeView = GraphElementViewFactory.CreateEdgeView(sourceNodeView, targetNodeView, edge.Data.VisualData, edge.Data.TriggerID, edge.Data.Condition);
+                edgeView.ID = edge.ID;
                 _edgeViews.Add(edge, edgeView);
 
                 foreach (Action action in edge.Data.Actions)
@@ -948,6 +974,11 @@ namespace Talent.GraphEditor.Core
         /// <param name="parent">Родительский граф</param>
         /// <param name="layoutAutomatically"></param>
         void SetParent(IGraphView parent, bool layoutAutomatically);
+        
+        /// <summary>
+        /// Уникальный идентификатор представления узла
+        /// </summary>
+        string ID { get; set; }
     }
 
     /// <summary>
@@ -996,6 +1027,11 @@ namespace Talent.GraphEditor.Core
         /// </summary>
         /// <param name="condition">Условие</param>
         void SetCondition(string condition);
+        
+        /// <summary>
+        /// Уникальный идентификатор представления ребра
+        /// </summary>
+        string ID { get; set; }
     }
 
     /// <summary>
