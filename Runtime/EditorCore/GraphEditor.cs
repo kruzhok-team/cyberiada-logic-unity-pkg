@@ -742,6 +742,40 @@ namespace Talent.GraphEditor.Core
 
             RemoveGraphFromNode(oldParent);
         }
+        
+        /// <summary>
+        /// Пытается найти представление узла с определенным уникальным идентификатором
+        /// </summary>
+        /// <param name="id">Уникальный идентификатор представления узла</param>
+        /// <param name="nodeView">Возвращает представление узла, если представление с таким соответствующим идентификатором есть в графе, иначе null</param>
+        /// <returns>true если представление узла найдено, иначе false</returns>
+        public bool TryGetNodeViewByID(string id, out INodeView nodeView)
+        {
+            if (!_nodes.TryGetValue(id, out Node node))
+            {
+                nodeView = null;
+                return false;
+            }
+            
+            return _nodeViews.TryGetValue(node, out nodeView);
+        }
+
+        /// <summary>
+        /// Пытается найти представление ребра с определенным уникальным идентификатором
+        /// </summary>
+        /// <param name="id">Уникальный идентификатор представления ребра</param>
+        /// <param name="edgeView">Возвращает представление ребра, если представление с таким соответствующим идентификатором есть в графе, иначе null</param>
+        /// <returns>true если представление ребра найдено, иначе false</returns>
+        public bool TryGetEdgeViewByID(string id, out IEdgeView edgeView)
+        {
+            if (!_edges.TryGetValue(id, out Edge edge))
+            {
+                edgeView = null;
+                return false;
+            }
+            
+            return _edgeViews.TryGetValue(edge, out edgeView);
+        }
 
         // TODO: remove recursion
         private bool NodeHasNodeRecursively(Node node1, Node node2)
@@ -765,28 +799,6 @@ namespace Talent.GraphEditor.Core
             }
 
             return false;
-        }
-
-        public bool TryGetNodeViewByID(string id, out INodeView nodeView)
-        {
-            if (!_nodes.TryGetValue(id, out Node node))
-            {
-                nodeView = null;
-                return false;
-            }
-            
-            return _nodeViews.TryGetValue(node, out nodeView);
-        }
-
-        public bool TryGetEdgeViewByID(string id, out IEdgeView edgeView)
-        {
-            if (!_edges.TryGetValue(id, out Edge edge))
-            {
-                edgeView = null;
-                return false;
-            }
-            
-            return _edgeViews.TryGetValue(edge, out edgeView);
         }
 
         private void RemoveGraphFromNode(Node node)
