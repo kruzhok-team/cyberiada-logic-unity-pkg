@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 <!-- Headers should be listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security -->
 
+## [0.2.4] - 31.01.2025
+### Added
+ - Added ID property to INodeView and IEdgeView API
+ - Added API to retrieve Node- and Edge- views by their ID in EditorCore
+
 ## [0.2.3] - 27.12.2024
 ### Fixed
  - Exceptions if no metadata is present
