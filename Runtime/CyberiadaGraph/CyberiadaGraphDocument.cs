@@ -24,5 +24,18 @@
         /// Уникальный идентификатор оригинального корневого графа
         /// </summary>
         public string ReferenceGraphId { get; set; }
+
+        public CyberiadaGraphDocument GetCopy(string newID = null)
+        {
+            CyberiadaGraphDocument document = new CyberiadaGraphDocument
+            {
+                RootGraph = RootGraph.GetCopy(RootGraph.Data.GetCopy(), null, newID),
+                Target = Target,
+                Name = Name,
+                ReferenceGraphId = ReferenceGraphId
+            };
+
+            return document;
+        }
     }
 }
