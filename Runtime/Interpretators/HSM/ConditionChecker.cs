@@ -53,7 +53,7 @@ namespace Talent.Logic.HSM
                 return true;
             }
 
-            if (TryGetVariableByName(_parameters[0], out float leftValue) == false)
+            if (TryGetVariableByName(_parameters[0], out float leftValue) == false && !float.TryParse(_parameters[0], out leftValue))
             {
 #if UNITY && DEBUG
                 Debug.Log($"cant find variable:{_parameters[0]}");
@@ -61,7 +61,7 @@ namespace Talent.Logic.HSM
                 return false;
             }
 
-            if (TryGetVariableByName(_parameters[2], out float rightValue) == false)
+            if (TryGetVariableByName(_parameters[2], out float rightValue) == false && !float.TryParse(_parameters[2], out rightValue))
             {
 #if UNITY && DEBUG
                 Debug.Log($"cant find variable{_parameters[2]}");
