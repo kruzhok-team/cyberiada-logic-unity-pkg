@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 <!-- Headers should be listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security -->
 
+## [0.2.5] - 17.02.2025
+### Added
+ - New API allowing to copy GraphDocument in single action both changing ID and keeping original one
+### Fixed
+ - Equalitiy condition fix
+
 ## [0.2.4] - 31.01.2025
 ### Added
  - Added ID property to INodeView and IEdgeView API
