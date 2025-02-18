@@ -117,23 +117,27 @@ namespace Talent.Logic.HSM.Builders
         /// <summary>
         /// Добавляет команду, которая будет выполняться при возникновении определенного события.
         /// </summary>
-        /// <param name="eventId">Идентификатор события</param>
+        /// <param name="eventIndex">Индекс события, к которому привязывается команда</param>
         /// <param name="commandName">Имя команды</param>
         /// <param name="parameters">Список параметров для команды</param>
         /// <returns>Обновленный строитель состояний</returns>
-        public StateBuilder AddCommandOnEvent(string eventId, string commandName, List<Tuple<string, string>> parameters)
+        public void AddCommandToEvent(int eventIndex, string commandName, List<Tuple<string, string>> parameters)
         {
-            int index = _eventToCommandData.FindIndex(data => data.EventId == eventId);
+            _eventToCommandData[eventIndex].AddCommandStorage(commandName, parameters);
+        }
 
-            if (index == -1)
-            {
-                _eventToCommandData.Add(new EventData(eventId));
-                index = _eventToCommandData.Count - 1;
-            }
+        /// <summary>
+        /// Добавляет событие
+        /// </summary>
+        /// <param name="eventId">Идентификатор события</param>
+        /// <param name="condition">Условие, при котором срабатывает событие</param>
+        /// <returns>Индекс добавленного события в списке</returns>
+        public int AddEvent(string eventId, string condition)
+        {
+            EventData eventData = new EventData(eventId, condition);
+            _eventToCommandData.Add(eventData);
 
-            _eventToCommandData[index].AddCommandStorage(commandName, parameters);
-
-            return this;
+            return _eventToCommandData.IndexOf(eventData);
         }
 
         /// <summary>
@@ -153,7 +157,8 @@ namespace Talent.Logic.HSM.Builders
                     eventToCommand[i] = new Event(
                         _bus,
                         _eventToCommandData[i].EventId,
-                        _eventToCommandData[i].CreateCommands(_bus));
+                        _eventToCommandData[i].CreateCommands(_bus),
+                        _eventToCommandData[i].Parameters);
                 }
             }
 

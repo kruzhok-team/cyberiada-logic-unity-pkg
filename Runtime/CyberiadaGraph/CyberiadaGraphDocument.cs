@@ -24,5 +24,23 @@
         /// Уникальный идентификатор оригинального корневого графа
         /// </summary>
         public string ReferenceGraphId { get; set; }
+
+        /// <summary>
+        /// Создает копию документа CyberiadaGraphML
+        /// </summary>
+        /// <param name="newID">Новый идентификатор корневого графа, если отсутствует, используется оригинальный идентификатор </param>
+        /// <returns>Возвращает копию документа</returns>
+        public CyberiadaGraphDocument GetCopy(string newID = null)
+        {
+            CyberiadaGraphDocument document = new CyberiadaGraphDocument
+            {
+                RootGraph = RootGraph.GetCopy(RootGraph.Data.GetCopy(), null, newID),
+                Target = Target,
+                Name = Name,
+                ReferenceGraphId = ReferenceGraphId
+            };
+
+            return document;
+        }
     }
 }

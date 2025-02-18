@@ -29,6 +29,9 @@ namespace Talent.Logic.HSM
         /// </summary>
         public IEnumerable<Command> Commands { get; }
 
+        /// <summary>
+        /// Прараметры перехода
+        /// </summary>
         public string Parameters => _conditionChecker.Parameters;
 
         /// <summary>

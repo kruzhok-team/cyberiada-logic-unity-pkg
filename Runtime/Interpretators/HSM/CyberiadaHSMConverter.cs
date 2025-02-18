@@ -49,17 +49,19 @@ namespace Talent.Logic.HSM
             StateBuilder builder = new StateBuilder(bus, node.ID);
 
             builder.AddLabel(node.Data.VisualData.Name);
-            AddEventToCommands(node, builder);
+            AddCommandsToEvent(node, builder);
             AddTransitions(edges, builder);
             AddSubHsm(node, bus, builder);
 
             return builder;
         }
 
-        private void AddEventToCommands(Node node, StateBuilder builder)
+        private void AddCommandsToEvent(Node node, StateBuilder builder)
         {
             foreach (Graphs.Event @event in node.Data.Events)
             {
+                int eventId = builder.AddEvent(@event.TriggerID, @event.Condition);
+
                 foreach (Action action in @event.Actions)
                 {
                     (string module, string command, List<Tuple<string, string>> parameters) data =
@@ -78,7 +80,7 @@ namespace Talent.Logic.HSM
 
                             break;
                         default:
-                            builder.AddCommandOnEvent(@event.TriggerID, commandName, data.parameters);
+                            builder.AddCommandToEvent(eventId, commandName, data.parameters);
 
                             break;
                     }

@@ -47,7 +47,7 @@ namespace Talent.Graphs
         /// </summary>
         /// <param name="data">Исходные данные графа</param>
         /// <param name="parentNode">Родительский узел графа, устанавливается как родитель для всех узлов данного графа</param>
-        /// <param name="newID">Новый идентификатор графа, если отстсутствует, используется оригинальный идентификатор</param>
+        /// <param name="newID">Новый идентификатор графа, если отсутствует, используется оригинальный идентификатор</param>
         /// <returns>Копия графа</returns>
         public CyberiadaGraph GetCopy(GraphData data, Node parentNode = null, string newID = null)
         {
