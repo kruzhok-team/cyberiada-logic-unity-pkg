@@ -103,11 +103,7 @@ namespace Talent.Logic.HSM
             variable = default;
             bool isTryGetVariableByName = _bus.TryGetVariableValue(variableName, out string variableString);
 
-            bool isSuccessParse = float.TryParse(
-                variableString,
-                NumberStyles.Float,
-                CultureInfo.InvariantCulture,
-                out variable);
+            bool isSuccessParse = float.TryParse(variableString, out variable);
 
 #if UNITY && DEBUG
             if (isTryGetVariableByName && isSuccessParse == false)
