@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 
 namespace Talent.Graphs
 {
@@ -54,7 +55,21 @@ namespace Talent.Graphs
         /// <returns>Результирующая строка</returns>
         public override string ToString()
         {
-            return $"{nameof(Action)}, {nameof(ID)}={ID}, {nameof(Parameters)}={Parameters}";
+            StringBuilder sb = new StringBuilder();
+            sb.Append($"{nameof(Action)}, {nameof(ID)}={ID}, {nameof(Parameters)}=[");
+
+            for (int i = 0; i < Parameters.Count; i++)
+            {
+                sb.Append($"{Parameters[i].Item1}={Parameters[i].Item2}");
+
+                if (i != Parameters.Count - 1)
+                {
+                    sb.Append(", ");
+                }
+            }
+            
+            sb.Append(']');
+            return sb.ToString();
         }
     }
 }
