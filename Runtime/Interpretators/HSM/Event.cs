@@ -12,6 +12,7 @@ namespace Talent.Logic.HSM
         private readonly IEventBus _bus;
         private readonly IEnumerable<Command> _commands;
         private readonly string _eventName;
+        private readonly ConditionChecker _conditionChecker;
 
         /// <summary>
         /// Конструктор события
@@ -19,11 +20,14 @@ namespace Talent.Logic.HSM
         /// <param name="bus">Шина событий</param>
         /// <param name="eventName">Имя события</param>
         /// <param name="commands">Команды, ассоциированные с данным событием</param>
-        public Event(IEventBus bus, string eventName, IEnumerable<Command> commands)
+        /// <param name="parameters">Опциональные параметры для вызова события</param>
+        public Event(IBus bus, string eventName, IEnumerable<Command> commands, string parameters = "")
         {
             _eventName = eventName;
             _bus = bus;
             _commands = commands;
+
+            _conditionChecker = new ConditionChecker(bus, parameters);
         }
 
         /// <summary>
@@ -44,6 +48,11 @@ namespace Talent.Logic.HSM
 
         private bool Receive(List<Tuple<string, string>> parameters = null)
         {
+            if (!_conditionChecker.Check())
+            {
+                return false;
+            }
+
             foreach (Command commandStorage in _commands)
             {
                 commandStorage.Make();

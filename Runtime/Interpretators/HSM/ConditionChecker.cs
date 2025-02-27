@@ -100,23 +100,22 @@ namespace Talent.Logic.HSM
 
         private bool TryGetVariableByName(string variableName, out float variable)
         {
-            variable = default;
-            bool isTryGetVariableByName = _bus.TryGetVariableValue(variableName, out string variableString);
+            variable = 0;
+            if (!_bus.TryGetVariableValue(variableName, out string variableValue))
+            {
+                variableValue = variableName;
+            }
 
-            bool isSuccessParse = float.TryParse(
-                variableString,
-                NumberStyles.Float,
-                CultureInfo.InvariantCulture,
-                out variable);
+            bool isSuccessParse = float.TryParse(variableValue, out variable);
 
 #if UNITY && DEBUG
-            if (isTryGetVariableByName && isSuccessParse == false)
+            if (!isSuccessParse)
             {
-                Debug.LogError($"Parse is failed: {variableName} {variableString}");
+                Debug.LogError($"Parse is failed: {variableName} {variableValue}");
             }
 #endif
 
-            return isTryGetVariableByName && isSuccessParse;
+            return isSuccessParse;
         }
     }
 }

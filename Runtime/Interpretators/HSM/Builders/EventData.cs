@@ -14,14 +14,21 @@ namespace Talent.Logic.HSM.Builders
         /// <summary>
         /// Идентификатор события
         /// </summary>
-        public string EventId { get; private set; }
+        public string EventId { get; }
+
+        /// <summary>
+        /// Параметры срабатывания события
+        /// </summary>
+        public string Parameters { get; }
 
         /// <summary>
         /// Конструктор данных перехода
         /// </summary>
         /// <param name="eventId">Идентификатор события</param>
-        public EventData(string eventId)
+        /// <param name="parameters">Опциональные параметры для вызова событя</param>
+        public EventData(string eventId, string parameters)
         {
+            Parameters = parameters;
             EventId = eventId;
         }
 

@@ -6,6 +6,12 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 <!-- Headers should be listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security -->
 
+## [1.0.0] - 26.02.2025
+## First public release
+### Fixed
+ - State events conditions
+ - Float values parsing in conditions
+
 ## [0.2.5] - 17.02.2025
 ### Added
  - New API allowing to copy GraphDocument in single action both changing ID and keeping original one
