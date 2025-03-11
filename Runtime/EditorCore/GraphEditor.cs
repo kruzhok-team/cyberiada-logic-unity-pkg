@@ -192,6 +192,31 @@ namespace Talent.GraphEditor.Core
             return true;
         }
 
+        /// <summary>
+        /// Возвращает смежные ребра для переданного представления узла
+        /// </summary>
+        /// <param name="nodeView">Представление узла</param>
+        /// <returns>Смежные ребра</returns>
+        public IEnumerable<IEdgeView> GetAdjacentEdges(INodeView nodeView)
+        {
+            if (!_nodeViews.TryGetValue(nodeView, out Node node))
+            {
+                return Array.Empty<IEdgeView>();
+            }
+
+            List<IEdgeView> adjacentEdges = new List<IEdgeView>();
+
+            foreach (var edge in  GraphDocument.RootGraph.Edges.Where(edge => edge.SourceNode == node.ID || edge.TargetNode == node.ID))
+            {
+                if (_edgeViews.TryGetValue(edge, out IEdgeView edgeView))
+                {
+                    adjacentEdges.Add(edgeView);
+                }    
+            }
+
+            return adjacentEdges;
+        }
+
         private void CreateInitialNode()
         {
             if (_initialNodeView == null)
