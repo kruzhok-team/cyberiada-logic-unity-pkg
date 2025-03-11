@@ -530,6 +530,11 @@ namespace Talent.GraphEditor.Core
         /// <param name="createInitialEdge">Необходимо ли, создавать ребро из стартового состояния</param>
         public void RemoveNode(INodeView nodeView, bool createInitialEdge = true)
         {
+            if (nodeView == _initialNodeView)
+            {
+                return;
+            }
+            
             if (_nodeViews.TryGetValue(nodeView, out Node node))
             {
                 Node oldParent = node.ParentNode;
