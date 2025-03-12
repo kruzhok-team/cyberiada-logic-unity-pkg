@@ -179,16 +179,18 @@ namespace Talent.GraphEditor.Core
 
             Node newNode = node.Duplicate();
 
-            if (node.ParentNode != null)
-            {
-                node.ParentNode.NestedGraph.AddNode(newNode);
-            }
-            else
+            if (node.ParentNode == null)
             {
                 GraphDocument.RootGraph.AddNode(newNode);
             }
 
             duplicatedNode = CreateViewForNode(newNode, false);
+
+            if (node.ParentNode != null)
+            {
+                SetParent(duplicatedNode, _nodeViews.Get(node.ParentNode), false);    
+            }
+            
             return true;
         }
 
