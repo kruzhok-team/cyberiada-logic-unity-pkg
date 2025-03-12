@@ -1,5 +1,5 @@
 using System;
-
+using System.Collections.Generic;
 namespace Talent.Graphs
 {
     /// <summary>
@@ -70,6 +70,43 @@ namespace Talent.Graphs
                 resultNode.NestedGraph = NestedGraph.GetCopy(NestedGraph.Data.GetCopy(), resultNode);
             }
 
+            return resultNode;
+        }
+
+        /// <summary>
+        /// Создает отдельную независимую копию узла и всех дочерних элементов
+        /// </summary>
+        /// <returns>Копия узла</returns>
+        public Node Duplicate()
+        {
+            Node resultNode = null;
+            Stack<(Node originNode, CyberiadaGraph duplicatedGraph, Node duplicatedParentNode)> nodes = 
+                new Stack<(Node originNode, CyberiadaGraph duplicatedGraph, Node duplicatedParentNode)>();
+            nodes.Push((this, ParentNode?.NestedGraph, ParentNode));
+
+            do
+            {
+                (Node originNode, CyberiadaGraph duplicatedGraph, Node duplicatedParentNode) = nodes.Pop();
+                string nodeId = Guid.NewGuid().ToString();
+                Node duplicatedNode = new Node(nodeId, originNode.Data.GetCopy());
+                resultNode ??= duplicatedNode;
+                duplicatedNode.ParentNode = duplicatedParentNode;
+
+                if (originNode.NestedGraph != null)
+                {
+                    CyberiadaGraph resultGraph = new CyberiadaGraph(Guid.NewGuid().ToString(), originNode.NestedGraph.Data.GetCopy());
+
+                    foreach (Node childNode in originNode.NestedGraph.Nodes)
+                    {
+                        nodes.Push((childNode, resultGraph, duplicatedNode));
+                    }
+
+                    duplicatedNode.NestedGraph = resultGraph;
+                }
+                
+                duplicatedGraph?.AddNode(duplicatedNode);
+            } while (nodes.Count > 0);
+            
             return resultNode;
         }
     }

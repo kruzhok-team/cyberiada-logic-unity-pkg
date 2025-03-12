@@ -177,7 +177,7 @@ namespace Talent.GraphEditor.Core
                 return false;
             }
 
-            Node newNode = node.GetCopy(node.Data.GetCopy(), parentNode: node.ParentNode, newID: Guid.NewGuid().ToString());
+            Node newNode = node.Duplicate();
 
             if (node.ParentNode != null)
             {
