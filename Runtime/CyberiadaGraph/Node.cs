@@ -76,10 +76,19 @@ namespace Talent.Graphs
         /// <summary>
         /// Создает отдельную независимую копию узла и всех дочерних элементов
         /// </summary>
+        /// <param name="rootGraph">Корневой граф</param>
         /// <returns>Копия узла</returns>
-        public Node Duplicate()
+        public Node Duplicate(CyberiadaGraph rootGraph)
         {
             Node resultNode = null;
+            List<(Edge edge, CyberiadaGraph owner)> edges = new List<(Edge, CyberiadaGraph)>();
+
+            foreach (Edge edge in rootGraph.Edges)
+            {
+                edges.Add((edge, rootGraph));
+            }
+            
+            Dictionary<string, string> newNodeIdByOld = new Dictionary<string, string>();
             Stack<(Node originNode, CyberiadaGraph duplicatedGraph, Node duplicatedParentNode)> nodes = 
                 new Stack<(Node originNode, CyberiadaGraph duplicatedGraph, Node duplicatedParentNode)>();
             nodes.Push((this, ParentNode?.NestedGraph, ParentNode));
@@ -88,6 +97,7 @@ namespace Talent.Graphs
             {
                 (Node originNode, CyberiadaGraph duplicatedGraph, Node duplicatedParentNode) = nodes.Pop();
                 string nodeId = Guid.NewGuid().ToString();
+                newNodeIdByOld[originNode.ID] = nodeId;
                 Node duplicatedNode = new Node(nodeId, originNode.Data.GetCopy());
                 resultNode ??= duplicatedNode;
                 duplicatedNode.ParentNode = duplicatedParentNode;
@@ -101,11 +111,27 @@ namespace Talent.Graphs
                         nodes.Push((childNode, resultGraph, duplicatedNode));
                     }
 
+                    foreach (Edge edge in originNode.NestedGraph.Edges)
+                    {
+                        edges.Add((edge, resultGraph));
+                    }
+
                     duplicatedNode.NestedGraph = resultGraph;
                 }
                 
                 duplicatedGraph?.AddNode(duplicatedNode);
+                
             } while (nodes.Count > 0);
+
+            for (int i = 0; i < edges.Count; i++)
+            {
+                if (newNodeIdByOld.ContainsKey(edges[i].edge.SourceNode) && newNodeIdByOld.ContainsKey(edges[i].edge.TargetNode))
+                {
+                    Edge edge = new Edge(Guid.NewGuid().ToString(), newNodeIdByOld[edges[i].edge.SourceNode], 
+                        newNodeIdByOld[edges[i].edge.TargetNode], edges[i].edge.Data.GetCopy());
+                    edges[i].owner.AddEdge(edge);
+                }
+            }
             
             return resultNode;
         }

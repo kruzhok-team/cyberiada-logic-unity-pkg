@@ -177,7 +177,7 @@ namespace Talent.GraphEditor.Core
                 return false;
             }
 
-            Node newNode = node.Duplicate();
+            Node newNode = node.Duplicate(GraphDocument.RootGraph);
 
             if (node.ParentNode == null)
             {
