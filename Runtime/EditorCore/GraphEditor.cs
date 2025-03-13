@@ -191,6 +191,27 @@ namespace Talent.GraphEditor.Core
             duplicatedNode = CreateViewForNode(newNode, false);
             return true;
         }
+        
+        /// <summary>
+        /// Пытается создать копию представления ребра
+        /// </summary>
+        /// <param name="edgeView">Оригинал представления ребра</param>
+        /// <param name="duplicatedEdge">Если копия создалась удачно, возвращает копию, иначе null</param>
+        /// <returns>true, если копирование произошло успешно, иначе false</returns>
+        public bool TryDuplicateEdge(IEdgeView edgeView, out IEdgeView duplicatedEdge)
+        {
+            if (!_edgeViews.TryGetValue(edgeView, out Edge edge))
+            {
+                duplicatedEdge = null; 
+                return false;
+            }
+
+            Edge edgeCopy = edge.GetCopy(edge.Data.GetCopy(), Guid.NewGuid().ToString());
+            GraphDocument.RootGraph.AddEdge(edgeCopy);
+            duplicatedEdge = CreateViewForEdge(edgeCopy);
+            
+            return true;
+        }
 
         private void CreateInitialNode()
         {
