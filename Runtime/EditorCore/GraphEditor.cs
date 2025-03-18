@@ -171,6 +171,12 @@ namespace Talent.GraphEditor.Core
         /// <returns>true, если копирование произошло успешно, иначе false</returns>
         public bool TryDuplicateNode(INodeView nodeView, out INodeView duplicatedNode)
         {
+            if (nodeView == _initialNodeView)
+            {
+                duplicatedNode = null;
+                return false;
+            }
+            
             if (!_nodeViews.TryGetValue(nodeView, out Node node))
             {
                 duplicatedNode = null;
