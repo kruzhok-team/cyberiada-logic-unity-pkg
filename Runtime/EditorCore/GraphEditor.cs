@@ -214,7 +214,7 @@ namespace Talent.GraphEditor.Core
 
             List<IEdgeView> adjacentEdges = new List<IEdgeView>();
 
-            foreach (var edge in  GraphDocument.RootGraph.Edges.Where(edge => edge.SourceNode == node.ID || edge.TargetNode == node.ID))
+            foreach (Edge edge in  GraphDocument.RootGraph.Edges.Where(edge => edge.SourceNode == node.ID || edge.TargetNode == node.ID))
             {
                 if (_edgeViews.TryGetValue(edge, out IEdgeView edgeView))
                 {
@@ -882,7 +882,7 @@ namespace Talent.GraphEditor.Core
 
                 foreach (Action action in nodeEvent.Actions)
                 {
-                    var actionView = GraphElementViewFactory.CreateNodeActionView(eventView, action.ID);
+                    INodeActionView actionView = GraphElementViewFactory.CreateNodeActionView(eventView, action.ID);
                     _nodeActionViews.Add(action, actionView);
                     ChangeNodeActionParameter(actionView, action.Parameters);
                 }
@@ -916,7 +916,7 @@ namespace Talent.GraphEditor.Core
 
                 foreach (Action action in edge.Data.Actions)
                 {
-                    var actionView = GraphElementViewFactory.CreateEdgeActionView(edgeView, action.ID);
+                    IEdgeActionView actionView = GraphElementViewFactory.CreateEdgeActionView(edgeView, action.ID);
                     _edgeActionViews.Add(action, actionView);
                     ChangeEdgeActionParameter(actionView, action.Parameters);
                 }
