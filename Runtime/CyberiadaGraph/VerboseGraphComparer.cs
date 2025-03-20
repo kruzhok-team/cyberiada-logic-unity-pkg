@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -33,7 +34,8 @@ namespace Talent.Graphs
             {
                 LinkedListNode<Node> item = nodes.First;
                 stringBuilder.Append($"NODE({item.Value.ID})({item.Value.Data.Vertex}(");
-                stringBuilder.AppendLine($"NodeData({item.Value.Data.VisualData.Name})({item.Value.Data.VisualData.Position.ToString("F1")})");
+                stringBuilder.AppendLine($"NodeData({item.Value.Data.VisualData.Name})" +
+                    $"(x={Math.Round(item.Value.Data.VisualData.Position.x, 1)} y={Math.Round(item.Value.Data.VisualData.Position.y, 1)})");
 
                 foreach (Event @event in item.Value.Data.Events)
                 {
@@ -81,7 +83,8 @@ namespace Talent.Graphs
             stringBuilder.AppendLine("EDGE");
             stringBuilder.AppendLine($"{nameof(edge.SourceNode)}={edge.SourceNode}");
             stringBuilder.AppendLine($"{nameof(edge.TargetNode)}={edge.TargetNode}");
-            stringBuilder.AppendLine($"EdgeData({edge.Data.TriggerID})({edge.Data.Condition})({edge.Data.VisualData.Position.ToString("F1")})");
+            stringBuilder.AppendLine($"EdgeData({edge.Data.TriggerID})({edge.Data.Condition})" +
+                $"(x={Math.Round(edge.Data.VisualData.Position.x, 1)} y={Math.Round(edge.Data.VisualData.Position.y, 1)})");
 
             foreach (Action action in edge.Data.Actions)
             {
