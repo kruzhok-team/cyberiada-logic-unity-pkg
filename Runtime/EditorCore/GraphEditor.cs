@@ -208,6 +208,12 @@ namespace Talent.GraphEditor.Core
         /// <returns>true, если копирование произошло успешно, иначе false</returns>
         public bool TryDuplicateEdge(IEdgeView edgeView, out IEdgeView duplicatedEdge)
         {
+            if (edgeView == _initialEdgeView)
+            {
+                duplicatedEdge = null;
+                return false;
+            }
+            
             if (!_edgeViews.TryGetValue(edgeView, out Edge edge))
             {
                 duplicatedEdge = null; 
