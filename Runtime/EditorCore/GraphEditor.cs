@@ -664,11 +664,6 @@ namespace Talent.GraphEditor.Core
         /// <param name="edgeView">Удаляемое представление ребра</param>
         public void RemoveEdge(IEdgeView edgeView)
         {
-            if (edgeView == _initialEdgeView)
-            {
-                return;
-            }
-            
             if (_edgeViews.TryGetValue(edgeView, out Edge edge))
             {
                 foreach (Action action in edge.Data.Actions)
