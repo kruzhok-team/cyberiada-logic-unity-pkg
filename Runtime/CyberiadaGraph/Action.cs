@@ -60,7 +60,7 @@ namespace Talent.Graphs
 
             for (int i = 0; i < Parameters.Count; i++)
             {
-                sb.Append($"{Parameters[i].Item1}={Parameters[i].Item2}");
+                sb.Append(Parameters[i].Item2);
 
                 if (i != Parameters.Count - 1)
                 {

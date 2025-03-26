@@ -171,25 +171,85 @@ namespace Talent.GraphEditor.Core
         /// <returns>true, если копирование произошло успешно, иначе false</returns>
         public bool TryDuplicateNode(INodeView nodeView, out INodeView duplicatedNode)
         {
+            if (nodeView == _initialNodeView)
+            {
+                duplicatedNode = null;
+                return false;
+            }
+            
             if (!_nodeViews.TryGetValue(nodeView, out Node node))
             {
                 duplicatedNode = null;
                 return false;
             }
 
-            Node newNode = node.GetCopy(node.Data.GetCopy(), parentNode: node.ParentNode, newID: Guid.NewGuid().ToString());
+            Node newNode = node.Duplicate(GraphDocument.RootGraph);
 
-            if (node.ParentNode != null)
-            {
-                node.ParentNode.NestedGraph.AddNode(newNode);
-            }
-            else
+            if (node.ParentNode == null)
             {
                 GraphDocument.RootGraph.AddNode(newNode);
             }
 
             duplicatedNode = CreateViewForNode(newNode, false);
+
+            if (node.ParentNode != null)
+            {
+                SetParent(duplicatedNode, _nodeViews.Get(node.ParentNode), false);    
+            }
+            
             return true;
+        }
+        
+        /// <summary>
+        /// Пытается создать копию представления ребра
+        /// </summary>
+        /// <param name="edgeView">Оригинал представления ребра</param>
+        /// <param name="duplicatedEdge">Если копия создалась удачно, возвращает копию, иначе null</param>
+        /// <returns>true, если копирование произошло успешно, иначе false</returns>
+        public bool TryDuplicateEdge(IEdgeView edgeView, out IEdgeView duplicatedEdge)
+        {
+            if (edgeView == _initialEdgeView)
+            {
+                duplicatedEdge = null;
+                return false;
+            }
+            
+            if (!_edgeViews.TryGetValue(edgeView, out Edge edge))
+            {
+                duplicatedEdge = null; 
+                return false;
+            }
+
+            Edge edgeCopy = edge.GetCopy(edge.Data.GetCopy(), Guid.NewGuid().ToString());
+            GraphDocument.RootGraph.AddEdge(edgeCopy);
+            duplicatedEdge = CreateViewForEdge(edgeCopy);
+            
+            return true;
+        }
+
+        /// <summary>
+        /// Возвращает смежные ребра для переданного представления узла
+        /// </summary>
+        /// <param name="nodeView">Представление узла</param>
+        /// <returns>Смежные ребра</returns>
+        public IEnumerable<IEdgeView> GetAdjacentEdges(INodeView nodeView)
+        {
+            if (!_nodeViews.TryGetValue(nodeView, out Node node))
+            {
+                return Array.Empty<IEdgeView>();
+            }
+
+            List<IEdgeView> adjacentEdges = new List<IEdgeView>();
+
+            foreach (Edge edge in  GraphDocument.RootGraph.Edges.Where(edge => edge.SourceNode == node.ID || edge.TargetNode == node.ID))
+            {
+                if (_edgeViews.TryGetValue(edge, out IEdgeView edgeView))
+                {
+                    adjacentEdges.Add(edgeView);
+                }    
+            }
+
+            return adjacentEdges;
         }
 
         private void CreateInitialNode()
@@ -505,6 +565,11 @@ namespace Talent.GraphEditor.Core
         /// <param name="createInitialEdge">Необходимо ли, создавать ребро из стартового состояния</param>
         public void RemoveNode(INodeView nodeView, bool createInitialEdge = true)
         {
+            if (nodeView == _initialNodeView)
+            {
+                return;
+            }
+            
             if (_nodeViews.TryGetValue(nodeView, out Node node))
             {
                 Node oldParent = node.ParentNode;
@@ -844,7 +909,7 @@ namespace Talent.GraphEditor.Core
 
                 foreach (Action action in nodeEvent.Actions)
                 {
-                    var actionView = GraphElementViewFactory.CreateNodeActionView(eventView, action.ID);
+                    INodeActionView actionView = GraphElementViewFactory.CreateNodeActionView(eventView, action.ID);
                     _nodeActionViews.Add(action, actionView);
                     ChangeNodeActionParameter(actionView, action.Parameters);
                 }
@@ -878,7 +943,7 @@ namespace Talent.GraphEditor.Core
 
                 foreach (Action action in edge.Data.Actions)
                 {
-                    var actionView = GraphElementViewFactory.CreateEdgeActionView(edgeView, action.ID);
+                    IEdgeActionView actionView = GraphElementViewFactory.CreateEdgeActionView(edgeView, action.ID);
                     _edgeActionViews.Add(action, actionView);
                     ChangeEdgeActionParameter(actionView, action.Parameters);
                 }
