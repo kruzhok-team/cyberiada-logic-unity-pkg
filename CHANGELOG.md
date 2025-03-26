@@ -6,12 +6,13 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 <!-- Headers should be listed in this order: Added, Changed, Deprecated, Removed, Fixed, Security -->
 
-## [1.0.1] - 20.03.2025
+## [1.0.1] - 26.03.2025
 ### Added
  - Edge duplication API
 ### Fixed
  - ID uniquiness in elements duplication process
  - Initial node and edge can not be deleted anymore
+ - More stable node serialization for comparison
 
 ## [1.0.0] - 26.02.2025
 ## First public release
