@@ -1,4 +1,6 @@
-﻿namespace Talent.Graphs
+﻿using System;
+
+namespace Talent.Graphs
 {
     /// <summary>
     /// Класс, представляющий CyberiadaGraphML документ
@@ -24,6 +26,16 @@
         /// Уникальный идентификатор оригинального корневого графа
         /// </summary>
         public string ReferenceGraphId { get; set; }
+        
+        /// <summary>
+        /// Дата и время создания документа
+        /// </summary>
+        public DateTime CreatedAt { get; set; }
+        
+        /// <summary>
+        /// Дата и время последнего обновления документа
+        /// </summary>
+        public DateTime UpdatedAt { get; set; }
 
         /// <summary>
         /// Создает копию документа CyberiadaGraphML
