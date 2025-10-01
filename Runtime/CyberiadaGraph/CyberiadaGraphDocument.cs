@@ -30,12 +30,12 @@ namespace Talent.Graphs
         /// <summary>
         /// Дата и время создания документа
         /// </summary>
-        public DateTime CreatedAt { get; set; }
-        
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
         /// <summary>
         /// Дата и время последнего обновления документа
         /// </summary>
-        public DateTime UpdatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
         /// <summary>
         /// Создает копию документа CyberiadaGraphML
@@ -49,7 +49,9 @@ namespace Talent.Graphs
                 RootGraph = RootGraph.GetCopy(RootGraph.Data.GetCopy(), null, newID),
                 Target = Target,
                 Name = Name,
-                ReferenceGraphId = ReferenceGraphId
+                ReferenceGraphId = ReferenceGraphId,
+                CreatedAt = CreatedAt,
+                UpdatedAt = UpdatedAt
             };
 
             return document;
